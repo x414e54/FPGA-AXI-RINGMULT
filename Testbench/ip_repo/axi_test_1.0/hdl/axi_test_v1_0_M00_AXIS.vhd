@@ -17,7 +17,7 @@ entity axi_test_v1_0_M00_AXIS is
 	port (
 		-- Users to add ports here
 		valid    : in std_logic;
-		c    : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+		streeam    : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
 		-- User ports ends
 		-- Do not modify the ports beyond this line
 

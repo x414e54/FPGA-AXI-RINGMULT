@@ -41,28 +41,34 @@ entity testmult is
            start : in std_logic;
            mode : in std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
            valid_a : in std_logic;
-           a : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+           stream_in_a : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
            valid_b : in std_logic;
-           b : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+           stream_in_b : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
            valid : out std_logic;
-           c : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0));
+           stream_out : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0));
 end testmult;
 
 architecture Behavioral of testmult is
     subtype OPCODE_TYPE is std_logic_vector(3 downto 0);
     type INSTRUCTION_TYPE is record
         opcode  : OPCODE_TYPE;
-        rfu     : std_logic_vector(C_REGISTER_WIDTH-5 downto 0);
+        reg     : std_logic_vector(C_REGISTER_WIDTH-5 downto C_REGISTER_WIDTH-7);
+        rfu     : std_logic_vector(C_REGISTER_WIDTH-8 downto 0);
     end record INSTRUCTION_TYPE;  
+    type POLY_BUFFER is record
+        addr_start      : std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
+        size            : std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
+        stride          : std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
+    end record POLY_BUFFER;  
     
     type STATE_TYPE is (IDLE, LOAD_CODE, RUN, EXEC);
     
     signal state                : STATE_TYPE;
     signal program_counter      : std_logic_vector(C_REGISTER_WIDTH-1 downto 0) := (others => '0');
     signal instruction          : INSTRUCTION_TYPE := (others => (others => '0'));
-    signal data_start           : std_logic_vector(C_REGISTER_WIDTH-1 downto 0) := (others => '0');
-    signal data_size            : std_logic_vector(C_REGISTER_WIDTH-1 downto 0) := (others => '0');
-    signal data_stride          : std_logic_vector(C_REGISTER_WIDTH-1 downto 0) := (others => '0');
+    signal buffer_a             : POLY_BUFFER := (others => (others => '0'));
+    signal buffer_b             : POLY_BUFFER := (others => (others => '0'));
+    signal buffer_c             : POLY_BUFFER := (others => (others => '0'));
     
     constant OP_SUB : OPCODE_TYPE := "0000";
     constant OP_ADD : OPCODE_TYPE := "0001";

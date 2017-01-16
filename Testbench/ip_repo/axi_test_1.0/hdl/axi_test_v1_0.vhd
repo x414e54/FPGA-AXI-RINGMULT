@@ -79,7 +79,7 @@ architecture arch_imp of axi_test_v1_0 is
     signal in_valid_b    : std_logic;
     signal in_a    : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
     signal in_b    : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
-    signal out_c    : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+    signal out_stream    : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
     signal out_valid    : std_logic;
 	
 	-- component declaration
@@ -91,7 +91,7 @@ architecture arch_imp of axi_test_v1_0 is
 		);
 		port (
         valid    : in std_logic;
-        c    : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+        stream    : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
 		M_AXIS_ACLK	: in std_logic;
 		M_AXIS_ARESETN	: in std_logic;
 		M_AXIS_TVALID	: out std_logic;
@@ -164,7 +164,7 @@ axi_test_v1_0_M00_AXIS_inst : axi_test_v1_0_M00_AXIS
 	)
 	port map (
         valid           => out_valid,
-        c               => out_c,
+        stream          => out_stream,
 		M_AXIS_ACLK	=> m00_axis_aclk,
 		M_AXIS_ARESETN	=> m00_axis_aresetn,
 		M_AXIS_TVALID	=> m00_axis_tvalid,
@@ -238,11 +238,11 @@ testmult_inst : entity work.testmult
                start => start,
                mode => mode,
                valid_a => in_valid_a,
-               a => in_a,
+               stream_in_a => in_a,
                valid_b => in_valid_a,
-               b => in_b,
+               stream_in_b => in_b,
                valid => out_valid,
-               c => out_c
+               stream_out => out_stream
         );
 	-- User logic ends
 
