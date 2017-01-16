@@ -181,9 +181,12 @@ begin
             wait until clk = '0';
                 s00_axi_arvalid <= '1';
                 s00_axi_rready <= '1';
-            wait until (s00_axi_rvalid and s00_axi_arready) = '1';  --Client provided data
+                wait until (s00_axi_arready) = '1';  
+                wait until (s00_axi_rvalid) = '1';
                 assert s00_axi_rresp = "00" report "AXI data not written" severity failure;
                 s00_axi_arvalid <= '0';
+                s00_axi_rready <= '1';
+                wait until s00_axi_rvalid = '0';
                 s00_axi_rready <= '0';
         end loop;
     end process read;
