@@ -73,14 +73,14 @@ entity axi_test_v1_0 is
 end axi_test_v1_0;
 
 architecture arch_imp of axi_test_v1_0 is
-	signal start	: std_logic;
-	signal mode	: std_logic_vector(C_S00_AXI_DATA_WIDTH-1 downto 0);
-    signal in_valid_a    : std_logic;
-    signal in_valid_b    : std_logic;
-    signal in_a    : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
-    signal in_b    : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
-    signal out_stream    : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
-    signal out_valid    : std_logic;
+	signal start            : std_logic;
+	signal mode	            : std_logic_vector(C_S00_AXI_DATA_WIDTH-1 downto 0);
+    signal in_valid_a       : std_logic;
+    signal in_valid_b       : std_logic;
+    signal in_a             : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+    signal in_b             : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+    signal out_data         : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+    signal out_valid        : std_logic;
 	
 	-- component declaration
 	component axi_test_v1_0_M00_AXIS is
@@ -90,9 +90,9 @@ architecture arch_imp of axi_test_v1_0 is
 		C_M_START_COUNT	: integer	:= 32
 		);
 		port (
-        valid    : in std_logic;
-        stream    : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
-		M_AXIS_ACLK	: in std_logic;
+        valid           : in std_logic;
+        data            : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+		M_AXIS_ACLK	    : in std_logic;
 		M_AXIS_ARESETN	: in std_logic;
 		M_AXIS_TVALID	: out std_logic;
 		M_AXIS_TDATA	: out std_logic_vector(C_M_AXIS_TDATA_WIDTH-1 downto 0);
@@ -108,11 +108,11 @@ architecture arch_imp of axi_test_v1_0 is
 		C_S_AXIS_TDATA_WIDTH	: integer	:= 32
 		);
 		port (
-        valid_a    : out std_logic;
-        a    : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
-        valid_b    : out std_logic;
-        b    : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
-		S_AXIS_ACLK	: in std_logic;
+        valid_a         : out std_logic;
+        data_a          : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+        valid_b         : out std_logic;
+        data_b          : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+		S_AXIS_ACLK   	: in std_logic;
 		S_AXIS_ARESETN	: in std_logic;
 		S_AXIS_TREADY	: out std_logic;
 		S_AXIS_TDATA	: in std_logic_vector(C_S_AXIS_TDATA_WIDTH-1 downto 0);
@@ -128,26 +128,27 @@ architecture arch_imp of axi_test_v1_0 is
 		C_S_AXI_ADDR_WIDTH	: integer	:= 4
 		);
 		port (
-        mode    : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
-		S_AXI_ACLK	: in std_logic;
+        start           : out std_logic;
+        mode            : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+		S_AXI_ACLK	    : in std_logic;
 		S_AXI_ARESETN	: in std_logic;
 		S_AXI_AWADDR	: in std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0);
 		S_AXI_AWPROT	: in std_logic_vector(2 downto 0);
 		S_AXI_AWVALID	: in std_logic;
 		S_AXI_AWREADY	: out std_logic;
-		S_AXI_WDATA	: in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
-		S_AXI_WSTRB	: in std_logic_vector((C_S_AXI_DATA_WIDTH/8)-1 downto 0);
+		S_AXI_WDATA	    : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+		S_AXI_WSTRB	    : in std_logic_vector((C_S_AXI_DATA_WIDTH/8)-1 downto 0);
 		S_AXI_WVALID	: in std_logic;
 		S_AXI_WREADY	: out std_logic;
-		S_AXI_BRESP	: out std_logic_vector(1 downto 0);
+		S_AXI_BRESP	    : out std_logic_vector(1 downto 0);
 		S_AXI_BVALID	: out std_logic;
 		S_AXI_BREADY	: in std_logic;
 		S_AXI_ARADDR	: in std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0);
 		S_AXI_ARPROT	: in std_logic_vector(2 downto 0);
 		S_AXI_ARVALID	: in std_logic;
 		S_AXI_ARREADY	: out std_logic;
-		S_AXI_RDATA	: out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
-		S_AXI_RRESP	: out std_logic_vector(1 downto 0);
+		S_AXI_RDATA	    : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+		S_AXI_RRESP     : out std_logic_vector(1 downto 0);
 		S_AXI_RVALID	: out std_logic;
 		S_AXI_RREADY	: in std_logic
 		);
@@ -164,8 +165,8 @@ axi_test_v1_0_M00_AXIS_inst : axi_test_v1_0_M00_AXIS
 	)
 	port map (
         valid           => out_valid,
-        stream          => out_stream,
-		M_AXIS_ACLK	=> m00_axis_aclk,
+        data            => out_data,
+		M_AXIS_ACLK	    => m00_axis_aclk,
 		M_AXIS_ARESETN	=> m00_axis_aresetn,
 		M_AXIS_TVALID	=> m00_axis_tvalid,
 		M_AXIS_TDATA	=> m00_axis_tdata,
@@ -182,10 +183,10 @@ axi_test_v1_0_S00_AXIS_inst : axi_test_v1_0_S00_AXIS
 	)
 	port map (
         valid_a         => in_valid_a,
-        a               => in_a,
+        data_a          => in_a,
         valid_b         => in_valid_b,
-        b               => in_b,
-		S_AXIS_ACLK	=> s00_axis_aclk,
+        data_b          => in_b,
+		S_AXIS_ACLK	    => s00_axis_aclk,
 		S_AXIS_ARESETN	=> s00_axis_aresetn,
 		S_AXIS_TREADY	=> s00_axis_tready,
 		S_AXIS_TDATA	=> s00_axis_tdata,
@@ -201,26 +202,27 @@ axi_test_v1_0_S00_AXI_inst : axi_test_v1_0_S00_AXI
 		C_S_AXI_ADDR_WIDTH	=> C_S00_AXI_ADDR_WIDTH
 	)
 	port map (
+        start           => start,
         mode            => mode,
-		S_AXI_ACLK	=> s00_axi_aclk,
+		S_AXI_ACLK	    => clk,
 		S_AXI_ARESETN	=> s00_axi_aresetn,
 		S_AXI_AWADDR	=> s00_axi_awaddr,
 		S_AXI_AWPROT	=> s00_axi_awprot,
 		S_AXI_AWVALID	=> s00_axi_awvalid,
 		S_AXI_AWREADY	=> s00_axi_awready,
-		S_AXI_WDATA	=> s00_axi_wdata,
-		S_AXI_WSTRB	=> s00_axi_wstrb,
+		S_AXI_WDATA	    => s00_axi_wdata,
+		S_AXI_WSTRB	    => s00_axi_wstrb,
 		S_AXI_WVALID	=> s00_axi_wvalid,
 		S_AXI_WREADY	=> s00_axi_wready,
-		S_AXI_BRESP	=> s00_axi_bresp,
+		S_AXI_BRESP	    => s00_axi_bresp,
 		S_AXI_BVALID	=> s00_axi_bvalid,
 		S_AXI_BREADY	=> s00_axi_bready,
 		S_AXI_ARADDR	=> s00_axi_araddr,
 		S_AXI_ARPROT	=> s00_axi_arprot,
 		S_AXI_ARVALID	=> s00_axi_arvalid,
 		S_AXI_ARREADY	=> s00_axi_arready,
-		S_AXI_RDATA	=> s00_axi_rdata,
-		S_AXI_RRESP	=> s00_axi_rresp,
+		S_AXI_RDATA	    => s00_axi_rdata,
+		S_AXI_RRESP	    => s00_axi_rresp,
 		S_AXI_RVALID	=> s00_axi_rvalid,
 		S_AXI_RREADY	=> s00_axi_rready
 	);
@@ -233,16 +235,16 @@ testmult_inst : entity work.testmult
             C_REGISTER_WIDTH => C_S00_AXI_DATA_WIDTH
         )
         port map (
-               clk => clk,
-               reset => reset,
-               start => start,
-               mode => mode,
-               valid_a => in_valid_a,
-               stream_in_a => in_a,
-               valid_b => in_valid_a,
-               stream_in_b => in_b,
-               valid => out_valid,
-               stream_out => out_stream
+               clk          => clk,
+               reset        => reset,
+               start        => start,
+               mode         => mode,
+               valid_a      => in_valid_a,
+               data_in_a    => in_a,
+               valid_b      => in_valid_a,
+               data_in_b    => in_b,
+               valid        => out_valid,
+               data_out     => out_data
         );
 	-- User logic ends
 

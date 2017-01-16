@@ -15,7 +15,8 @@ entity axi_test_v1_0_S00_AXI is
 	);
 	port (
 		-- Users to add ports here
-        mode    : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+        start    : out std_logic;
+        mode     : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
 		-- User ports ends
 		-- Do not modify the ports beyond this line
 
@@ -379,6 +380,21 @@ begin
 
 	-- Add user logic here
     mode    <= slv_reg0;
+    
+	process( S_AXI_ACLK ) is
+    begin
+      if (rising_edge (S_AXI_ACLK)) then
+        if (S_AXI_ARESETN = '0') then
+          start <= '0';
+        else
+          if (slv_reg1 = x"1") then
+            start <= '1';
+          else
+            start <= '0';
+          end if;   
+        end if;
+      end if;
+    end process;
 	-- User logic ends
 
 end arch_imp;

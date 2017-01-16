@@ -14,10 +14,10 @@ entity axi_test_v1_0_S00_AXIS is
 	);
 	port (
 		-- Users to add ports here
-        valid_a    : out std_logic;
-        a    : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
-        valid_b    : out std_logic;
-        b    : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+        valid_a     : out std_logic;
+        data_a      : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+        valid_b     : out std_logic;
+        data_b      : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
 		-- User ports ends
 		-- Do not modify the ports beyond this line
 

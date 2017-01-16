@@ -146,7 +146,7 @@ begin
     -- This process is blocked on a "Send Flag" (sendIt).
     -- When the flag goes to 1, the process exits the wait state and
     -- execute a write transaction.
-    send : process
+    send_proc : process
     begin
         s00_axi_awvalid <= '0';
         s00_axi_wvalid <= '0';
@@ -166,13 +166,13 @@ begin
             wait until s00_axi_bvalid = '0';  -- All finished
                 s00_axi_bready <= '0';
         end loop;
-    end process send;
+    end process send_proc;
    
      -- Initiate process which simulates a master wanting to read.
      -- This process is blocked on a "Read Flag" (readIt).
      -- When the flag goes to 1, the process exits the wait state and
      -- execute a read transaction.
-    read : PROCESS
+    read_proc : PROCESS
     BEGIN
         s00_axi_arvalid <= '0';
         s00_axi_rready <= '0';
@@ -189,12 +189,12 @@ begin
                 wait until s00_axi_rvalid = '0';
                 s00_axi_rready <= '0';
         end loop;
-    end process read;
+    end process read_proc;
 --- END --- https://github.com/frobino/axi_custom_ip_tb/blob/master/led_controller_1.0/hdl/testbench.vhd
 
     stimulus : process                        
-        procedure begin_send(variable address: in addr_type; 
-                             variable data: in data_type) is
+        procedure send(variable address: in addr_type; 
+                       variable data: in data_type) is
         begin
             s00_axi_awaddr <= address;
             s00_axi_wdata <= data;
@@ -205,10 +205,10 @@ begin
             wait until s00_axi_bready = '1';
             wait until s00_axi_bready = '0';
             s00_axi_wstrb <= b"0000";        
-        end procedure begin_send;
+        end procedure send;
     
-        procedure begin_read(variable address: in addr_type; 
-                             variable data: out data_type) is
+        procedure read(variable address: in addr_type; 
+                       variable data: out data_type) is
         begin
             s00_axi_araddr <= address;
             data := s00_axi_rdata;
@@ -217,7 +217,7 @@ begin
             reading <= '0';
             wait until s00_axi_rready = '1';
             wait until s00_axi_rready = '0';
-        end procedure begin_read;
+        end procedure read;
         
         variable address : addr_type := x"0";
         variable data : data_type := x"DEADBEEF";
@@ -228,15 +228,25 @@ begin
         reset <= '1';
         wait until rising_edge(clk);
         
-        begin_send(address, data);
-        begin_read(address, rdata);
+        --Test AXI Lite
+        send(address, data);
+        read(address, rdata);
         assert(data = rdata);
         
         address := x"3";
         data := x"BADDCAFE";
-        begin_send(address, data);
-        begin_read(address, rdata);
+        send(address, data);
+        read(address, rdata);
         assert(data = rdata);
+        
+        --Test Loading Program
+        address := x"0";
+        data := x"00000001";
+        send(address, data);
+        address := x"1";
+        data := x"00000001";
+        send(address, data);
+        wait until rising_edge(clk);
         
         stop <= '1';
         wait;

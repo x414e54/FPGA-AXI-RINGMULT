@@ -41,14 +41,15 @@ entity testmult is
            start : in std_logic;
            mode : in std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
            valid_a : in std_logic;
-           stream_in_a : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+           data_in_a : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
            valid_b : in std_logic;
-           stream_in_b : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+           data_in_b : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
            valid : out std_logic;
-           stream_out : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0));
+           data_out : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0));
 end testmult;
 
 architecture Behavioral of testmult is
+    subtype CONTROL_TYPE is std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
     subtype OPCODE_TYPE is std_logic_vector(3 downto 0);
     type INSTRUCTION_TYPE is record
         opcode  : OPCODE_TYPE;
@@ -69,6 +70,10 @@ architecture Behavioral of testmult is
     signal buffer_a             : POLY_BUFFER := (others => (others => '0'));
     signal buffer_b             : POLY_BUFFER := (others => (others => '0'));
     signal buffer_c             : POLY_BUFFER := (others => (others => '0'));
+        
+    constant MODE_LOAD_CODE : CONTROL_TYPE := x"00000000";
+    constant MODE_RUN       : CONTROL_TYPE := x"00000001";
+    constant MODE_TERM      : CONTROL_TYPE := x"00000002";
     
     constant OP_SUB : OPCODE_TYPE := "0000";
     constant OP_ADD : OPCODE_TYPE := "0001";
@@ -88,9 +93,9 @@ begin
                 when IDLE =>
                     if (start = '1') then
                         case mode is
-                            when x"0" =>
+                            when MODE_LOAD_CODe =>
                                 state <= LOAD_CODE;
-                            when x"1" =>
+                            when MODE_RUN =>
                                 state <= RUN;
                             when others =>
                                 --- Set error register
@@ -98,6 +103,7 @@ begin
                     end if;
                    
                 when LOAD_CODE =>
+                    assert(false);
               
                 when RUN =>
                     --program_counter <= program_counter + 1;
