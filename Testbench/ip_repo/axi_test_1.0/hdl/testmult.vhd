@@ -33,6 +33,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity testmult is
 	generic (
+        C_MAX_PROG_LENGTH   : integer    := 5;
         C_MAX_DATA_WIDTH    : integer    := 32;
         C_REGISTER_WIDTH    : integer    := 32
 	);
@@ -51,22 +52,26 @@ end testmult;
 architecture Behavioral of testmult is
     subtype CONTROL_TYPE is std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
     subtype OPCODE_TYPE is std_logic_vector(3 downto 0);
-    type INSTRUCTION_TYPE is record
-        opcode  : OPCODE_TYPE;
-        reg     : std_logic_vector(C_REGISTER_WIDTH-5 downto C_REGISTER_WIDTH-7);
-        rfu     : std_logic_vector(C_REGISTER_WIDTH-8 downto 0);
-    end record INSTRUCTION_TYPE;  
+    subtype REG_INDEX_TYPE is std_logic_vector(3 downto 0);
+    subtype INSTRUCTION_TYPE is std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
+    type RAM_TYPE is array(C_MAX_PROG_LENGTH-1 downto 0) of INSTRUCTION_TYPE;
+    
     type POLY_BUFFER is record
-        addr_start      : std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
-        size            : std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
-        stride          : std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
+        addr_start      : INSTRUCTION_TYPE;
+        size            : INSTRUCTION_TYPE;
+        stride          : INSTRUCTION_TYPE;
     end record POLY_BUFFER;  
     
     type STATE_TYPE is (IDLE, LOAD_CODE, RUN, EXEC);
     
     signal state                : STATE_TYPE;
-    signal program_counter      : std_logic_vector(C_REGISTER_WIDTH-1 downto 0) := (others => '0');
-    signal instruction          : INSTRUCTION_TYPE := (others => (others => '0'));
+        
+    signal program_length       : integer := 0;
+    signal program_counter      : integer := 0;
+    signal instruction          : INSTRUCTION_TYPE := (others => '0');
+        alias opcode : OPCODE_TYPE is instruction(INSTRUCTION_TYPE'LEFT downto INSTRUCTION_TYPE'LEFT - OPCODE_TYPE'LEFT - 1);
+        alias reg : REG_INDEX_TYPE is instruction(INSTRUCTION_TYPE'LEFT - OPCODE_TYPE'LEFT - 2 downto INSTRUCTION_TYPE'LEFT - OPCODE_TYPE'LEFT - REG_INDEX_TYPE'LEFT - 3);
+        
     signal buffer_a             : POLY_BUFFER := (others => (others => '0'));
     signal buffer_b             : POLY_BUFFER := (others => (others => '0'));
     signal buffer_c             : POLY_BUFFER := (others => (others => '0'));
@@ -85,6 +90,8 @@ architecture Behavioral of testmult is
     constant OP_DEC : OPCODE_TYPE := "0111";
     constant OP_LOAD: OPCODE_TYPE := "1000";
     
+    shared variable program : RAM_TYPE;
+    
 begin
     state_proc : process (clk) is
     begin	
@@ -93,21 +100,38 @@ begin
                 when IDLE =>
                     if (start = '1') then
                         case mode is
-                            when MODE_LOAD_CODe =>
+                            when MODE_LOAD_CODE =>
                                 state <= LOAD_CODE;
+                                program_length <= 0;
                             when MODE_RUN =>
-                                state <= RUN;
+                                if (program_length > 0) then
+                                    state <= RUN;
+                                    program_counter <= 0;
+                                    instruction <= program(program_counter);
+                                else
+                                    --- Set error register
+                                end if;
                             when others =>
                                 --- Set error register
                         end case;
                     end if;
                    
                 when LOAD_CODE =>
-                    assert(false);
+                    if (valid_a = '1') then
+                        program(program_counter) := data_in_a;
+                        if (program_counter = C_MAX_PROG_LENGTH - 1) then
+                            state <= IDLE;
+                        end if;
+                        program_counter <= program_counter + 1;
+                    end if;
               
                 when RUN =>
-                    --program_counter <= program_counter + 1;
-                    case instruction.opcode is
+                    if (program_counter = program_length - 2) then
+                        state <= IDLE;
+                    end if;
+                    program_counter <= program_counter + 1;
+                    instruction <= program(program_counter + 1);
+                    case opcode is
                         when OP_SUB =>
                         when OP_ADD =>
                         when OP_MUL =>

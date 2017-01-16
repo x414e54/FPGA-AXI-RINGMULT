@@ -4,7 +4,8 @@ use ieee.numeric_std.all;
 
 entity axi_test_tb is
     generic (		
-        C_MAX_DATA_WIDTH        : integer   := 32;
+        C_MAX_DATA_WIDTH        : integer   := 32;		
+        C_MAX_PROG_LENGTH       : integer   := 13;
         
 		-- Parameters of Axi Master Bus Interface M00_AXIS
         C_M00_AXIS_TDATA_WIDTH  : integer   := 32;
@@ -23,7 +24,9 @@ end axi_test_tb;
 architecture behavior of axi_test_tb is
         subtype addr_type is std_logic_vector(C_S00_AXI_ADDR_WIDTH-1 downto 0);
         subtype data_type is std_logic_vector(C_S00_AXI_DATA_WIDTH-1 downto 0);
-        
+        subtype INSTRUCTION_TYPE is std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+        type PROG_TYPE is array(C_MAX_PROG_LENGTH-1 downto 0) of INSTRUCTION_TYPE;
+                        
         signal   stop               : std_logic := '0';
         constant clk_period         : time := 10ns;
 
@@ -67,11 +70,16 @@ architecture behavior of axi_test_tb is
     
         signal sending              : std_logic := '0';
         signal reading              : std_logic := '0';
+            
+        signal sending_stream       : std_logic := '0';
+        signal reading_stream       : std_logic := '0';
+            
 begin
 
     axi_test_v1_0_inst : entity work.axi_test_v1_0
             generic map (
             C_MAX_DATA_WIDTH => C_MAX_DATA_WIDTH,
+            C_MAX_PROG_LENGTH => C_MAX_PROG_LENGTH,
             
             -- Parameters of Axi Master Bus Interface M00_AXIS
             C_M00_AXIS_TDATA_WIDTH => C_M00_AXIS_TDATA_WIDTH,
@@ -192,6 +200,17 @@ begin
     end process read_proc;
 --- END --- https://github.com/frobino/axi_custom_ip_tb/blob/master/led_controller_1.0/hdl/testbench.vhd
 
+    send_axi_stream_proc : process
+    begin
+        loop
+            wait until sending_stream = '1';
+            wait until clk = '0';
+                s00_axis_tvalid <= '1';
+            wait until s00_axis_tready = '1';
+                s00_axis_tvalid <= '0';
+        end loop;
+    end process send_axi_stream_proc;
+    
     stimulus : process                        
         procedure send(variable address: in addr_type; 
                        variable data: in data_type) is
@@ -218,10 +237,29 @@ begin
             wait until s00_axi_rready = '1';
             wait until s00_axi_rready = '0';
         end procedure read;
+                           
+        procedure send_stream(variable data: in data_type) is
+        begin
+                loop aaa
+                            s00_axis_tdata =
+                            s00_axis_tlast
+            sending_stream <= '1';
+            wait for 1ns;
+            sending_stream <= '0';
+            wait until s00_axis_tready = '1';
+            wait until s00_axis_tready = '0';
+            s00_axi_wstrb <= b"0000";
+            end loop;
+        end procedure send_stream;
+        
+        procedure read_stream() is
+        begin
+        end procedure read_stream;
         
         variable address : addr_type := x"0";
         variable data : data_type := x"DEADBEEF";
         variable rdata : data_type := x"00000000";
+        variable test_prog : PROG_TYPE:= (others => (others => '0'));
     begin
         reset <= '0';
         wait until falling_edge(clk);
@@ -246,9 +284,25 @@ begin
         address := x"1";
         data := x"00000001";
         send(address, data);
-        wait until rising_edge(clk);
         
+        test_prog(0) := x"80000000";
+        test_prog(1) := x"00000001";
+        test_prog(2) := x"00000001";
+        test_prog(3) := x"00000001";
+        test_prog(4) := x"80001000";
+        test_prog(5) := x"00000002";
+        test_prog(6) := x"00000001";
+        test_prog(7) := x"00000001";
+        test_prog(8) := x"80002000";
+        test_prog(9) := x"00000003";
+        test_prog(10) := x"00000001";
+        test_prog(11) := x"00000001";
+        test_prog(12) := x"00000120";
+        send_stream(test_prog);
+                        
+        wait until rising_edge(clk);
         stop <= '1';
+        
         wait;
     end process;
 

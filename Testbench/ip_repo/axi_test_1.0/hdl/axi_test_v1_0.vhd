@@ -6,6 +6,7 @@ entity axi_test_v1_0 is
 	generic (
 		-- Users to add parameters here
         C_MAX_DATA_WIDTH    : integer    := 32;
+        C_MAX_PROG_LENGTH   : integer    := 5;
 		-- User parameters ends
 		-- Do not modify the parameters beyond this line
 
@@ -231,6 +232,7 @@ axi_test_v1_0_S00_AXI_inst : axi_test_v1_0_S00_AXI
 -- Instantiation of testmult
 testmult_inst : entity work.testmult
         generic map (
+            C_MAX_PROG_LENGTH => C_MAX_PROG_LENGTH,
             C_MAX_DATA_WIDTH => C_MAX_DATA_WIDTH,
             C_REGISTER_WIDTH => C_S00_AXI_DATA_WIDTH
         )
