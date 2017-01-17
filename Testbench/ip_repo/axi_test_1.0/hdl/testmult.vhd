@@ -54,7 +54,7 @@ end testmult;
 architecture Behavioral of testmult is
     subtype CONTROL_TYPE is std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
     subtype OPCODE_TYPE is std_logic_vector(3 downto 0);
-    subtype REG_INDEX_TYPE is std_logic_vector(3 downto 0);
+    subtype BUFFER_INDEX_TYPE is std_logic_vector(3 downto 0);
     subtype INSTRUCTION_TYPE is std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
     type RAM_TYPE is array(C_MAX_PROG_LENGTH-1 downto 0) of INSTRUCTION_TYPE;
     
@@ -65,19 +65,11 @@ architecture Behavioral of testmult is
     end record POLY_BUFFER;  
     
     type STATE_TYPE is (IDLE, LOAD_CODE, RUN, EXEC);
+
+    constant BUF_A              : BUFFER_INDEX_TYPE := b"0000";
+    constant BUF_B              : BUFFER_INDEX_TYPE := b"0001";
+    constant BUF_C              : BUFFER_INDEX_TYPE := b"0010";   
     
-    signal state                : STATE_TYPE;
-        
-    signal program_length       : integer := 0;
-    signal program_counter      : integer := 0;
-    signal instruction          : INSTRUCTION_TYPE := (others => '0');
-        alias opcode : OPCODE_TYPE is instruction(31 downto 28); -- unhard code these values 'left/'range etc.
-        alias reg : REG_INDEX_TYPE is instruction(27 downto 24); -- unhard code these values
-        
-    signal buffer_a             : POLY_BUFFER := (others => (others => '0'));
-    signal buffer_b             : POLY_BUFFER := (others => (others => '0'));
-    signal buffer_c             : POLY_BUFFER := (others => (others => '0'));
-        
     constant MODE_LOAD_CODE : CONTROL_TYPE := x"00000000";
     constant MODE_RUN       : CONTROL_TYPE := x"00000001";
     constant MODE_TERM      : CONTROL_TYPE := x"00000002";
@@ -91,6 +83,30 @@ architecture Behavioral of testmult is
     constant OP_ENC : OPCODE_TYPE := "0110";
     constant OP_DEC : OPCODE_TYPE := "0111";
     constant OP_LOAD: OPCODE_TYPE := "1000";
+    
+    constant MUX_IN_VALID_TO_ADD : integer := 0;
+    constant MUX_IN_VALID_TO_SUB : integer := 1;
+    constant MUX_IN_VALID_TO_MUL : integer := 2;
+    constant MUX_IN_VALID_TO_ENC : integer := 3;
+    constant MUX_IN_VALID_TO_DEC : integer := 4;
+    
+    signal state                : STATE_TYPE;
+        
+    signal program_length       : integer := 0;
+    signal program_counter      : integer := 0;
+    signal instruction          : INSTRUCTION_TYPE := (others => '0');
+        alias opcode : OPCODE_TYPE is instruction(31 downto 28); -- unhard code these values 'left/'range etc.
+        alias buf : BUFFER_INDEX_TYPE is instruction(27 downto 24); -- unhard code these values
+        
+    signal buffer_a             : POLY_BUFFER := (others => (others => '0'));
+    signal buffer_b             : POLY_BUFFER := (others => (others => '0'));
+    signal buffer_c             : POLY_BUFFER := (others => (others => '0'));
+    
+    signal add_enabled : std_logic := '0';
+    signal sub_enabled : std_logic := '0';
+    signal mul_enabled : std_logic := '0';
+    signal enc_enabled : std_logic := '0';
+    signal dec_enabled : std_logic := '0';
     
     shared variable program : RAM_TYPE;
     
@@ -135,21 +151,53 @@ begin
                     end if;
                     program_counter <= program_counter + 1;
                     instruction <= program(program_counter + 1);
+                    state <= EXEC;
                     case opcode is
                         when OP_SUB =>
+                            sub_enabled <= '1';
                         when OP_ADD =>
+                            add_enabled <= '1';
                         when OP_MUL =>
+                            mul_enabled <= '1';
                         when OP_B =>
-                        when OP_CRT =>
-                        when OP_ICRT =>
+                        --when OP_CRT =>
+                        --when OP_ICRT =>
                         when OP_ENC =>
+                            enc_enabled <= '1';
                         when OP_DEC =>
+                            dec_enabled <= '1';
                         when OP_LOAD => -- Load "buffer" addresses with start, size and stride
+                            case buf is
+                                when BUF_A =>
+                                    buffer_a.addr_start <= program(program_counter + 2);
+                                    buffer_a.size <= program(program_counter + 3);
+                                    buffer_a.stride <= program(program_counter + 4);
+                                when BUF_B =>
+                                    buffer_b.addr_start <= program(program_counter + 2);
+                                    buffer_b.size <= program(program_counter + 3);
+                                    buffer_b.stride <= program(program_counter + 4);
+                                when BUF_C =>
+                                    buffer_c.addr_start <= program(program_counter + 2);
+                                    buffer_c.size <= program(program_counter + 3);
+                                    buffer_c.stride <= program(program_counter + 4);
+                                program_counter <= program_counter + 3;
+                                state <= IDLE;
+                            end case;
                         when others =>
                             --- Set error register
                     end case;
                 
                 when EXEC => --- Execute current instruction
+                    ready_a <= '1';
+                    ready_b <= '1';
+                    if (valid_a = '1') then
+                        --
+                        --mux_valid_a <=
+                        ready_a <= '0';
+                    end if;                    
+                    if (valid_b = '1') then
+                            --
+                    end if;
                 
                 
             end case;
