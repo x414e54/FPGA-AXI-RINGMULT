@@ -316,11 +316,15 @@ begin
         data := x"00000001";
         send(address, data);
         address := b"0100";
+        data := x"00000000";
+        send(address, data);
+        wait until rising_edge(clk);
+        address := b"0100";
         data := x"00000001";
         send(address, data);
         
         wait until rising_edge(clk);
-        stop <= '1';
+        --stop <= '1';
         
         wait;
     end process;

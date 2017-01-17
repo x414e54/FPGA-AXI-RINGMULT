@@ -130,7 +130,7 @@ begin
                     end if;
               
                 when RUN =>
-                    if (program_counter = program_length - 2) then
+                    if (program_counter = program_length - 1) then
                         state <= IDLE;
                     end if;
                     program_counter <= program_counter + 1;

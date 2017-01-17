@@ -185,7 +185,7 @@ begin
 	end generate FIFO_GEN;
 
 	-- Add user logic here
-	fifo_full_flag <= '1' when (write_pointer = read_pointer - 1) else '0';
+	fifo_full_flag <= '1' when (write_pointer = read_pointer - 1) else '0'; -- Issue here FIFO stops at size -1 if no reads should stop at size
     fifo_ren       <= '1' when (write_pointer /= read_pointer) else '0';
     
     process(clk)
