@@ -246,12 +246,12 @@ begin
                        variable data: out data_type) is
         begin
             s00_axi_araddr <= address;
-            data := s00_axi_rdata;
             reading <= '1';
             wait for 1ns;
             reading <= '0';
             wait until s00_axi_rready = '1';
             wait until s00_axi_rready = '0';
+            data := s00_axi_rdata;
         end procedure read;
                            
         procedure send_stream(variable data: in PROG_TYPE) is
