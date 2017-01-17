@@ -293,18 +293,18 @@ begin
         read(address, rdata);
         assert(data = rdata);
         
-        address := x"3";
+        address := b"1100";
         data := x"BADDCAFE";
         send(address, data);
         read(address, rdata);
         assert(data = rdata);
         
         --Test Loading Program
-        address := x"0";
+        address := b"0000";
         data := x"00000001";
         send(address, data);
-        address := x"1";
-        data := x"00000001";
+        address := b"0100";
+        data := x"00000000";
         send(address, data);
         
         test_prog(0) := x"80000000";
@@ -321,7 +321,14 @@ begin
         test_prog(11) := x"00000001";
         test_prog(12) := x"00000120";
         send_stream(test_prog);
-                        
+        
+        address := b"0000";
+        data := x"00000001";
+        send(address, data);
+        address := b"0100";
+        data := x"00000001";
+        send(address, data);
+        
         wait until rising_edge(clk);
         stop <= '1';
         
