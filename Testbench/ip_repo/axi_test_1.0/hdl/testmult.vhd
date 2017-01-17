@@ -69,8 +69,8 @@ architecture Behavioral of testmult is
     signal program_length       : integer := 0;
     signal program_counter      : integer := 0;
     signal instruction          : INSTRUCTION_TYPE := (others => '0');
-        alias opcode : OPCODE_TYPE is instruction(INSTRUCTION_TYPE'LEFT downto INSTRUCTION_TYPE'LEFT - OPCODE_TYPE'LEFT - 1);
-        alias reg : REG_INDEX_TYPE is instruction(INSTRUCTION_TYPE'LEFT - OPCODE_TYPE'LEFT - 2 downto INSTRUCTION_TYPE'LEFT - OPCODE_TYPE'LEFT - REG_INDEX_TYPE'LEFT - 3);
+        alias opcode : OPCODE_TYPE is instruction(31 downto 28); -- unhard code these values 'left/'range etc.
+        alias reg : REG_INDEX_TYPE is instruction(27 downto 24); -- unhard code these values
         
     signal buffer_a             : POLY_BUFFER := (others => (others => '0'));
     signal buffer_b             : POLY_BUFFER := (others => (others => '0'));

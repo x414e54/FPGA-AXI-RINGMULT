@@ -206,7 +206,7 @@ begin
             wait until sending_stream = '1';
             wait until clk = '0';
                 s00_axis_tvalid <= '1';
-            wait until s00_axis_tready = '1';
+            wait until s00_axis_tready = '1' and clk = '1';
                 s00_axis_tvalid <= '0';
         end loop;
     end process send_axi_stream_proc;
@@ -238,23 +238,29 @@ begin
             wait until s00_axi_rready = '0';
         end procedure read;
                            
-        procedure send_stream(variable data: in data_type) is
+        procedure send_stream(variable data: in PROG_TYPE) is
         begin
-                loop aaa
-                            s00_axis_tdata =
-                            s00_axis_tlast
-            sending_stream <= '1';
-            wait for 1ns;
-            sending_stream <= '0';
-            wait until s00_axis_tready = '1';
-            wait until s00_axis_tready = '0';
-            s00_axi_wstrb <= b"0000";
+            for index in 0 to C_MAX_PROG_LENGTH - 1 loop
+                if (index = C_MAX_PROG_LENGTH - 1) then
+                    s00_axis_tlast <= '1';
+                else
+                    s00_axis_tlast <= '0';
+                end if;
+                
+                s00_axis_tdata <= data(index);
+                s00_axis_tstrb <= b"1111";
+                sending_stream <= '1';
+                wait for 1ns;
+                sending_stream <= '0';
+                wait until s00_axis_tvalid = '1';
+                wait until s00_axis_tvalid = '0';
+                s00_axis_tstrb <= b"0000";
             end loop;
         end procedure send_stream;
         
-        procedure read_stream() is
-        begin
-        end procedure read_stream;
+        --procedure read_stream() is
+        --begin
+        --end procedure read_stream;
         
         variable address : addr_type := x"0";
         variable data : data_type := x"DEADBEEF";

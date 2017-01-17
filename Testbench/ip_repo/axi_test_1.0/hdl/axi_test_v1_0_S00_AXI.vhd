@@ -387,7 +387,7 @@ begin
         if (S_AXI_ARESETN = '0') then
           start <= '0';
         else
-          if (slv_reg1 = x"1") then
+          if (slv_reg1 = x"00000001") then
             start <= '1';
           else
             start <= '0';
