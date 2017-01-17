@@ -47,6 +47,15 @@ entity axi_test_v1_0 is
 		s00_axis_tstrb	: in std_logic_vector((C_S00_AXIS_TDATA_WIDTH/8)-1 downto 0);
 		s00_axis_tlast	: in std_logic;
 		s00_axis_tvalid	: in std_logic;
+        
+        -- Ports of Axi Slave Bus Interface S00_AXIS
+        s01_axis_aclk    : in std_logic;
+        s01_axis_aresetn    : in std_logic;
+        s01_axis_tready    : out std_logic;
+        s01_axis_tdata    : in std_logic_vector(C_S00_AXIS_TDATA_WIDTH-1 downto 0);
+        s01_axis_tstrb    : in std_logic_vector((C_S00_AXIS_TDATA_WIDTH/8)-1 downto 0);
+        s01_axis_tlast    : in std_logic;
+        s01_axis_tvalid    : in std_logic;
 
 		-- Ports of Axi Slave Bus Interface S00_AXI
 		s00_axi_aclk	: in std_logic;
@@ -76,10 +85,12 @@ end axi_test_v1_0;
 architecture arch_imp of axi_test_v1_0 is
 	signal start            : std_logic;
 	signal mode	            : std_logic_vector(C_S00_AXI_DATA_WIDTH-1 downto 0);
-    signal in_valid_a       : std_logic;
-    signal in_valid_b       : std_logic;
-    signal in_a             : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
-    signal in_b             : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+    signal valid_a          : std_logic;
+    signal valid_b          : std_logic;
+    signal ready_a          : std_logic;
+    signal ready_b          : std_logic;
+    signal data_a           : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+    signal data_b           : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
     signal out_data         : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
     signal out_valid        : std_logic;
 	
@@ -109,10 +120,9 @@ architecture arch_imp of axi_test_v1_0 is
 		C_S_AXIS_TDATA_WIDTH	: integer	:= 32
 		);
 		port (
-        valid_a         : out std_logic;
-        data_a          : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
-        valid_b         : out std_logic;
-        data_b          : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+        valid           : out std_logic;
+        ready           : in std_logic;
+        data            : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
 		S_AXIS_ACLK   	: in std_logic;
 		S_AXIS_ARESETN	: in std_logic;
 		S_AXIS_TREADY	: out std_logic;
@@ -122,6 +132,25 @@ architecture arch_imp of axi_test_v1_0 is
 		S_AXIS_TVALID	: in std_logic
 		);
 	end component axi_test_v1_0_S00_AXIS;
+        
+    component axi_test_v1_0_S01_AXIS is
+        generic (
+        C_MAX_DATA_WIDTH    : integer    := 32;
+        C_S_AXIS_TDATA_WIDTH    : integer    := 32
+        );
+        port (
+        valid           : out std_logic;
+        ready           : in std_logic;
+        data            : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+        S_AXIS_ACLK     : in std_logic;
+        S_AXIS_ARESETN  : in std_logic;
+        S_AXIS_TREADY   : out std_logic;
+        S_AXIS_TDATA    : in std_logic_vector(C_S_AXIS_TDATA_WIDTH-1 downto 0);
+        S_AXIS_TSTRB    : in std_logic_vector((C_S_AXIS_TDATA_WIDTH/8)-1 downto 0);
+        S_AXIS_TLAST    : in std_logic;
+        S_AXIS_TVALID   : in std_logic
+        );
+    end component axi_test_v1_0_S01_AXIS;
 
 	component axi_test_v1_0_S00_AXI is
 		generic (
@@ -179,14 +208,13 @@ axi_test_v1_0_M00_AXIS_inst : axi_test_v1_0_M00_AXIS
 -- Instantiation of Axi Bus Interface S00_AXIS
 axi_test_v1_0_S00_AXIS_inst : axi_test_v1_0_S00_AXIS
 	generic map (
-	    C_MAX_DATA_WIDTH => C_MAX_DATA_WIDTH,
+	    C_MAX_DATA_WIDTH        => C_MAX_DATA_WIDTH,
 		C_S_AXIS_TDATA_WIDTH	=> C_S00_AXIS_TDATA_WIDTH
 	)
 	port map (
-        valid_a         => in_valid_a,
-        data_a          => in_a,
-        valid_b         => in_valid_b,
-        data_b          => in_b,
+        valid           => valid_a,
+        ready           => ready_a,
+        data            => data_a,
 		S_AXIS_ACLK	    => s00_axis_aclk,
 		S_AXIS_ARESETN	=> s00_axis_aresetn,
 		S_AXIS_TREADY	=> s00_axis_tready,
@@ -195,6 +223,25 @@ axi_test_v1_0_S00_AXIS_inst : axi_test_v1_0_S00_AXIS
 		S_AXIS_TLAST	=> s00_axis_tlast,
 		S_AXIS_TVALID	=> s00_axis_tvalid
 	);
+        
+-- Instantiation of Axi Bus Interface S00_AXIS
+axi_test_v1_0_S01_AXIS_inst : axi_test_v1_0_S00_AXIS
+    generic map (
+        C_MAX_DATA_WIDTH        => C_MAX_DATA_WIDTH,
+        C_S_AXIS_TDATA_WIDTH    => C_S00_AXIS_TDATA_WIDTH
+    )
+    port map (
+        valid           => valid_b,
+        ready           => ready_b,
+        data            => data_b,
+        S_AXIS_ACLK     => s01_axis_aclk,
+        S_AXIS_ARESETN  => s01_axis_aresetn,
+        S_AXIS_TREADY   => s01_axis_tready,
+        S_AXIS_TDATA    => s01_axis_tdata,
+        S_AXIS_TSTRB    => s01_axis_tstrb,
+        S_AXIS_TLAST    => s01_axis_tlast,
+        S_AXIS_TVALID   => s01_axis_tvalid
+    );
 
 -- Instantiation of Axi Bus Interface S00_AXI
 axi_test_v1_0_S00_AXI_inst : axi_test_v1_0_S00_AXI
@@ -241,10 +288,12 @@ testmult_inst : entity work.testmult
                reset        => reset,
                start        => start,
                mode         => mode,
-               valid_a      => in_valid_a,
-               data_in_a    => in_a,
-               valid_b      => in_valid_a,
-               data_in_b    => in_b,
+               valid_a      => valid_a,
+               ready_a      => ready_a,
+               data_a       => data_a,
+               valid_b      => valid_b,
+               ready_b      => ready_b,
+               data_b       => data_b,
                valid        => out_valid,
                data_out     => out_data
         );

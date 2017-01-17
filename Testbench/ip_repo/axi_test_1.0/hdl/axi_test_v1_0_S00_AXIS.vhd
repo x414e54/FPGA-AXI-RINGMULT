@@ -14,10 +14,9 @@ entity axi_test_v1_0_S00_AXIS is
 	);
 	port (
 		-- Users to add ports here
-        valid_a     : out std_logic;
-        data_a      : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
-        valid_b     : out std_logic;
-        data_b      : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+        valid     : out std_logic;
+        ready     : in std_logic;
+        data      : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
 		-- User ports ends
 		-- Do not modify the ports beyond this line
 
@@ -174,7 +173,18 @@ begin
 	end generate FIFO_GEN;
 
 	-- Add user logic here
-
+    process(S_AXIS_ACLK)
+    begin
+      if (rising_edge (S_AXIS_ACLK)) then
+        if(S_AXIS_ARESETN = '0') then
+            valid <= '0';
+        else
+          if (write_pointer <= NUMBER_OF_INPUT_WORDS-1) then
+            
+          end  if;
+        end if;
+      end if;
+    end process;
 	-- User logic ends
 
 end arch_imp;

@@ -42,9 +42,11 @@ entity testmult is
            start : in std_logic;
            mode : in std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
            valid_a : in std_logic;
-           data_in_a : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+           ready_a : in std_logic;
+           data_a : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
            valid_b : in std_logic;
-           data_in_b : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+           ready_b : in std_logic;
+           data_b : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
            valid : out std_logic;
            data_out : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0));
 end testmult;

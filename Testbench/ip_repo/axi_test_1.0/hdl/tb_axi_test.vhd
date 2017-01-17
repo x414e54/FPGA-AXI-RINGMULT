@@ -46,6 +46,13 @@ architecture behavior of axi_test_tb is
         signal s00_axis_tstrb       :  std_logic_vector((C_S00_AXIS_TDATA_WIDTH/8)-1 downto 0) := (others => '0');
         signal s00_axis_tlast       :  std_logic := '0';
         signal s00_axis_tvalid      :  std_logic := '0';
+        
+        -- Signals of Axi Slave Bus Interface S00_AXIS
+        signal s01_axis_tready      :  std_logic := '0';
+        signal s01_axis_tdata       :  std_logic_vector(C_S00_AXIS_TDATA_WIDTH-1 downto 0) := (others => '0');
+        signal s01_axis_tstrb       :  std_logic_vector((C_S00_AXIS_TDATA_WIDTH/8)-1 downto 0) := (others => '0');
+        signal s01_axis_tlast       :  std_logic := '0';
+        signal s01_axis_tvalid      :  std_logic := '0';
 
         -- Signals of Axi Slave Bus Interface S00_AXI
         signal s00_axi_awaddr       :  addr_type := (others => '0');
@@ -113,6 +120,15 @@ begin
             s00_axis_tstrb => s00_axis_tstrb,
             s00_axis_tlast => s00_axis_tlast,
             s00_axis_tvalid => s00_axis_tvalid,
+                        
+            -- Ports of Axi Slave Bus Interface S00_AXIS
+            s01_axis_aclk => clk,
+            s01_axis_aresetn => reset,
+            s01_axis_tready => s01_axis_tready,
+            s01_axis_tdata => s01_axis_tdata,
+            s01_axis_tstrb => s01_axis_tstrb,
+            s01_axis_tlast => s01_axis_tlast,
+            s01_axis_tvalid => s01_axis_tvalid,
             
             -- Ports of Axi Slave Bus Interface S00_AXI
             s00_axi_aclk => clk,
