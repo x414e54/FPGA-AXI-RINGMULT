@@ -301,10 +301,10 @@ begin
         
         --Test Loading Program
         address := b"0000";
-        data := x"00000001";
+        data := x"00000000";
         send(address, data);
         address := b"0100";
-        data := x"00000000";
+        data := x"00000001";
         send(address, data);
         
         test_prog(0) := x"80000000";
