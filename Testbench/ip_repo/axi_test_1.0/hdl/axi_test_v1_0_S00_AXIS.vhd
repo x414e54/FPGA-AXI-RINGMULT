@@ -14,6 +14,7 @@ entity axi_test_v1_0_S00_AXIS is
 	);
 	port (
 		-- Users to add ports here
+        clk     : in std_logic;
         valid     : out std_logic;
         ready     : in std_logic;
         data      : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
@@ -76,9 +77,14 @@ architecture arch_imp of axi_test_v1_0_S00_AXIS is
 	-- FIFO full flag
 	signal fifo_full_flag : std_logic;
 	-- FIFO write pointer
-	signal write_pointer : integer range 0 to bit_num-1 ;
+	signal write_pointer : integer range 0 to bit_num-1;
 	-- sink has accepted all the streaming data and stored in FIFO
 	signal writes_done : std_logic;
+    -- FIFO read pointer
+    signal read_pointer : integer range 0 to bit_num-1;
+    -- FIFO read enable
+    signal fifo_ren : std_logic;
+    signal tmp_valid   : std_logic;
 
 	type BYTE_FIFO_TYPE is array (0 to (NUMBER_OF_INPUT_WORDS-1)) of std_logic_vector(((C_S_AXIS_TDATA_WIDTH/4)-1)downto 0);
 begin
@@ -126,34 +132,33 @@ begin
 	-- 
 	-- The example design sink is always ready to accept the S_AXIS_TDATA  until
 	-- the FIFO is not filled with NUMBER_OF_INPUT_WORDS number of input words.
-	axis_tready <= '1' when ((mst_exec_state = WRITE_FIFO) and (write_pointer <= NUMBER_OF_INPUT_WORDS-1)) else '0';
+	axis_tready <= '1' when ((mst_exec_state = WRITE_FIFO) and (fifo_full_flag = '0')) else '0';
 
 	process(S_AXIS_ACLK)
 	begin
 	  if (rising_edge (S_AXIS_ACLK)) then
-	    if(S_AXIS_ARESETN = '0') then
-	      write_pointer <= 0;
-	      writes_done <= '0';
+        if(S_AXIS_ARESETN = '0') then
+          write_pointer <= 0;
+          writes_done <= '0';
 	    else
-	      if (write_pointer <= NUMBER_OF_INPUT_WORDS-1) then
-	        if (fifo_wren = '1') then
-	          -- write pointer is incremented after every write to the FIFO
-	          -- when FIFO write signal is enabled.
-	          write_pointer <= write_pointer + 1;
-	          writes_done <= '0';
-	        end if;
-	        if ((write_pointer = NUMBER_OF_INPUT_WORDS-1) or S_AXIS_TLAST = '1') then
-	          -- reads_done is asserted when NUMBER_OF_INPUT_WORDS numbers of streaming data 
-	          -- has been written to the FIFO which is also marked by S_AXIS_TLAST(kept for optional usage).
-	          writes_done <= '1';
-	        end if;
-	      end  if;
+            if (fifo_wren = '1') then
+              -- write pointer is incremented after every write to the FIFO
+              -- when FIFO write signal is enabled.
+              write_pointer <= write_pointer + 1;
+              writes_done <= '0';
+            end if;
+            if ((fifo_full_flag = '1') or S_AXIS_TLAST = '1') then
+              -- reads_done is asserted when NUMBER_OF_INPUT_WORDS numbers of streaming data 
+              -- has been written to the FIFO which is also marked by S_AXIS_TLAST(kept for optional usage).
+              writes_done <= '1';
+            end if;
 	    end if;
 	  end if;
 	end process;
 
 	-- FIFO write enable generation
 	fifo_wren <= S_AXIS_TVALID and axis_tready;
+    fifo_ren  <= ready and tmp_valid;
 
 	-- FIFO Implementation
 	 FIFO_GEN: for byte_index in 0 to (C_S_AXIS_TDATA_WIDTH/8-1) generate
@@ -169,18 +174,33 @@ begin
 	      end if;  
 	    end  if;
 	  end process;
+	 
+      process(clk)
+      begin
+        if (rising_edge (clk)) then
+          if (fifo_ren = '1') then
+            data((byte_index*8+7) downto (byte_index*8)) <= stream_data_fifo(read_pointer);
+          end if;  
+        end  if;
+      end process;
 
 	end generate FIFO_GEN;
 
 	-- Add user logic here
-    process(S_AXIS_ACLK)
+	fifo_full_flag <= '1' when (write_pointer = read_pointer - 1) else '0';
+    valid          <= tmp_valid;
+    tmp_valid      <= '1' when (write_pointer /= read_pointer) else '0';
+    
+    process(clk)
     begin
-      if (rising_edge (S_AXIS_ACLK)) then
+      if (rising_edge (clk)) then
         if(S_AXIS_ARESETN = '0') then
-            valid <= '0';
+            read_pointer <= 0;
         else
-          if (write_pointer <= NUMBER_OF_INPUT_WORDS-1) then
-            
+          if (write_pointer /= read_pointer) then
+            if (fifo_ren = '1') then
+                read_pointer <= read_pointer + 1;
+            end if;  
           end  if;
         end if;
       end if;

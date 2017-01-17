@@ -16,6 +16,7 @@ entity axi_test_v1_0_M00_AXIS is
 	);
 	port (
 		-- Users to add ports here
+        clk      : in std_logic;
 		valid    : in std_logic;
 		data     : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
 		-- User ports ends

@@ -102,6 +102,7 @@ architecture arch_imp of axi_test_v1_0 is
 		C_M_START_COUNT	: integer	:= 32
 		);
 		port (
+        clk             : in std_logic;
         valid           : in std_logic;
         data            : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
 		M_AXIS_ACLK	    : in std_logic;
@@ -120,6 +121,7 @@ architecture arch_imp of axi_test_v1_0 is
 		C_S_AXIS_TDATA_WIDTH	: integer	:= 32
 		);
 		port (
+        clk             : in std_logic;
         valid           : out std_logic;
         ready           : in std_logic;
         data            : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
@@ -139,6 +141,7 @@ architecture arch_imp of axi_test_v1_0 is
         C_S_AXIS_TDATA_WIDTH    : integer    := 32
         );
         port (
+        clk             : in std_logic;
         valid           : out std_logic;
         ready           : in std_logic;
         data            : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
@@ -194,6 +197,7 @@ axi_test_v1_0_M00_AXIS_inst : axi_test_v1_0_M00_AXIS
 		C_M_START_COUNT	=> C_M00_AXIS_START_COUNT
 	)
 	port map (
+        clk             => clk,    
         valid           => out_valid,
         data            => out_data,
 		M_AXIS_ACLK	    => m00_axis_aclk,
@@ -212,6 +216,7 @@ axi_test_v1_0_S00_AXIS_inst : axi_test_v1_0_S00_AXIS
 		C_S_AXIS_TDATA_WIDTH	=> C_S00_AXIS_TDATA_WIDTH
 	)
 	port map (
+        clk             => clk,
         valid           => valid_a,
         ready           => ready_a,
         data            => data_a,
@@ -231,6 +236,7 @@ axi_test_v1_0_S01_AXIS_inst : axi_test_v1_0_S00_AXIS
         C_S_AXIS_TDATA_WIDTH    => C_S00_AXIS_TDATA_WIDTH
     )
     port map (
+        clk             => clk,
         valid           => valid_b,
         ready           => ready_b,
         data            => data_b,

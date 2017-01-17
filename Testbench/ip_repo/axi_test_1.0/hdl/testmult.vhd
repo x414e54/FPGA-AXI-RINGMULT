@@ -42,10 +42,10 @@ entity testmult is
            start : in std_logic;
            mode : in std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
            valid_a : in std_logic;
-           ready_a : in std_logic;
+           ready_a : out std_logic;
            data_a : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
            valid_b : in std_logic;
-           ready_b : in std_logic;
+           ready_b : out std_logic;
            data_b : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
            valid : out std_logic;
            data_out : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0));
@@ -104,6 +104,7 @@ begin
                         case mode is
                             when MODE_LOAD_CODE =>
                                 state <= LOAD_CODE;
+                                ready_a <= '1';
                                 program_length <= 0;
                             when MODE_RUN =>
                                 if (program_length > 0) then
@@ -120,9 +121,10 @@ begin
                    
                 when LOAD_CODE =>
                     if (valid_a = '1') then
-                        program(program_counter) := data_in_a;
+                        program(program_counter) := data_a;
                         if (program_counter = C_MAX_PROG_LENGTH - 1) then
                             state <= IDLE;
+                            ready_a <= '0';
                         end if;
                         program_counter <= program_counter + 1;
                     end if;
