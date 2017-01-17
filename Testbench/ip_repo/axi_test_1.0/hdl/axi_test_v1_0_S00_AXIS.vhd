@@ -84,7 +84,6 @@ architecture arch_imp of axi_test_v1_0_S00_AXIS is
     signal read_pointer : unsigned(bit_num-1 downto 0);
     -- FIFO read enable
     signal fifo_ren : std_logic;
-    signal tmp_valid   : std_logic;
 
 	type BYTE_FIFO_TYPE is array (0 to (NUMBER_OF_INPUT_WORDS-1)) of std_logic_vector(((C_S_AXIS_TDATA_WIDTH/4)-1)downto 0);
 begin
@@ -158,7 +157,6 @@ begin
 
 	-- FIFO write enable generation
 	fifo_wren <= S_AXIS_TVALID and axis_tready;
-    fifo_ren  <= ready and tmp_valid;
 
 	-- FIFO Implementation
 	 FIFO_GEN: for byte_index in 0 to (C_S_AXIS_TDATA_WIDTH/8-1) generate
@@ -188,20 +186,23 @@ begin
 
 	-- Add user logic here
 	fifo_full_flag <= '1' when (write_pointer = read_pointer - 1) else '0';
-    valid          <= tmp_valid;
-    tmp_valid      <= '1' when (write_pointer /= read_pointer) else '0';
+    fifo_ren       <= '1' when (write_pointer /= read_pointer) else '0';
     
     process(clk)
     begin
       if (rising_edge (clk)) then
         if(S_AXIS_ARESETN = '0') then
             read_pointer <= (others => '0');
+            valid <= '0';
         else
-          if (write_pointer /= read_pointer) then
             if (fifo_ren = '1') then
+                valid <= '1';
+            else 
+                valid <= '0';
+            end if;      
+            if (ready = '1') then
                 read_pointer <= read_pointer + 1;
-            end if;  
-          end  if;
+            end if;
         end if;
       end if;
     end process;

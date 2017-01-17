@@ -97,7 +97,7 @@ architecture Behavioral of testmult is
 begin
     state_proc : process (clk) is
     begin	
-        if clk'event and clk = '1' then
+        if rising_edge(clk) then
             case state is
                 when IDLE =>
                     if (start = '1') then
