@@ -116,6 +116,8 @@ architecture arch_imp of axi_test_v1_0_S00_AXI is
 	signal slv_reg_wren	: std_logic;
 	signal reg_data_out	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
 	signal byte_index	: integer;
+    
+    signal running      : std_logic;
 
 begin
 	-- I/O Connections assignments
@@ -385,10 +387,15 @@ begin
     begin
       if (rising_edge (S_AXI_ACLK)) then
         if (S_AXI_ARESETN = '0') then
+          running <= '0';
           start <= '0';
         else
-          if (slv_reg1 = x"00000001") then
+          if (slv_reg1 = x"00000001" and running = '0') then
             start <= '1';
+            running <= '1';
+          elsif (slv_reg1 = x"00000000") then
+            -- stop?
+            running <= '0';          
           else
             start <= '0';
           end if;   

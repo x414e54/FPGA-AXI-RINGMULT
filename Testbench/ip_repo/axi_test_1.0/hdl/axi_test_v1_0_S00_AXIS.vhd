@@ -197,11 +197,11 @@ begin
         else
             if (fifo_ren = '1') then
                 valid <= '1';
+                if (ready = '1') then
+                    read_pointer <= read_pointer + 1;
+                end if;
             else 
                 valid <= '0';
-            end if;      
-            if (ready = '1') then
-                read_pointer <= read_pointer + 1;
             end if;
         end if;
       end if;

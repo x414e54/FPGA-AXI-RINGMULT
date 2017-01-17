@@ -216,17 +216,6 @@ begin
     end process read_proc;
 --- END --- https://github.com/frobino/axi_custom_ip_tb/blob/master/led_controller_1.0/hdl/testbench.vhd
 
-    send_axi_stream_proc : process
-    begin
-        loop
-            wait until sending_stream = '1';
-            wait until clk = '0';
-                s00_axis_tvalid <= '1';
-            wait until s00_axis_tready = '1' and clk = '1';
-                s00_axis_tvalid <= '0';
-        end loop;
-    end process send_axi_stream_proc;
-    
     stimulus : process                        
         procedure send(variable address: in addr_type; 
                        variable data: in data_type) is
@@ -265,11 +254,10 @@ begin
                 
                 s00_axis_tdata <= data(index);
                 s00_axis_tstrb <= b"1111";
-                sending_stream <= '1';
-                wait for 1ns;
-                sending_stream <= '0';
-                wait until s00_axis_tvalid = '1';
-                wait until s00_axis_tvalid = '0';
+                s00_axis_tvalid <= '1';
+                wait until s00_axis_tready = '1';
+                wait until rising_edge(clk);
+                s00_axis_tvalid <= '0';
                 s00_axis_tstrb <= b"0000";
             end loop;
         end procedure send_stream;

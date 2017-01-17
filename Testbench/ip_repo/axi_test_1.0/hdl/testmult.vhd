@@ -121,12 +121,12 @@ begin
                    
                 when LOAD_CODE =>
                     if (valid_a = '1') then
-                        program(program_counter) := data_a;
-                        if (program_counter = C_MAX_PROG_LENGTH - 1) then
+                        program(program_length) := data_a;
+                        if (program_length = C_MAX_PROG_LENGTH - 1) then
                             state <= IDLE;
                             ready_a <= '0';
                         end if;
-                        program_counter <= program_counter + 1;
+                        program_length <= program_length + 1;
                     end if;
               
                 when RUN =>
