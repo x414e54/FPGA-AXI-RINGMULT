@@ -255,7 +255,9 @@ begin
                 s00_axis_tdata <= data(index);
                 s00_axis_tstrb <= b"1111";
                 s00_axis_tvalid <= '1';
-                wait until s00_axis_tready = '1';
+                if (s00_axis_tready = '0') then
+                    wait until s00_axis_tready = '1';
+                end if;
                 wait until rising_edge(clk);
                 s00_axis_tvalid <= '0';
                 s00_axis_tstrb <= b"0000";
