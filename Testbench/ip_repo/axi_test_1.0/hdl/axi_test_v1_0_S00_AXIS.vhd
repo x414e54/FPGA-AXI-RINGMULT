@@ -58,7 +58,7 @@ architecture arch_imp of axi_test_v1_0_S00_AXIS is
 	end;    
 
 	-- Total number of input data.
-	constant NUMBER_OF_INPUT_WORDS  : integer := 8;
+	constant NUMBER_OF_INPUT_WORDS  : integer := 8; -- For now must be power of two.
 	-- bit_num gives the minimum number of bits needed to address 'NUMBER_OF_INPUT_WORDS' size of FIFO.
 	constant bit_num  : integer := clogb2(NUMBER_OF_INPUT_WORDS-1);
 	-- Define the states of state machine
@@ -77,11 +77,11 @@ architecture arch_imp of axi_test_v1_0_S00_AXIS is
 	-- FIFO full flag
 	signal fifo_full_flag : std_logic;
 	-- FIFO write pointer
-	signal write_pointer : integer range 0 to bit_num-1;
+	signal write_pointer : unsigned(bit_num-1 downto 0);
 	-- sink has accepted all the streaming data and stored in FIFO
 	signal writes_done : std_logic;
     -- FIFO read pointer
-    signal read_pointer : integer range 0 to bit_num-1;
+    signal read_pointer : unsigned(bit_num-1 downto 0);
     -- FIFO read enable
     signal fifo_ren : std_logic;
     signal tmp_valid   : std_logic;
@@ -138,7 +138,7 @@ begin
 	begin
 	  if (rising_edge (S_AXIS_ACLK)) then
         if(S_AXIS_ARESETN = '0') then
-          write_pointer <= 0;
+          write_pointer <= (others => '0');
           writes_done <= '0';
 	    else
             if (fifo_wren = '1') then
@@ -170,7 +170,7 @@ begin
 	  begin
 	    if (rising_edge (S_AXIS_ACLK)) then
 	      if (fifo_wren = '1') then
-	        stream_data_fifo(write_pointer) <= S_AXIS_TDATA((byte_index*8+7) downto (byte_index*8));
+	        stream_data_fifo(to_integer(write_pointer)) <= S_AXIS_TDATA((byte_index*8+7) downto (byte_index*8));
 	      end if;  
 	    end  if;
 	  end process;
@@ -179,7 +179,7 @@ begin
       begin
         if (rising_edge (clk)) then
           if (fifo_ren = '1') then
-            data((byte_index*8+7) downto (byte_index*8)) <= stream_data_fifo(read_pointer);
+            data((byte_index*8+7) downto (byte_index*8)) <= stream_data_fifo(to_integer(read_pointer));
           end if;  
         end  if;
       end process;
@@ -195,7 +195,7 @@ begin
     begin
       if (rising_edge (clk)) then
         if(S_AXIS_ARESETN = '0') then
-            read_pointer <= 0;
+            read_pointer <= (others => '0');
         else
           if (write_pointer /= read_pointer) then
             if (fifo_ren = '1') then
