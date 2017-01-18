@@ -1,0 +1,9 @@
+add_llvm_library(LLVMHEIISDesc
+  HEIISAsmBackend.cpp
+  HEIISELFObjectWriter.cpp
+  HEIISMCAsmInfo.cpp
+  HEIISMCCodeEmitter.cpp
+  HEIISMCTargetDesc.cpp
+  HEIISMCExpr.cpp
+  HEIISTargetStreamer.cpp
+  )

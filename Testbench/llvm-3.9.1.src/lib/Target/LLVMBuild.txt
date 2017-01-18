@@ -25,6 +25,7 @@ subdirectories =
  AVR
  BPF
  Lanai
+ HEIIS
  Hexagon
  MSP430
  NVPTX
