@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 entity axi_test_tb is
     generic (		
         C_MAX_DATA_WIDTH        : integer   := 32;		
-        C_MAX_PROG_LENGTH       : integer   := 13;
+        C_MAX_PROG_LENGTH       : integer   := 3;
         
 		-- Parameters of Axi Master Bus Interface M00_AXIS
         C_M00_AXIS_TDATA_WIDTH  : integer   := 32;
@@ -297,19 +297,9 @@ begin
         data := x"00000001";
         send(address, data);
         
-        test_prog(0) := x"80000000";
+        test_prog(0) := x"00000000";
         test_prog(1) := x"00000001";
-        test_prog(2) := x"00000001";
-        test_prog(3) := x"00000001";
-        test_prog(4) := x"80001000";
-        test_prog(5) := x"00000002";
-        test_prog(6) := x"00000001";
-        test_prog(7) := x"00000001";
-        test_prog(8) := x"80002000";
-        test_prog(9) := x"00000003";
-        test_prog(10) := x"00000001";
-        test_prog(11) := x"00000001";
-        test_prog(12) := x"00000120";
+        test_prog(2) := x"00000002";
         send_stream(test_prog);
         
         address := b"0000";
