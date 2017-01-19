@@ -317,16 +317,6 @@ begin
         length := C_MAX_PROG_LENGTH;
         send_stream(test_data, length);
         
-        test_data(0) := x"00000000";
-        test_data(1) := x"00000000";
-        test_data(2) := x"00000000";
-        test_rdata(0) := x"00000000";
-        test_rdata(1) := x"00000000";
-        test_rdata(2) := x"00000000";
-        read_stream;
-        length := 3;
-        send_stream(test_data, length);
-        
         address := b"0000";
         data := x"00000001";
         send(address, data);
@@ -339,6 +329,15 @@ begin
         send(address, data);
         
         wait until rising_edge(clk);
+        test_data(0) := x"00000001";
+        test_data(1) := x"00000002";
+        test_data(2) := x"00000003";
+        test_rdata(0) := x"00000000";
+        test_rdata(1) := x"00000000";
+        test_rdata(2) := x"00000000";
+        read_stream;
+        length := 3;
+        send_stream(test_data, length);
         --stop <= '1';
         
         wait;

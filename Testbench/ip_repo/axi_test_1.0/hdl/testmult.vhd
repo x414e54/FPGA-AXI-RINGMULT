@@ -58,12 +58,15 @@ architecture Behavioral of testmult is
     subtype INSTRUCTION_TYPE is std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
     type RAM_TYPE is array(C_MAX_PROG_LENGTH-1 downto 0) of INSTRUCTION_TYPE;
     
-    type STATE_TYPE is (IDLE, LOAD_CODE, RUN, EXEC);
+    type STATE_TYPE is (IDLE, LOAD_CODE, LOAD_MOD_CHAIN, LOAD_PUB_KEY, LOAD_SEC_KEY, LOAD_EV_KEY, RUN, EXEC);
 
+    -- Program integer registers (not for HE)
     constant REG_0              : REGISTER_INDEX_TYPE := b"0000";
     constant REG_1              : REGISTER_INDEX_TYPE := b"0001";
     constant REG_2              : REGISTER_INDEX_TYPE := b"0010";   
-    
+    -- Encrypted buffers (for HE)
+    ----
+        
     constant MODE_LOAD_CODE : CONTROL_TYPE := x"00000000";
     constant MODE_RUN       : CONTROL_TYPE := x"00000001";
     constant MODE_TERM      : CONTROL_TYPE := x"00000002";
@@ -78,6 +81,7 @@ architecture Behavioral of testmult is
     constant OP_DEC  : OPCODE_TYPE := "0111";
     constant OP_LOAD : OPCODE_TYPE := "1000";
     constant OP_STORE: OPCODE_TYPE := "1001";
+    constant OP_BNE  : OPCODE_TYPE := "1010"; -- Loop for program integer registers only
     
     constant MUX_IN_VALID_TO_ADD : integer := 0;
     constant MUX_IN_VALID_TO_SUB : integer := 1;
@@ -100,6 +104,7 @@ architecture Behavioral of testmult is
     constant dec_enabled : std_logic_vector(4-1 downto 0) := "0100";
     
     signal mux_mode : std_logic_vector(4-1 downto 0);
+    signal modulus : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0) := (others => '0');
     
     shared variable program : RAM_TYPE;
 begin
@@ -112,6 +117,7 @@ begin
             clk => clk,
             a => data_a,
             b => data_b,
+            q => modulus,
             c => data_out,
             mode => mux_mode
         );  
@@ -149,6 +155,22 @@ begin
                         end if;
                         program_length <= program_length + 1;
                     end if;
+                                           
+                when LOAD_MOD_CHAIN => -- Maybe move into prog code
+                    if (valid_a = '1') then
+                        program(program_length) := data_a;
+                        if (program_length = C_MAX_PROG_LENGTH - 1) then
+                            state <= IDLE;
+                            ready_a <= '0';
+                        end if;
+                        program_length <= program_length + 1;
+                    end if;
+                                                                   
+                when LOAD_PUB_KEY => -- Maybe move into prog code
+                                                                                           
+                when LOAD_SEC_KEY => -- Maybe move into prog code
+                                                                                                                   
+                when LOAD_EV_KEY => -- Maybe move into prog code
               
                 when RUN =>
                     if (program_counter = program_length - 1) then
