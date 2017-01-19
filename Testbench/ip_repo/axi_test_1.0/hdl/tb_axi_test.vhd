@@ -5,6 +5,7 @@ use ieee.numeric_std.all;
 entity axi_test_tb is
     generic (		
         C_MAX_DATA_WIDTH        : integer   := 32;		
+        C_MAX_DATA_LENGTH       : integer   := 771;
         C_MAX_PROG_LENGTH       : integer   := 3;
         
 		-- Parameters of Axi Master Bus Interface M00_AXIS
@@ -25,7 +26,7 @@ architecture behavior of axi_test_tb is
         subtype addr_type is std_logic_vector(C_S00_AXI_ADDR_WIDTH-1 downto 0);
         subtype data_type is std_logic_vector(C_S00_AXI_DATA_WIDTH-1 downto 0);
         subtype INSTRUCTION_TYPE is std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
-        type PROG_TYPE is array(C_MAX_PROG_LENGTH-1 downto 0) of INSTRUCTION_TYPE;
+        type STREAM_TYPE is array(C_MAX_DATA_LENGTH-1 downto 0) of INSTRUCTION_TYPE;
                         
         signal   stop               : std_logic := '0';
         constant clk_period         : time := 10ns;
@@ -80,6 +81,8 @@ architecture behavior of axi_test_tb is
             
         signal sending_stream       : std_logic := '0';
         signal reading_stream       : std_logic := '0';
+        
+        shared variable test_rdata  : STREAM_TYPE:= (others => (others => '0'));
             
 begin
 
@@ -216,6 +219,13 @@ begin
     end process read_proc;
 --- END --- https://github.com/frobino/axi_custom_ip_tb/blob/master/led_controller_1.0/hdl/testbench.vhd
 
+    read_stream : process
+    begin
+        loop
+            wait until reading_stream = '1';
+        end loop;
+    end process read_stream;
+    
     stimulus : process                        
         procedure send(variable address: in addr_type; 
                        variable data: in data_type) is
@@ -243,10 +253,10 @@ begin
             data := s00_axi_rdata;
         end procedure read;
                            
-        procedure send_stream(variable data: in PROG_TYPE) is
+        procedure send_stream(variable data: in STREAM_TYPE; variable length: in integer) is
         begin
-            for index in 0 to C_MAX_PROG_LENGTH - 1 loop
-                if (index = C_MAX_PROG_LENGTH - 1) then
+            for index in 0 to length - 1 loop
+                if (index = length - 1) then
                     s00_axis_tlast <= '1';
                 else
                     s00_axis_tlast <= '0';
@@ -264,14 +274,17 @@ begin
             end loop;
         end procedure send_stream;
         
-        --procedure read_stream() is
-        --begin
-        --end procedure read_stream;
+        procedure read_stream() is
+        begin 
+            reading_stream <= '1';
+            wait for 1ns;
+            reading_stream <= '0';
+        end procedure read_stream;
         
         variable address : addr_type := x"0";
         variable data : data_type := x"DEADBEEF";
         variable rdata : data_type := x"00000000";
-        variable test_prog : PROG_TYPE:= (others => (others => '0'));
+        variable test_data : STREAM_TYPE:= (others => (others => '0'));
     begin
         reset <= '0';
         wait until falling_edge(clk);
@@ -297,10 +310,19 @@ begin
         data := x"00000001";
         send(address, data);
         
-        test_prog(0) := x"00000000";
-        test_prog(1) := x"00000001";
-        test_prog(2) := x"00000002";
-        send_stream(test_prog);
+        test_data(0) := x"06000000";
+        test_data(1) := x"00000000";
+        test_data(2) := x"00000000";
+        send_stream(test_data, C_MAX_PROG_LENGTH);
+        
+        test_data(0) := x"00000000";
+        test_data(1) := x"00000000";
+        test_data(2) := x"00000000";
+        test_rdata(0) := x"00000000";
+        test_rdata(1) := x"00000000";
+        test_rdata(2) := x"00000000";
+        read_stream();
+        send_stream(test_data, 3);
         
         address := b"0000";
         data := x"00000001";
