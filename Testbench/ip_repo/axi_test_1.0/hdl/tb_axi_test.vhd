@@ -274,7 +274,7 @@ begin
             end loop;
         end procedure send_stream;
         
-        procedure read_stream() is
+        procedure read_stream is
         begin 
             reading_stream <= '1';
             wait for 1ns;
@@ -285,6 +285,7 @@ begin
         variable data : data_type := x"DEADBEEF";
         variable rdata : data_type := x"00000000";
         variable test_data : STREAM_TYPE:= (others => (others => '0'));
+        variable length : integer := 0;
     begin
         reset <= '0';
         wait until falling_edge(clk);
@@ -313,7 +314,8 @@ begin
         test_data(0) := x"06000000";
         test_data(1) := x"00000000";
         test_data(2) := x"00000000";
-        send_stream(test_data, C_MAX_PROG_LENGTH);
+        length := C_MAX_PROG_LENGTH;
+        send_stream(test_data, length);
         
         test_data(0) := x"00000000";
         test_data(1) := x"00000000";
@@ -321,8 +323,9 @@ begin
         test_rdata(0) := x"00000000";
         test_rdata(1) := x"00000000";
         test_rdata(2) := x"00000000";
-        read_stream();
-        send_stream(test_data, 3);
+        read_stream;
+        length := 3;
+        send_stream(test_data, length);
         
         address := b"0000";
         data := x"00000001";
