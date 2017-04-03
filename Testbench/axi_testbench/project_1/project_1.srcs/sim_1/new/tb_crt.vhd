@@ -64,7 +64,7 @@ begin
         wait until rising_edge(clk);
                 
         for i in 0 to C_MAX_FFT_PRIMES - 1 loop
-            crt_primes <= primes(i);
+            crt_primes(i) <= primes(i);
         end loop;
         		        
         wait until rising_edge(clk);

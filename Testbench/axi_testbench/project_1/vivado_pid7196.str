@@ -438,3 +438,27 @@ selectMenuItem (PAResourceCommand.PACommandNames_SIMULATION_RUN_BEHAVIORAL, "Run
 // Tcl: INFO: [Runs 36-130] *** Running xelab    with args "-m64 --debug typical --relax -L work -L secureip --snapshot tb_crt_behav --prj C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/tb_crt.prj   work.tb_crt"
 // Tcl: ERROR: [Runs 36-25] xelab application returned error(s). Please see 'C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/xelab.log' file for more details.ERROR: [Common 17-69] Command failed: Failed to compile the design!
 selectButton ((HResource) null, "OK"); // BasicOptionPaneUI$ButtonFactory:JButton (JPanel:JComponent, A:JDialog)
+selectTree (PAResourceAtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Simulation, Run Simulation]", 10); // v:H (u:q, bG:JFrame)
+selectMenuItem (PAResourceCommand.PACommandNames_SIMULATION_RUN_BEHAVIORAL, "Run Behavioral Simulation"); // af:JMenuItem (aj:JPopupMenu, bG:JFrame)
+// e:bU (bG:JFrame):  Run Simulation : addNotify
+// Tcl: launch_xsim -simset sim_1 -mode behavioral
+// Tcl: INFO: [Runs 36-130] *** Running xelab    with args "-m64 --debug typical --relax -L work -L secureip --snapshot tb_crt_behav --prj C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/tb_crt.prj   work.tb_crt"
+// Tcl: ERROR: [Runs 36-25] xelab application returned error(s). Please see 'C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/xelab.log' file for more details.ERROR: [Common 17-69] Command failed: Failed to compile the design!
+selectButton ((HResource) null, "OK"); // BasicOptionPaneUI$ButtonFactory:JButton (JPanel:JComponent, A:JDialog)
+selectTab ((HResource) null, (HResource) null, "crt.vhd", 2); // TdiGroup:JideTabbedPane (CodeEditorDocumentPane:DocumentPane, bG:JFrame)
+selectTree (PAResourceAtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Simulation, Run Simulation]", 10); // v:H (u:q, bG:JFrame)
+selectMenuItem (PAResourceCommand.PACommandNames_SIMULATION_RUN_BEHAVIORAL, "Run Behavioral Simulation"); // af:JMenuItem (aj:JPopupMenu, bG:JFrame)
+// e:bU (bG:JFrame):  Run Simulation : addNotify
+// Tcl: launch_xsim -simset sim_1 -mode behavioral
+// Tcl: INFO: [Runs 36-130] *** Running xelab    with args "-m64 --debug typical --relax -L work -L secureip --snapshot tb_crt_behav --prj C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/tb_crt.prj   work.tb_crt"
+// Tcl: ERROR: [Runs 36-25] xelab application returned error(s). Please see 'C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/xelab.log' file for more details.ERROR: [Common 17-69] Command failed: Failed to compile the design!
+selectButton ((HResource) null, "OK"); // BasicOptionPaneUI$ButtonFactory:JButton (JPanel:JComponent, A:JDialog)
+selectTab ((HResource) null, (HResource) null, "tb_crt.vhd", 1); // TdiGroup:JideTabbedPane (CodeEditorDocumentPane:DocumentPane, bG:JFrame)
+selectTree (PAResourceAtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Simulation, Run Simulation]", 10); // v:H (u:q, bG:JFrame)
+selectMenuItem (PAResourceCommand.PACommandNames_SIMULATION_RUN_BEHAVIORAL, "Run Behavioral Simulation"); // af:JMenuItem (aj:JPopupMenu, bG:JFrame)
+// e:bU (bG:JFrame):  Run Simulation : addNotify
+// Tcl: launch_xsim -simset sim_1 -mode behavioral
+// Tcl: INFO: [Runs 36-130] *** Running xelab    with args "-m64 --debug typical --relax -L work -L secureip --snapshot tb_crt_behav --prj C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/tb_crt.prj   work.tb_crt"
+selectButton (RDIResource.ProgressDialog_BACKGROUND, "Background"); // a:JButton (JPanel:JComponent, e:bU)
+// Tcl: INFO: [Runs 36-26] xelab completed.INFO: [Vivado 12-1390] *** Running xsim    with args "tb_crt_behav -key {Behavioral:sim_1:Functional:tb_crt} -tclbatch {tb_crt.tcl} -log {tb_crt_behav.log}"
+// Tcl: Vivado Simulator 2013.2
