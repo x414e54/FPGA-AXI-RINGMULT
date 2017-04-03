@@ -19,10 +19,10 @@ architecture behavior of tb_crt is
 
         signal clk                  : std_logic := '0';
 
-        -- crt
+        -- crt       
+        signal crt_enabled    :  std_logic := '0';
         signal crt_value      :  std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0) := (others => '0');
         signal crt_remainders :  crt_bus(C_MAX_FFT_PRIMES-1 downto 0) := (others => (others => '0'));
-        signal crt_enabled    :  std_logic := '0';
 
         type int_array is array(0 to 8) of integer;
 
@@ -40,8 +40,8 @@ begin
             clk => clk,
                     
             -- Ports of CRT
+            enabled    => crt_enabled,
             value      => crt_value,
-			enabled    => crt_enabled,
             remainders => crt_remainders
         );  
 
