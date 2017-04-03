@@ -21,10 +21,10 @@ architecture behavior of tb_crt is
 
         -- crt
         signal crt_val        :  std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0) := (others => '0');
-        signal crt_rem        :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
+        signal crt_rem        :  crt_bus(C_MAX_FFT_PRIMES-1 downto 0)(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => (others => '0'));
         signal crt_enabled    :  std_logic := '0';
 
-        signal stop_simulation: boolean;
+        signal stop  		  : boolean;
 
         type int_array is array(0 to 8) of integer;
 
@@ -33,7 +33,7 @@ architecture behavior of tb_crt is
 begin
 
     crt_inst : entity work.crt
-            generic map (
+        generic map (
             C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_PRIME_WIDTH,
             C_MAX_CRT_PRIME_WIDTH => C_MAX_CRT_PRIME_WIDTH,
             C_MAX_FFT_PRIMES => C_MAX_FFT_PRIMES
@@ -67,53 +67,15 @@ begin
         reset <= '1';
         wait until rising_edge(clk);
         
-        --Test AXI Lite
-        send(address, data);
-        read(address, rdata);
-        assert(data = rdata);
-        
-        address := b"1100";
-        data := x"BADDCAFE";
-        send(address, data);
-        read(address, rdata);
-        assert(data = rdata);
-        
-        --Test Loading Program
-        address := b"0000";
-        data := x"00000000";
-        send(address, data);
-        address := b"0100";
-        data := x"00000001";
-        send(address, data);
-        
-        test_data(0) := x"06000000";
-        test_data(1) := x"00000000";
-        test_data(2) := x"00000000";
-        length := C_MAX_PROG_LENGTH;
-        send_stream(test_data, length);
-        
-        address := b"0000";
-        data := x"00000001";
-        send(address, data);
-        address := b"0100";
-        data := x"00000000";
-        send(address, data);
-        wait until rising_edge(clk);
-        address := b"0100";
-        data := x"00000001";
-        send(address, data);
+		crt_val <= INPUT;
         
         wait until rising_edge(clk);
-        test_data(0) := x"00000001";
-        test_data(1) := x"00000002";
-        test_data(2) := x"00000003";
-        test_rdata(0) := x"00000000";
-        test_rdata(1) := x"00000000";
-        test_rdata(2) := x"00000000";
-        read_stream;
-        length := 3;
-        send_stream(test_data, length);
-        --stop <= '1';
+
+		for i 0 to C_MAX_FFT_PRIMES
+			assert crt_rem(i) = std_logic_vector(to_unsigned(OUTPUT(i), C_MAX_FFT_PRIME_WIDTH));
+		end
+
+        stop <= '1';
         
         wait;
     end process;

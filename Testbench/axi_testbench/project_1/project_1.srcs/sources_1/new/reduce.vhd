@@ -32,15 +32,29 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity reduce is
-entity reduce is
-    Port ( val : in STD_LOGIC_VECTOR (0 to 256);
-           prime : in STD_LOGIC_VECTOR (0 to 64);
-           red : out STD_LOGIC_VECTOR (0 to 64));
+	generic (
+		C_MAX_MODULUS_WIDTH : integer    := 64;
+		C_MAX_INPUT_WIDTH   : integer    := 64;
+	)
+	port (
+		clk     : in std_logic;
+		reset   : in std_logic;
+		enabled : in std_logic;
+		modulus : in unsigned(C_MAX_MODULUS_WIDTH-1 downto 0)       := (others => '0');
+		val     : in unsigned(C_MAX_INPUT_WIDTH-1 downto 0)         := (others => '0');
+		rem     : out unsigned(C_MAX_MODULUS_WIDTH-1 downto 0)      := (others => '0');
+	);  
 end reduce;
 
 architecture Behavioral of reduce is
 
 begin
 
+    state_proc : process (clk) is
+    begin	
+        if rising_edge(clk) then
+		
+        end if;
+    end process state_proc;
 
 end Behavioral;

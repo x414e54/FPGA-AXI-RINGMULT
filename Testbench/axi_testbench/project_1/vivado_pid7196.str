@@ -67,3 +67,5 @@ selectButton (RDIResource.BaseDialog_OK, "OK"); // a:JButton (JPanel:JComponent,
 selectButton ((HResource) null, "Yes"); // BasicOptionPaneUI$ButtonFactory:JButton (JPanel:JComponent, B:JDialog)
 dismissDialog ("Define Module"); // Q:V (bG:JFrame)
 // Tcl: update_compile_order -fileset sim_1
+// Tcl: update_compile_order -fileset sources_1update_compile_order -fileset sources_1update_compile_order -fileset sim_1
+// Tcl: update_compile_order -fileset sources_1update_compile_order -fileset sources_1update_compile_order -fileset sim_1
