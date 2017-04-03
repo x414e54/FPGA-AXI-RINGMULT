@@ -1,0 +1,69 @@
+/*
+
+Vivado v2013.2 (64-bit)
+Build 272601 by xbuild on Sat Jun 15 11:27:26 MDT 2013
+Process ID: 7196
+
+Current time: 4/3/17 1:20:11 PM
+Time zone: Japan Standard Time (Asia/Tokyo)
+
+OS: Windows 7
+Version: 6.1
+Architecture: amd64
+Available processors (cores): 8
+
+Screen size: 1024x768
+Screen resolution (DPI): 96
+Available screens: 1
+
+Java version: 1.7.0_17 64-bit
+Java home: C:/Xilinx/Vivado/2013.2/tps/win64/jre
+
+User name: nakasato
+User directory: C:/source/FPGA-tests/Testbench/axi_testbench/project_1
+User country: JP
+User language: ja
+User locale: ja_JP
+
+GUI Allocated memory:	122 mb
+GUI Max memory:		3,066 mb
+
+*/
+
+minimizeFrame (PAResourceItoP.PAViews_TCL_CONSOLE, "Tcl Console"); // av:DockableFrame (FrameContainer:JideTabbedPane, bG:JFrame)
+// bU:I (bG:JFrame):  Opening project 'C:\source\FPGA-tests\Testbench\axi_testbench\project_1\project_1.xpr' : addNotify
+// Tcl: open_project {C:\source\FPGA-tests\Testbench\axi_testbench\project_1\project_1.xpr}
+// Tcl: Scanning sources...Finished scanning sources
+// o:I (bG:JFrame): XilinxNotify - Available Updates: addNotify
+selectButton (RDIResource.UpdateDialog_CLOSE, "Close"); // a:JButton (JPanel:JComponent, o:I)
+// Tcl: update_compile_order -fileset sources_1
+selectButton (RDIResource.UpdateDialog_CLOSE, "Close"); // a:JButton (JPanel:JComponent, o:I)
+dismissDialog ("XilinxNotify - Available Updates"); // o:I (bG:JFrame)
+selectTree (PAResourceAtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources]", 5); // m:c (q:JPanel, bG:JFrame)
+expandTree (PAResourceAtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources]", 5); // m:c (q:JPanel, bG:JFrame)
+selectTree (PAResourceAtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_1]", 6); // m:c (q:JPanel, bG:JFrame)
+expandTree (PAResourceAtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_1]", 6); // m:c (q:JPanel, bG:JFrame)
+selectTree (PAResourceAtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_1]", 6, false, false, false, true, false); // m:c (q:JPanel, bG:JFrame) - POPUP TRIGGER
+selectMenu (PAResourceCommand.PACommandNames_SIMULATION_RUN, "Run Simulation"); // ac:JMenu (aj:JPopupMenu, bG:JFrame)
+selectMenu (PAResourceCommand.PACommandNames_SIMULATION_RESET, "Reset Simulation"); // ac:JMenu (aj:JPopupMenu, bG:JFrame)
+selectMenu (PAResourceCommand.PACommandNames_AUTO_UPDATE_HIER, "Hierarchy Update"); // ac:JMenu (aj:JPopupMenu, bG:JFrame)
+selectMenuItem (PAResourceCommand.PACommandNames_ADD_SOURCES, "Add Sources..."); // af:JMenuItem (aj:JPopupMenu, bG:JFrame)
+// f:aD (bG:JFrame): Add Sources: addNotify
+selectButton ((HResource) null, "Next >"); // JButton:AbstractButton (ButtonPanel:JPanel, f:aD)
+selectButton (PAResourceQtoZ.SrcChooserPanel_CREATE_FILE, "Create File..."); // a:JButton (JPanel:JComponent, f:aD)
+// M:V (f:aD): Create Source File: addNotify
+setText (PAResourceAtoH.CreateSrcFileDialog_FILE_NAME, "tb_"); // ai:JTextField (JPanel:JComponent, M:V)
+setText (PAResourceAtoH.CreateSrcFileDialog_FILE_NAME, "tb_crt"); // ai:JTextField (JPanel:JComponent, M:V)
+selectButton (RDIResource.BaseDialog_OK, "OK"); // a:JButton (JPanel:JComponent, M:V)
+selectButton (RDIResource.BaseDialog_OK, "OK"); // a:JButton (JPanel:JComponent, M:V)
+dismissDialog ("Create Source File"); // M:V (f:aD)
+selectButton ((HResource) null, "Finish"); // JButton:AbstractButton (ButtonPanel:JPanel, f:aD)
+dismissDialog ("Create Source File"); // M:V (f:aD)
+// Tcl: set_property SOURCE_SET sources_1 [get_filesets sim_1]
+// Tcl: close [ open C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sim_1/new/tb_crt.vhd w ]
+// Tcl: add_files -fileset sim_1 C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sim_1/new/tb_crt.vhd
+// Q:V (bG:JFrame): Define Module: addNotify
+selectButton (RDIResource.BaseDialog_OK, "OK"); // a:JButton (JPanel:JComponent, Q:V)
+selectButton ((HResource) null, "Yes"); // BasicOptionPaneUI$ButtonFactory:JButton (JPanel:JComponent, B:JDialog)
+dismissDialog ("Define Module"); // Q:V (bG:JFrame)
+// Tcl: update_compile_order -fileset sim_1
