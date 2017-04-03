@@ -462,3 +462,21 @@ selectMenuItem (PAResourceCommand.PACommandNames_SIMULATION_RUN_BEHAVIORAL, "Run
 selectButton (RDIResource.ProgressDialog_BACKGROUND, "Background"); // a:JButton (JPanel:JComponent, e:bU)
 // Tcl: INFO: [Runs 36-26] xelab completed.INFO: [Vivado 12-1390] *** Running xsim    with args "tb_crt_behav -key {Behavioral:sim_1:Functional:tb_crt} -tclbatch {tb_crt.tcl} -log {tb_crt_behav.log}"
 // Tcl: Vivado Simulator 2013.2
+// Tcl: Time resolution is 1 ps
+// Waveform: addNotify
+// Waveform: addNotify
+// Waveform: addNotify
+// Tcl: INFO: [Vivado 12-1395] XSim completed. Design snapshot 'tb_crt_behav' loaded.
+dismissDialog ("Run Simulation"); // e:bU (bG:JFrame)
+expandTree (RDIResource.WaveformNameTree_WAVEFORM_NAME_TREE, "[true, NoName, crt_primes[8:0][63:0]]", 5); // a:c (JViewport:JComponent, bG:JFrame)
+collapseTree (RDIResource.WaveformNameTree_WAVEFORM_NAME_TREE, "[true, NoName, crt_primes[8:0][63:0]]", 5); // a:c (JViewport:JComponent, bG:JFrame)
+expandTree (RDIResource.WaveformNameTree_WAVEFORM_NAME_TREE, "[true, NoName, crt_remainders[8:0][63:0]]", 3); // a:c (JViewport:JComponent, bG:JFrame)
+collapseTree (RDIResource.WaveformNameTree_WAVEFORM_NAME_TREE, "[true, NoName, crt_remainders[8:0][63:0]]", 3); // a:c (JViewport:JComponent, bG:JFrame)
+expandTree (RDIResource.WaveformNameTree_WAVEFORM_NAME_TREE, "[true, NoName, crt_remainders[8:0][63:0]]", 3); // a:c (JViewport:JComponent, bG:JFrame)
+expandTree (RDIResource.WaveformNameTree_WAVEFORM_NAME_TREE, "[true, NoName, crt_remainders[8:0][63:0], [4][63:0]]", 6); // a:c (JViewport:JComponent, bG:JFrame)
+collapseTree (RDIResource.WaveformNameTree_WAVEFORM_NAME_TREE, "[true, NoName, crt_remainders[8:0][63:0], [4][63:0]]", 6); // a:c (JViewport:JComponent, bG:JFrame)
+collapseTree (RDIResource.WaveformNameTree_WAVEFORM_NAME_TREE, "[true, NoName, crt_remainders[8:0][63:0]]", 6); // a:c (JViewport:JComponent, bG:JFrame)
+expandTree (RDIResource.WaveformNameTree_WAVEFORM_NAME_TREE, "[true, NoName, crt_value[255:0]]", 4); // a:c (JViewport:JComponent, bG:JFrame)
+collapseTree (RDIResource.WaveformNameTree_WAVEFORM_NAME_TREE, "[true, NoName, crt_value[255:0]]", 4); // a:c (JViewport:JComponent, bG:JFrame)
+expandTree (RDIResource.WaveformNameTree_WAVEFORM_NAME_TREE, "[true, NoName, crt_primes[8:0][63:0]]", 5); // a:c (JViewport:JComponent, bG:JFrame)
+collapseTree (RDIResource.WaveformNameTree_WAVEFORM_NAME_TREE, "[true, NoName, crt_primes[8:0][63:0]]", 5); // a:c (JViewport:JComponent, bG:JFrame)
