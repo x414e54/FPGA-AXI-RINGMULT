@@ -39,31 +39,33 @@ entity crt is
 	generic (
 		C_MAX_FFT_PRIME_WIDTH   : integer    := 64;
 		C_MAX_CRT_PRIME_WIDTH   : integer    := 256;
-		C_MAX_FFT_PRIME			: integer    := 9;
-	)
+		C_MAX_FFT_PRIMES		: integer    := 9
+	);
 	port (
-		clk : in std_logic;
-		reset : in std_logic;
-		enabled : in std_logic;
-		val : in unsigned(C_MAX_CRT_PRIME_WIDTH-1 downto 0)   := (others => '0');
-		rem : out crt_bus(C_MAX_FFT_PRIMES-1 downto 0)(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => (others => '0'));
+		clk        : in std_logic;
+		reset      : in std_logic;
+		enabled    : in std_logic;
+		value      : in unsigned(C_MAX_CRT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+		remainders : out crt_bus(C_MAX_FFT_PRIMES-1 downto 0)(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => (others => '0'))
 	);  
 end crt;
 
 architecture Behavioral of crt is
+    type PRIMES_TYPE is array(C_MAX_FFT_PRIMES-1 downto 0) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
 
+	shared variable primes : PRIMES_TYPE := (others => (others => '0'));
 begin
 	crt_primes : for i in 0 to C_MAX_FFT_PRIMES generate
 		prime_i : entity work.reduce
 			generic map (
 				C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-				C_MAX_INPUT_WIDTH   => C_MAX_CRT_PRIME_WIDTH,
-			);
+				C_MAX_INPUT_WIDTH   => C_MAX_CRT_PRIME_WIDTH
+			)
 			port map (
-				clk	=> clk,
-				modulus =>
-				val	=> val,
-				rem	=> rem(i)
+				clk	      => clk,
+				modulus   => primes(i),
+				value	  => value,
+				remainder => remainders(i)
 			);
 	end generate crt_primes;
 end Behavioral;

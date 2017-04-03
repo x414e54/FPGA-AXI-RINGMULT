@@ -6,7 +6,7 @@ entity tb_crt is
     generic (		
         C_MAX_FFT_PRIME_WIDTH        : integer   := 64;		
         C_MAX_CRT_PRIME_WIDTH        : integer   := 256;	
-        C_MAX_FFT_PRIMES             : integer   := 9;
+        C_MAX_FFT_PRIMES             : integer   := 9
     );
     --port ();
 end tb_crt;
@@ -20,8 +20,8 @@ architecture behavior of tb_crt is
         signal reset                : std_logic := '1';
 
         -- crt
-        signal crt_val        :  std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0) := (others => '0');
-        signal crt_rem        :  crt_bus(C_MAX_FFT_PRIMES-1 downto 0)(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => (others => '0'));
+        signal crt_value      :  std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0) := (others => '0');
+        signal crt_remainders :  crt_bus(C_MAX_FFT_PRIMES-1 downto 0)(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => (others => '0'));
         signal crt_enabled    :  std_logic := '0';
 
         signal stop  		  : boolean;
@@ -43,10 +43,10 @@ begin
             reset => reset,
                     
             -- Ports of CRT
-            clk => clk,
-            val => crt_val,
-			enabled = crt_enabled,
-            rem => crt_rem,
+            clk        => clk,
+            value      => crt_value,
+			enabled    => crt_enabled,
+            remainders => crt_remainders
         );  
 
     clk_process : process
@@ -71,9 +71,9 @@ begin
         
         wait until rising_edge(clk);
 
-		for i 0 to C_MAX_FFT_PRIMES
+		for i in 0 to C_MAX_FFT_PRIMES loop
 			assert crt_rem(i) = std_logic_vector(to_unsigned(OUTPUT(i), C_MAX_FFT_PRIME_WIDTH));
-		end
+		end loop;
 
         stop <= '1';
         

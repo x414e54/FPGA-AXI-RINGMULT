@@ -34,15 +34,15 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity reduce is
 	generic (
 		C_MAX_MODULUS_WIDTH : integer    := 64;
-		C_MAX_INPUT_WIDTH   : integer    := 64;
-	)
+		C_MAX_INPUT_WIDTH   : integer    := 64
+	);
 	port (
-		clk     : in std_logic;
-		reset   : in std_logic;
-		enabled : in std_logic;
-		modulus : in unsigned(C_MAX_MODULUS_WIDTH-1 downto 0)       := (others => '0');
-		val     : in unsigned(C_MAX_INPUT_WIDTH-1 downto 0)         := (others => '0');
-		rem     : out unsigned(C_MAX_MODULUS_WIDTH-1 downto 0)      := (others => '0');
+		clk       : in std_logic;
+		reset     : in std_logic;
+		enabled   : in std_logic;
+		modulus   : in unsigned(C_MAX_MODULUS_WIDTH-1 downto 0)       := (others => '0');
+		value     : in unsigned(C_MAX_INPUT_WIDTH-1 downto 0)         := (others => '0');
+		remainder : out unsigned(C_MAX_MODULUS_WIDTH-1 downto 0)      := (others => '0')
 	);  
 end reduce;
 
