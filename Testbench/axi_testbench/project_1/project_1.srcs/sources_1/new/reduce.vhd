@@ -24,7 +24,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx leaf cells in this code.
@@ -38,11 +38,9 @@ entity reduce is
 	);
 	port (
 		clk       : in std_logic;
-		reset     : in std_logic;
-		enabled   : in std_logic;
-		modulus   : in unsigned(C_MAX_MODULUS_WIDTH-1 downto 0)       := (others => '0');
-		value     : in unsigned(C_MAX_INPUT_WIDTH-1 downto 0)         := (others => '0');
-		remainder : out unsigned(C_MAX_MODULUS_WIDTH-1 downto 0)      := (others => '0')
+		modulus   : in std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)       := (others => '0');
+		value     : in std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0)         := (others => '0');
+		remainder : out std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)      := (others => '0')
 	);  
 end reduce;
 

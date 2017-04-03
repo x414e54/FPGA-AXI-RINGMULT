@@ -18,7 +18,6 @@
       <Option Name="TopArchitecture" Val="behavior"/>
       <Option Name="TopRTLFile" Val="$PSRCDIR/sim_1/new/tb_crt.vhd"/>
       <Option Name="TopAutoSet" Val="TRUE"/>
-      <Option Name="SimMode" Val="post-implementation"/>
       <Option Name="SrcSet" Val="sources_1"/>
     </Config>
   </FileSet>

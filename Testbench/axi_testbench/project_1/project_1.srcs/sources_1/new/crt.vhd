@@ -17,23 +17,18 @@
 -- Additional Comments:
 -- 
 ----------------------------------------------------------------------------------
-
-
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 package crt_pkg is
-	type crt_bus is array(natural range <>) of std_logic_vector;
+	type crt_bus is array(natural range <>) of std_logic_vector(64-1 downto 0);
 end package;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use work.crt_pkg.all;
 
 entity crt is
 	generic (
@@ -42,11 +37,10 @@ entity crt is
 		C_MAX_FFT_PRIMES		: integer    := 9
 	);
 	port (
-		clk        : in std_logic;
-		reset      : in std_logic;
-		enabled    : in std_logic;
-		value      : in unsigned(C_MAX_CRT_PRIME_WIDTH-1 downto 0)   := (others => '0');
-		remainders : out crt_bus(C_MAX_FFT_PRIMES-1 downto 0)(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => (others => '0'))
+		clk        : in std_logic := '0';
+		enabled    : in std_logic := '0';
+		value      : in std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+		remainders : out crt_bus(C_MAX_FFT_PRIMES-1 downto 0)  := (others => (others => '0'))
 	);  
 end crt;
 
@@ -55,7 +49,7 @@ architecture Behavioral of crt is
 
 	shared variable primes : PRIMES_TYPE := (others => (others => '0'));
 begin
-	crt_primes : for i in 0 to C_MAX_FFT_PRIMES generate
+	crt_primes : for i in 0 to C_MAX_FFT_PRIMES - 1 generate
 		prime_i : entity work.reduce
 			generic map (
 				C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
