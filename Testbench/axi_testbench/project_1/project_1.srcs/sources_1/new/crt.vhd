@@ -40,14 +40,12 @@ entity crt is
 		clk        : in std_logic := '0';
 		enabled    : in std_logic := '0';
 		value      : in std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+        primes     : in crt_bus(C_MAX_FFT_PRIMES-1 downto 0)  := (others => (others => '0'))
 		remainders : out crt_bus(C_MAX_FFT_PRIMES-1 downto 0)  := (others => (others => '0'))
 	);  
 end crt;
 
 architecture Behavioral of crt is
-    type PRIMES_TYPE is array(C_MAX_FFT_PRIMES-1 downto 0) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
-
-	shared variable primes : PRIMES_TYPE := (others => (others => '0'));
 begin
 	crt_primes : for i in 0 to C_MAX_FFT_PRIMES - 1 generate
 		prime_i : entity work.reduce

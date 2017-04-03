@@ -451,3 +451,200 @@ Printing stacktrace...
 Done
 ERROR: [Runs 36-25] xelab application returned error(s). Please see 'C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/xelab.log' file for more details.
 ERROR: [Common 17-69] Command failed: Failed to compile the design!
+launch_xsim -simset sim_1 -mode behavioral
+INFO: [Runs 36-130] *** Running xelab
+    with args "-m64 --debug typical --relax -L work -L secureip --snapshot tb_crt_behav --prj C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/tb_crt.prj   work.tb_crt"
+Vivado Simulator 2013.2
+Copyright 1986-1999, 2001-2013 Xilinx, Inc. All Rights Reserved.
+Running: C:/Xilinx/Vivado/2013.2/bin/unwrapped/win64.o/xelab.exe --debug typical --relax -L work -L secureip --snapshot tb_crt_behav --prj C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/tb_crt.prj work.tb_crt 
+Multi-threading is on. Using 6 slave threads
+Determining compilation order of HDL files
+INFO: [VRFC 10-165] Analyzing Verilog file "C:/Xilinx/Vivado/2013.2/data/verilog/src/glbl.v" into library work
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/reduce.vhd" into library work
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/crt.vhd" into library work
+WARNING: [VRFC 10-280] actual for formal port modulus is neither a static name nor a globally static expression [C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/crt.vhd:60]
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sim_1/new/tb_crt.vhd" into library work
+Starting static elaboration
+Completed static elaboration
+Starting simulation data flow analysis
+ERROR: [XSIM 43-3294] Signal EXCEPTION_ACCESS_VIOLATION received
+Printing stacktrace...
+
+[0] (KiUserExceptionDispatcher+0x2e) [0x779dbac8]
+[1] (ISIMC::VlogCompiler::VlogCompiler+0x29116) [0x14003a7a6]
+[2] (ISIMC::VhdlCompiler::~VhdlCompiler+0x83e) [0x1400bfe1e]
+[3] (ISIMC::Options::parseVlogcompCommandLine+0x3e25c) [0x14017b56c]
+[4] (ISIMC::VhdlCompiler::~VhdlCompiler+0x6f1b) [0x1400c64fb]
+[5] (ISIMC::VhdlCompiler::~VhdlCompiler+0x839d) [0x1400c797d]
+[6] (Verific::VhdlVisitor::TraverseArray+0x4c) [0x1f56c8c]
+[7] (ISIMC::VhdlCompiler::~VhdlCompiler+0x8661) [0x1400c7c41]
+[8] (Verific::VhdlVisitor::TraverseArray+0x4c) [0x1f56c8c]
+[9] (ISIMC::VhdlCompiler::~VhdlCompiler+0x1534) [0x1400c0b14]
+[10] (ISIMC::VhdlCompiler::~VhdlCompiler+0x6925) [0x1400c5f05]
+[11] (ISIMC::VhdlCompiler::~VhdlCompiler+0x83b7) [0x1400c7997]
+[12] (Verific::VhdlVisitor::TraverseArray+0x4c) [0x1f56c8c]
+[13] (ISIMC::VhdlCompiler::~VhdlCompiler+0x1534) [0x1400c0b14]
+[14] (ISIMC::VhdlCompiler::~VhdlCompiler+0x6925) [0x1400c5f05]
+[15] (ISIMC::VhdlCompiler::~VhdlCompiler+0x7fe9) [0x1400c75c9]
+[16] (ISIMC::VhdlCompiler::buildSDG+0x7a) [0x1400b93ea]
+[17]  [0x140002006]
+[18]  [0x14000bc9f]
+[19]  [0x14000c4a5]
+[20] (ISIMC::Options::parseVlogcompCommandLine+0xb4b72) [0x1401f1e82]
+[21] (BaseThreadInitThunk+0xd) [0x777859bd]
+
+Done
+ERROR: [Runs 36-25] xelab application returned error(s). Please see 'C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/xelab.log' file for more details.
+ERROR: [Common 17-69] Command failed: Failed to compile the design!
+update_compile_order -fileset sim_1
+launch_xsim -simset sim_1 -mode behavioral
+INFO: [Runs 36-130] *** Running xelab
+    with args "-m64 --debug typical --relax -L work -L secureip --snapshot crt_behav --prj C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/crt.prj   work.crt"
+Vivado Simulator 2013.2
+Copyright 1986-1999, 2001-2013 Xilinx, Inc. All Rights Reserved.
+Running: C:/Xilinx/Vivado/2013.2/bin/unwrapped/win64.o/xelab.exe --debug typical --relax -L work -L secureip --snapshot crt_behav --prj C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/crt.prj work.crt 
+Multi-threading is on. Using 6 slave threads
+Determining compilation order of HDL files
+INFO: [VRFC 10-165] Analyzing Verilog file "C:/Xilinx/Vivado/2013.2/data/verilog/src/glbl.v" into library work
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/reduce.vhd" into library work
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/crt.vhd" into library work
+WARNING: [VRFC 10-280] actual for formal port modulus is neither a static name nor a globally static expression [C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/crt.vhd:60]
+Starting static elaboration
+Completed static elaboration
+Starting simulation data flow analysis
+ERROR: [XSIM 43-3294] Signal EXCEPTION_ACCESS_VIOLATION received
+Printing stacktrace...
+
+[0] (KiUserExceptionDispatcher+0x2e) [0x779dbac8]
+[1] (ISIMC::VlogCompiler::VlogCompiler+0x29116) [0x14003a7a6]
+[2] (ISIMC::VhdlCompiler::~VhdlCompiler+0x83e) [0x1400bfe1e]
+[3] (ISIMC::Options::parseVlogcompCommandLine+0x3e25c) [0x14017b56c]
+[4] (ISIMC::VhdlCompiler::~VhdlCompiler+0x6f1b) [0x1400c64fb]
+[5] (ISIMC::VhdlCompiler::~VhdlCompiler+0x839d) [0x1400c797d]
+[6] (Verific::VhdlVisitor::TraverseArray+0x4c) [0x1f56c8c]
+[7] (ISIMC::VhdlCompiler::~VhdlCompiler+0x8661) [0x1400c7c41]
+[8] (Verific::VhdlVisitor::TraverseArray+0x4c) [0x1f56c8c]
+[9] (ISIMC::VhdlCompiler::~VhdlCompiler+0x1534) [0x1400c0b14]
+[10] (ISIMC::VhdlCompiler::~VhdlCompiler+0x6925) [0x1400c5f05]
+[11] (ISIMC::VhdlCompiler::~VhdlCompiler+0x7fe9) [0x1400c75c9]
+[12] (ISIMC::VhdlCompiler::buildSDG+0x7a) [0x1400b93ea]
+[13]  [0x140002006]
+[14]  [0x14000bc9f]
+[15]  [0x14000c4a5]
+[16] (ISIMC::Options::parseVlogcompCommandLine+0xb4b72) [0x1401f1e82]
+[17] (BaseThreadInitThunk+0xd) [0x777859bd]
+
+Done
+ERROR: [Runs 36-25] xelab application returned error(s). Please see 'C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/xelab.log' file for more details.
+ERROR: [Common 17-69] Command failed: Failed to compile the design!
+update_compile_order -fileset sim_1
+update_compile_order -fileset sim_1
+update_compile_order -fileset sim_1
+launch_xsim -simset sim_1 -mode behavioral
+INFO: [Runs 36-130] *** Running xelab
+    with args "-m64 --debug typical --relax -L work -L secureip --snapshot tb_crt_behav --prj C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/tb_crt.prj   work.tb_crt"
+Vivado Simulator 2013.2
+Copyright 1986-1999, 2001-2013 Xilinx, Inc. All Rights Reserved.
+Running: C:/Xilinx/Vivado/2013.2/bin/unwrapped/win64.o/xelab.exe --debug typical --relax -L work -L secureip --snapshot tb_crt_behav --prj C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/tb_crt.prj work.tb_crt 
+Multi-threading is on. Using 6 slave threads
+Determining compilation order of HDL files
+INFO: [VRFC 10-165] Analyzing Verilog file "C:/Xilinx/Vivado/2013.2/data/verilog/src/glbl.v" into library work
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/reduce.vhd" into library work
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/crt.vhd" into library work
+WARNING: [VRFC 10-280] actual for formal port modulus is neither a static name nor a globally static expression [C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/crt.vhd:60]
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sim_1/new/tb_crt.vhd" into library work
+Starting static elaboration
+Completed static elaboration
+Starting simulation data flow analysis
+ERROR: [XSIM 43-3294] Signal EXCEPTION_ACCESS_VIOLATION received
+Printing stacktrace...
+
+[0] (KiUserExceptionDispatcher+0x2e) [0x779dbac8]
+[1] (ISIMC::VlogCompiler::VlogCompiler+0x29116) [0x14003a7a6]
+[2] (ISIMC::VhdlCompiler::~VhdlCompiler+0x83e) [0x1400bfe1e]
+[3] (ISIMC::Options::parseVlogcompCommandLine+0x3e25c) [0x14017b56c]
+[4] (ISIMC::VhdlCompiler::~VhdlCompiler+0x6f1b) [0x1400c64fb]
+[5] (ISIMC::VhdlCompiler::~VhdlCompiler+0x839d) [0x1400c797d]
+[6] (Verific::VhdlVisitor::TraverseArray+0x4c) [0x1f56c8c]
+[7] (ISIMC::VhdlCompiler::~VhdlCompiler+0x8661) [0x1400c7c41]
+[8] (Verific::VhdlVisitor::TraverseArray+0x4c) [0x1f56c8c]
+[9] (ISIMC::VhdlCompiler::~VhdlCompiler+0x1534) [0x1400c0b14]
+[10] (ISIMC::VhdlCompiler::~VhdlCompiler+0x6925) [0x1400c5f05]
+[11] (ISIMC::VhdlCompiler::~VhdlCompiler+0x83b7) [0x1400c7997]
+[12] (Verific::VhdlVisitor::TraverseArray+0x4c) [0x1f56c8c]
+[13] (ISIMC::VhdlCompiler::~VhdlCompiler+0x1534) [0x1400c0b14]
+[14] (ISIMC::VhdlCompiler::~VhdlCompiler+0x6925) [0x1400c5f05]
+[15] (ISIMC::VhdlCompiler::~VhdlCompiler+0x7fe9) [0x1400c75c9]
+[16] (ISIMC::VhdlCompiler::buildSDG+0x7a) [0x1400b93ea]
+[17]  [0x140002006]
+[18]  [0x14000bc9f]
+[19]  [0x14000c4a5]
+[20] (ISIMC::Options::parseVlogcompCommandLine+0xb4b72) [0x1401f1e82]
+[21] (BaseThreadInitThunk+0xd) [0x777859bd]
+
+Done
+ERROR: [Runs 36-25] xelab application returned error(s). Please see 'C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/xelab.log' file for more details.
+ERROR: [Common 17-69] Command failed: Failed to compile the design!
+launch_runs synth_1
+[Mon Apr 03 16:49:27 2017] Launched synth_1...
+Run output will be captured here: C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.runs/synth_1/runme.log
+launch_runs impl_1
+[Mon Apr 03 16:52:09 2017] Launched impl_1...
+Run output will be captured here: C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.runs/impl_1/runme.log
+update_compile_order -fileset sim_1
+update_compile_order -fileset sim_1
+update_compile_order -fileset sim_1
+update_compile_order -fileset sim_1
+update_compile_order -fileset sim_1
+update_compile_order -fileset sim_1
+update_compile_order -fileset sim_1
+update_compile_order -fileset sim_1
+launch_xsim -simset sim_1 -mode behavioral
+INFO: [Runs 36-130] *** Running xelab
+    with args "-m64 --debug typical --relax -L work -L secureip --snapshot tb_crt_behav --prj C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/tb_crt.prj   work.tb_crt"
+Vivado Simulator 2013.2
+Copyright 1986-1999, 2001-2013 Xilinx, Inc. All Rights Reserved.
+Running: C:/Xilinx/Vivado/2013.2/bin/unwrapped/win64.o/xelab.exe --debug typical --relax -L work -L secureip --snapshot tb_crt_behav --prj C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/tb_crt.prj work.tb_crt 
+Multi-threading is on. Using 6 slave threads
+Determining compilation order of HDL files
+ERROR: [VRFC 10-1412] syntax error near % [C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/reduce.vhd:54]
+ERROR: [VRFC 10-1412] syntax error near % [C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/reduce.vhd:54]
+INFO: [VRFC 10-165] Analyzing Verilog file "C:/Xilinx/Vivado/2013.2/data/verilog/src/glbl.v" into library work
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/reduce.vhd" into library work
+ERROR: [VRFC 10-1412] syntax error near % [C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/reduce.vhd:54]
+ERROR: [VRFC 10-1504] unit behavioral ignored due to previous errors [C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/reduce.vhd:47]
+INFO: [VRFC 10-240] VHDL file C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/reduce.vhd ignored due to errors
+ERROR: [Runs 36-25] xelab application returned error(s). Please see 'C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/xelab.log' file for more details.
+ERROR: [Common 17-69] Command failed: Failed to compile the design!
+launch_xsim -simset sim_1 -mode behavioral
+INFO: [Runs 36-130] *** Running xelab
+    with args "-m64 --debug typical --relax -L work -L secureip --snapshot tb_crt_behav --prj C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/tb_crt.prj   work.tb_crt"
+Vivado Simulator 2013.2
+Copyright 1986-1999, 2001-2013 Xilinx, Inc. All Rights Reserved.
+Running: C:/Xilinx/Vivado/2013.2/bin/unwrapped/win64.o/xelab.exe --debug typical --relax -L work -L secureip --snapshot tb_crt_behav --prj C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/tb_crt.prj work.tb_crt 
+Multi-threading is on. Using 6 slave threads
+Determining compilation order of HDL files
+INFO: [VRFC 10-165] Analyzing Verilog file "C:/Xilinx/Vivado/2013.2/data/verilog/src/glbl.v" into library work
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/reduce.vhd" into library work
+ERROR: [VRFC 10-724] found '0' definitions of operator "mod", cannot determine exact overloaded matching definition for "mod" [C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/reduce.vhd:54]
+ERROR: [VRFC 10-1504] unit behavioral ignored due to previous errors [C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/reduce.vhd:47]
+INFO: [VRFC 10-240] VHDL file C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/reduce.vhd ignored due to errors
+ERROR: [Runs 36-25] xelab application returned error(s). Please see 'C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/xelab.log' file for more details.
+ERROR: [Common 17-69] Command failed: Failed to compile the design!
+launch_xsim -simset sim_1 -mode behavioral
+INFO: [Runs 36-130] *** Running xelab
+    with args "-m64 --debug typical --relax -L work -L secureip --snapshot tb_crt_behav --prj C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/tb_crt.prj   work.tb_crt"
+Vivado Simulator 2013.2
+Copyright 1986-1999, 2001-2013 Xilinx, Inc. All Rights Reserved.
+Running: C:/Xilinx/Vivado/2013.2/bin/unwrapped/win64.o/xelab.exe --debug typical --relax -L work -L secureip --snapshot tb_crt_behav --prj C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/tb_crt.prj work.tb_crt 
+Multi-threading is on. Using 6 slave threads
+Determining compilation order of HDL files
+INFO: [VRFC 10-165] Analyzing Verilog file "C:/Xilinx/Vivado/2013.2/data/verilog/src/glbl.v" into library work
+INFO: [VRFC 10-163] Analyzing VHDL file "C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/reduce.vhd" into library work
+ERROR: [VRFC 10-1471] type error near value ; current type std_logic_vector; expected type natural [C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/reduce.vhd:54]
+ERROR: [VRFC 10-704] formal size has no actual or default value [C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/reduce.vhd:54]
+ERROR: [VRFC 10-724] found '0' definitions of operator "mod", cannot determine exact overloaded matching definition for "mod" [C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/reduce.vhd:54]
+ERROR: [VRFC 10-1504] unit behavioral ignored due to previous errors [C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/reduce.vhd:47]
+INFO: [VRFC 10-240] VHDL file C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/reduce.vhd ignored due to errors
+ERROR: [Runs 36-25] xelab application returned error(s). Please see 'C:/source/FPGA-tests/Testbench/axi_testbench/project_1/project_1.sim/sim_1/behav/xelab.log' file for more details.
+ERROR: [Common 17-69] Command failed: Failed to compile the design!

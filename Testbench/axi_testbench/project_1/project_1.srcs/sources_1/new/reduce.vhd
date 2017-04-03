@@ -51,7 +51,7 @@ begin
     state_proc : process (clk) is
     begin	
         if rising_edge(clk) then
-		
+            remainder <= x"4444444455555555";
         end if;
     end process state_proc;
 

@@ -22,12 +22,14 @@ architecture behavior of tb_crt is
         -- crt       
         signal crt_enabled    :  std_logic := '0';
         signal crt_value      :  std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0) := (others => '0');
+        signal crt_primes     :  crt_bus(C_MAX_FFT_PRIMES-1 downto 0) := (others => (others => '0'));
         signal crt_remainders :  crt_bus(C_MAX_FFT_PRIMES-1 downto 0) := (others => (others => '0'));
 
         type int_array is array(0 to 8) of integer;
 
 		constant INPUT: std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0) := x"FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
-        constant OUTPUT: int_array := (0, 1, 2, 3, 4, 5, 6, 7, 8);      
+        constant OUTPUT: crt_bus := (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF");
+        constant PRIMES: crt_bus := (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"); 
 begin
 
     crt_inst : entity work.crt
@@ -42,6 +44,7 @@ begin
             -- Ports of CRT
             enabled    => crt_enabled,
             value      => crt_value,
+            primes     => crt_primes,
             remainders => crt_remainders
         );  
 
@@ -59,13 +62,20 @@ begin
     stimulus : process
     begin
         wait until rising_edge(clk);
+                
+        for i in 0 to C_MAX_FFT_PRIMES - 1 loop
+            crt_primes <= primes(i);
+        end loop;
+        		        
+        wait until rising_edge(clk);
         
+        crt_enabled <= '1';
 		crt_value <= INPUT;
         
         wait until rising_edge(clk);
 
 		for i in 0 to C_MAX_FFT_PRIMES - 1 loop
-			assert crt_remainders(i) = std_logic_vector(to_unsigned(OUTPUT(i), C_MAX_FFT_PRIME_WIDTH));
+			assert crt_remainders(i) = OUTPUT(i);
 		end loop;
 
         stop <= '1';
