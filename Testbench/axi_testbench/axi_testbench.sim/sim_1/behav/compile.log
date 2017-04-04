@@ -1,0 +1,7 @@
+awk: symbol lookup error: awk: undefined symbol: mpfr_z_sub
+INFO: [VRFC 10-163] Analyzing VHDL file "/opt/Code/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/reduce.vhd" into library xil_defaultlib
+INFO: [VRFC 10-307] analyzing entity reduce
+INFO: [VRFC 10-163] Analyzing VHDL file "/opt/Code/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sources_1/new/crt.vhd" into library xil_defaultlib
+INFO: [VRFC 10-307] analyzing entity crt
+INFO: [VRFC 10-163] Analyzing VHDL file "/opt/Code/FPGA-tests/Testbench/axi_testbench/project_1/project_1.srcs/sim_1/new/tb_crt.vhd" into library xil_defaultlib
+INFO: [VRFC 10-307] analyzing entity tb_crt

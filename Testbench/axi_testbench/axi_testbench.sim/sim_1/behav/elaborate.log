@@ -1,0 +1,18 @@
+Vivado Simulator 2016.4
+Copyright 1986-1999, 2001-2016 Xilinx, Inc. All Rights Reserved.
+Running: /opt/Xilinx/Vivado/2016.4/bin/unwrapped/lnx64.o/xelab -wto 20066dddc2f34fff994a30bba82af72d --debug typical --relax --mt 8 -L xil_defaultlib -L secureip --snapshot tb_crt_behav xil_defaultlib.tb_crt -log elaborate.log 
+Using 8 slave threads.
+Starting static elaboration
+Completed static elaboration
+Starting simulation data flow analysis
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling package std.standard
+Compiling package std.textio
+Compiling package ieee.std_logic_1164
+Compiling package ieee.numeric_std
+Compiling package xil_defaultlib.crt_pkg
+Compiling architecture behavioral of entity xil_defaultlib.reduce [\reduce(c_max_input_width=256)\]
+Compiling architecture behavioral of entity xil_defaultlib.crt [crt_default]
+Compiling architecture behavior of entity xil_defaultlib.tb_crt
+Built simulation snapshot tb_crt_behav

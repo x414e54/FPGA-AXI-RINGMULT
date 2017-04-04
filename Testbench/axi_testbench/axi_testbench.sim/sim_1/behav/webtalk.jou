@@ -1,0 +1,12 @@
+#-----------------------------------------------------------
+# Webtalk v2016.4 (64-bit)
+# SW Build 1733598 on Wed Dec 14 22:35:42 MST 2016
+# IP Build 1731160 on Wed Dec 14 23:47:21 MST 2016
+# Start of session at: Tue Apr  4 16:24:11 2017
+# Process ID: 30767
+# Current directory: /opt/Code/FPGA-tests/Testbench/axi_testbench/axi_testbench.sim/sim_1/behav
+# Command line: wbtcv -mode batch -source /opt/Code/FPGA-tests/Testbench/axi_testbench/axi_testbench.sim/sim_1/behav/xsim.dir/tb_crt_behav/webtalk/xsim_webtalk.tcl -notrace
+# Log file: /opt/Code/FPGA-tests/Testbench/axi_testbench/axi_testbench.sim/sim_1/behav/webtalk.log
+# Journal file: /opt/Code/FPGA-tests/Testbench/axi_testbench/axi_testbench.sim/sim_1/behav/webtalk.jou
+#-----------------------------------------------------------
+source /opt/Code/FPGA-tests/Testbench/axi_testbench/axi_testbench.sim/sim_1/behav/xsim.dir/tb_crt_behav/webtalk/xsim_webtalk.tcl -notrace
