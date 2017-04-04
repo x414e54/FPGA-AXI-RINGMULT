@@ -49,7 +49,7 @@ int LEONMachineFunctionPass::GetRegIndexForOperand(MachineInstr &MI,
 // finds a new free FP register
 // checks also the AllocatedRegisters vector
 int LEONMachineFunctionPass::getUnusedFPRegister(MachineRegisterInfo &MRI) {
-  for (int RegisterIndex = SP::F0; RegisterIndex <= SP::F31; ++RegisterIndex) {
+  for (int RegisterIndex = HE::F0; RegisterIndex <= HE::F31; ++RegisterIndex) {
     if (!MRI.isPhysRegUsed(RegisterIndex) &&
         !(std::find(UsedRegisters.begin(), UsedRegisters.end(),
                     RegisterIndex) != UsedRegisters.end())) {
@@ -86,9 +86,9 @@ bool InsertNOPLoad::runOnMachineFunction(MachineFunction &MF) {
     for (auto MBBI = MBB.begin(), E = MBB.end(); MBBI != E; ++MBBI) {
       MachineInstr &MI = *MBBI;
       unsigned Opcode = MI.getOpcode();
-      if (Opcode >= SP::LDDArr && Opcode <= SP::LDrr) {
+      if (Opcode >= HE::LDDArr && Opcode <= HE::LDrr) {
         MachineBasicBlock::iterator NMBBI = std::next(MBBI);
-        BuildMI(MBB, NMBBI, DL, TII.get(SP::NOP));
+        BuildMI(MBB, NMBBI, DL, TII.get(HE::NOP));
         Modified = true;
       } else if (MI.isInlineAsm()) {
         // Look for an inline ld or ldf instruction.
@@ -96,7 +96,7 @@ bool InsertNOPLoad::runOnMachineFunction(MachineFunction &MF) {
             MI.getOperand(InlineAsm::MIOp_AsmString).getSymbolName();
         if (AsmString.startswith_lower("ld")) {
           MachineBasicBlock::iterator NMBBI = std::next(MBBI);
-          BuildMI(MBB, NMBBI, DL, TII.get(SP::NOP));
+          BuildMI(MBB, NMBBI, DL, TII.get(HE::NOP));
           Modified = true;
         }
       }
@@ -143,7 +143,7 @@ bool FixFSMULD::runOnMachineFunction(MachineFunction &MF) {
       int Reg2Index = UNASSIGNED_INDEX;
       int Reg3Index = UNASSIGNED_INDEX;
 
-      if (Opcode == SP::FSMULD && MI.getNumOperands() == 3) {
+      if (Opcode == HE::FSMULD && MI.getNumOperands() == 3) {
         // take the registers from fsmuld %f20,%f21,%f8
         Reg1Index = MI.getOperand(0).getReg();
         Reg2Index = MI.getOperand(1).getReg();
@@ -191,17 +191,17 @@ bool FixFSMULD::runOnMachineFunction(MachineFunction &MF) {
                  << "\n";
         } else {
           // create fstod %f20,%f0
-          BuildMI(MBB, MBBI, DL, TII.get(SP::FSTOD))
+          BuildMI(MBB, MBBI, DL, TII.get(HE::FSTOD))
               .addReg(ScratchReg1Index)
               .addReg(Reg1Index);
 
           // create fstod %f21,%f2
-          BuildMI(MBB, MBBI, DL, TII.get(SP::FSTOD))
+          BuildMI(MBB, MBBI, DL, TII.get(HE::FSTOD))
               .addReg(ScratchReg2Index)
               .addReg(Reg2Index);
 
           // create fmuld %f0,%f2,%f8
-          BuildMI(MBB, MBBI, DL, TII.get(SP::FMULD))
+          BuildMI(MBB, MBBI, DL, TII.get(HE::FMULD))
               .addReg(Reg3Index)
               .addReg(ScratchReg1Index)
               .addReg(ScratchReg2Index);
@@ -255,7 +255,7 @@ bool ReplaceFMULS::runOnMachineFunction(MachineFunction &MF) {
       int Reg2Index = UNASSIGNED_INDEX;
       int Reg3Index = UNASSIGNED_INDEX;
 
-      if (Opcode == SP::FMULS && MI.getNumOperands() == 3) {
+      if (Opcode == HE::FMULS && MI.getNumOperands() == 3) {
         // take the registers from fmuls %f20,%f21,%f8
         Reg1Index = MI.getOperand(0).getReg();
         Reg2Index = MI.getOperand(1).getReg();
@@ -302,17 +302,17 @@ bool ReplaceFMULS::runOnMachineFunction(MachineFunction &MF) {
                  << "\n";
         } else {
           // create fstod %f20,%f0
-          BuildMI(MBB, MBBI, DL, TII.get(SP::FSTOD))
+          BuildMI(MBB, MBBI, DL, TII.get(HE::FSTOD))
               .addReg(ScratchReg1Index)
               .addReg(Reg1Index);
 
           // create fstod %f21,%f2
-          BuildMI(MBB, MBBI, DL, TII.get(SP::FSTOD))
+          BuildMI(MBB, MBBI, DL, TII.get(HE::FSTOD))
               .addReg(ScratchReg2Index)
               .addReg(Reg2Index);
 
           // create fmuld %f0,%f2,%f8
-          BuildMI(MBB, MBBI, DL, TII.get(SP::FMULD))
+          BuildMI(MBB, MBBI, DL, TII.get(HE::FMULD))
               .addReg(Reg3Index)
               .addReg(ScratchReg1Index)
               .addReg(ScratchReg2Index);
@@ -368,10 +368,10 @@ bool FixAllFDIVSQRT::runOnMachineFunction(MachineFunction &MF) {
             MI.getOperand(InlineAsm::MIOp_AsmString).getSymbolName();
         if (AsmString.startswith_lower("fsqrtd")) {
           // this is an inline fsqrts instruction
-          Opcode = SP::FSQRTD;
+          Opcode = HE::FSQRTD;
         } else if (AsmString.startswith_lower("fdivd")) {
           // this is an inline fsqrts instruction
-          Opcode = SP::FDIVD;
+          Opcode = HE::FDIVD;
         }
       }
 
@@ -379,15 +379,15 @@ bool FixAllFDIVSQRT::runOnMachineFunction(MachineFunction &MF) {
       // switched on so we don't need to check for them here. They will
       // already have been converted to FSQRTD or FDIVD earlier in the
       // pipeline.
-      if (Opcode == SP::FSQRTD || Opcode == SP::FDIVD) {
+      if (Opcode == HE::FSQRTD || Opcode == HE::FDIVD) {
         // Insert 5 NOPs before FSQRTD,FDIVD.
         for (int InsertedCount = 0; InsertedCount < 5; InsertedCount++)
-          BuildMI(MBB, MBBI, DL, TII.get(SP::NOP));
+          BuildMI(MBB, MBBI, DL, TII.get(HE::NOP));
 
         MachineBasicBlock::iterator NMBBI = std::next(MBBI);
         // ... and inserting 28 NOPs after FSQRTD,FDIVD.
         for (int InsertedCount = 0; InsertedCount < 28; InsertedCount++)
-          BuildMI(MBB, NMBBI, DL, TII.get(SP::NOP));
+          BuildMI(MBB, NMBBI, DL, TII.get(HE::NOP));
 
         Modified = true;
       }
@@ -420,11 +420,11 @@ bool ReplaceSDIV::runOnMachineFunction(MachineFunction &MF) {
     for (auto MBBI = MBB.begin(), E = MBB.end(); MBBI != E; ++MBBI) {
       MachineInstr &MI = *MBBI;
       unsigned Opcode = MI.getOpcode();
-      if (Opcode == SP::SDIVrr) {
-        MI.setDesc(TII.get(SP::SDIVCCrr));
+      if (Opcode == HE::SDIVrr) {
+        MI.setDesc(TII.get(HE::SDIVCCrr));
         Modified = true;
-      } else if (Opcode == SP::SDIVri) {
-        MI.setDesc(TII.get(SP::SDIVCCri));
+      } else if (Opcode == HE::SDIVri) {
+        MI.setDesc(TII.get(HE::SDIVCCri));
         Modified = true;
       }
     }
@@ -458,7 +458,7 @@ bool FixCALL::runOnMachineFunction(MachineFunction &MF) {
       errs() << "\n";
 
       unsigned Opcode = MI.getOpcode();
-      if (Opcode == SP::CALL || Opcode == SP::CALLrr) {
+      if (Opcode == HE::CALL || Opcode == HE::CALLrr) {
         unsigned NumOperands = MI.getNumOperands();
         for (unsigned OperandIndex = 0; OperandIndex < NumOperands;
              OperandIndex++) {
@@ -519,8 +519,8 @@ bool IgnoreZeroFlag::runOnMachineFunction(MachineFunction &MF) {
     for (auto MBBI = MBB.begin(), E = MBB.end(); MBBI != E; ++MBBI) {
       MachineInstr &MI = *MBBI;
       unsigned Opcode = MI.getOpcode();
-      if (Opcode == SP::SDIVCCrr || Opcode == SP::SDIVCCri ||
-          Opcode == SP::UDIVCCrr || Opcode == SP::UDIVCCri) {
+      if (Opcode == HE::SDIVCCrr || Opcode == HE::SDIVCCri ||
+          Opcode == HE::UDIVCCrr || Opcode == HE::UDIVCCri) {
 
         // split the current machine basic block - just after the sdivcc/udivcc
         // instruction
@@ -544,23 +544,23 @@ bool IgnoreZeroFlag::runOnMachineFunction(MachineFunction &MF) {
         MachineBasicBlock::iterator NextMBBI = std::next(MBBI);
 
         // bvc - branch if overflow flag not set
-        BuildMI(MBB, NextMBBI, DL, TII.get(SP::BCOND))
+        BuildMI(MBB, NextMBBI, DL, TII.get(HE::BCOND))
             .addMBB(dneBB)
             .addImm(SPCC::ICC_VS);
 
         // bnz - branch if not zero
-        BuildMI(MBB, NextMBBI, DL, TII.get(SP::BCOND))
+        BuildMI(MBB, NextMBBI, DL, TII.get(HE::BCOND))
             .addMBB(dneBB)
             .addImm(SPCC::ICC_NE);
 
         // use the WRPSR (Write Processor State Register) instruction to set the
         // zeo flag to 1
         // create wr %g0, 1, %psr
-        BuildMI(MBB, NextMBBI, DL, TII.get(SP::WRPSRri))
-            .addReg(SP::G0)
+        BuildMI(MBB, NextMBBI, DL, TII.get(HE::WRPSRri))
+            .addReg(HE::G0)
             .addImm(1);
 
-        BuildMI(MBB, NextMBBI, DL, TII.get(SP::NOP));
+        BuildMI(MBB, NextMBBI, DL, TII.get(HE::NOP));
 
         Modified = true;
       } else if (MI.isInlineAsm()) {
@@ -592,23 +592,23 @@ bool IgnoreZeroFlag::runOnMachineFunction(MachineFunction &MF) {
           MachineBasicBlock::iterator NextMBBI = std::next(MBBI);
 
           // bvc - branch if overflow flag not set
-          BuildMI(MBB, NextMBBI, DL, TII.get(SP::BCOND))
+          BuildMI(MBB, NextMBBI, DL, TII.get(HE::BCOND))
               .addMBB(dneBB)
               .addImm(SPCC::ICC_VS);
 
           // bnz - branch if not zero
-          BuildMI(MBB, NextMBBI, DL, TII.get(SP::BCOND))
+          BuildMI(MBB, NextMBBI, DL, TII.get(HE::BCOND))
               .addMBB(dneBB)
               .addImm(SPCC::ICC_NE);
 
           // use the WRPSR (Write Processor State Register) instruction to set
           // the zeo flag to 1
           // create wr %g0, 1, %psr
-          BuildMI(MBB, NextMBBI, DL, TII.get(SP::WRPSRri))
-              .addReg(SP::G0)
+          BuildMI(MBB, NextMBBI, DL, TII.get(HE::WRPSRri))
+              .addReg(HE::G0)
               .addImm(1);
 
-          BuildMI(MBB, NextMBBI, DL, TII.get(SP::NOP));
+          BuildMI(MBB, NextMBBI, DL, TII.get(HE::NOP));
 
           Modified = true;
         }
@@ -648,14 +648,14 @@ bool InsertNOPDoublePrecision::runOnMachineFunction(MachineFunction &MF) {
     for (auto MBBI = MBB.begin(), E = MBB.end(); MBBI != E; ++MBBI) {
       MachineInstr &MI = *MBBI;
       unsigned Opcode = MI.getOpcode();
-      if (Opcode == SP::LDDFri || Opcode == SP::LDDFrr) {
+      if (Opcode == HE::LDDFri || Opcode == HE::LDDFrr) {
         MachineBasicBlock::iterator NMBBI = std::next(MBBI);
         MachineInstr &NMI = *NMBBI;
 
         unsigned NextOpcode = NMI.getOpcode();
         // NMI.print(errs());
-        if (NextOpcode == SP::FADDD || NextOpcode == SP::FSUBD ||
-            NextOpcode == SP::FMULD || NextOpcode == SP::FDIVD) {
+        if (NextOpcode == HE::FADDD || NextOpcode == HE::FSUBD ||
+            NextOpcode == HE::FMULD || NextOpcode == HE::FDIVD) {
           int RegAIndex = GetRegIndexForOperand(MI, 0);
           int RegBIndex = GetRegIndexForOperand(NMI, 0);
           int RegCIndex =
@@ -668,29 +668,29 @@ bool InsertNOPDoublePrecision::runOnMachineFunction(MachineFunction &MF) {
               (RegAIndex == RegBIndex + 1 && RegCIndex == RegDIndex) ||
               (RegAIndex == RegCIndex + 1 && RegBIndex == RegDIndex)) {
             // Insert NOP between the two instructions.
-            BuildMI(MBB, NMBBI, DL, TII.get(SP::NOP));
+            BuildMI(MBB, NMBBI, DL, TII.get(HE::NOP));
             Modified = true;
           }
 
           // Check the errata patterns that only happen for FADDD and FMULD
           if (Modified == false &&
-              (NextOpcode == SP::FADDD || NextOpcode == SP::FMULD)) {
+              (NextOpcode == HE::FADDD || NextOpcode == HE::FMULD)) {
             RegAIndex = GetRegIndexForOperand(MI, 1);
             if (RegAIndex == RegBIndex + 1 && RegBIndex == RegCIndex &&
                 RegBIndex == RegDIndex) {
               // Insert NOP between the two instructions.
-              BuildMI(MBB, NMBBI, DL, TII.get(SP::NOP));
+              BuildMI(MBB, NMBBI, DL, TII.get(HE::NOP));
               Modified = true;
             }
           }
-        } else if (NextOpcode == SP::FSQRTD) {
+        } else if (NextOpcode == HE::FSQRTD) {
           int RegAIndex = GetRegIndexForOperand(MI, 1);
           int RegBIndex = GetRegIndexForOperand(NMI, 0);
           int RegCIndex = GetRegIndexForOperand(NMI, 1);
 
           if (RegAIndex == RegBIndex + 1 && RegBIndex == RegCIndex) {
             // Insert NOP between the two instructions.
-            BuildMI(MBB, NMBBI, DL, TII.get(SP::NOP));
+            BuildMI(MBB, NMBBI, DL, TII.get(HE::NOP));
             Modified = true;
           }
         }
@@ -722,7 +722,7 @@ bool PreventRoundChange::runOnMachineFunction(MachineFunction &MF) {
     for (auto MBBI = MBB.begin(), E = MBB.end(); MBBI != E; ++MBBI) {
       MachineInstr &MI = *MBBI;
       unsigned Opcode = MI.getOpcode();
-      if (Opcode == SP::CALL && MI.getNumOperands() > 0) {
+      if (Opcode == HE::CALL && MI.getNumOperands() > 0) {
         MachineOperand &MO = MI.getOperand(0);
 
         if (MO.isGlobal()) {
@@ -761,15 +761,15 @@ bool FlushCacheLineSWAP::runOnMachineFunction(MachineFunction &MF) {
     for (auto MBBI = MBB.begin(), E = MBB.end(); MBBI != E; ++MBBI) {
       MachineInstr &MI = *MBBI;
       unsigned Opcode = MI.getOpcode();
-      if (Opcode == SP::SWAPrr || Opcode == SP::SWAPri ||
-          Opcode == SP::LDSTUBrr || Opcode == SP::LDSTUBri) {
+      if (Opcode == HE::SWAPrr || Opcode == HE::SWAPri ||
+          Opcode == HE::LDSTUBrr || Opcode == HE::LDSTUBri) {
         // insert flush and 5 NOPs before the swap/ldstub instruction
-        BuildMI(MBB, MBBI, DL, TII.get(SP::FLUSH));
-        BuildMI(MBB, MBBI, DL, TII.get(SP::NOP));
-        BuildMI(MBB, MBBI, DL, TII.get(SP::NOP));
-        BuildMI(MBB, MBBI, DL, TII.get(SP::NOP));
-        BuildMI(MBB, MBBI, DL, TII.get(SP::NOP));
-        BuildMI(MBB, MBBI, DL, TII.get(SP::NOP));
+        BuildMI(MBB, MBBI, DL, TII.get(HE::FLUSH));
+        BuildMI(MBB, MBBI, DL, TII.get(HE::NOP));
+        BuildMI(MBB, MBBI, DL, TII.get(HE::NOP));
+        BuildMI(MBB, MBBI, DL, TII.get(HE::NOP));
+        BuildMI(MBB, MBBI, DL, TII.get(HE::NOP));
+        BuildMI(MBB, MBBI, DL, TII.get(HE::NOP));
 
         Modified = true;
       } else if (MI.isInlineAsm()) {
@@ -780,12 +780,12 @@ bool FlushCacheLineSWAP::runOnMachineFunction(MachineFunction &MF) {
           // this is an inline swap or ldstub instruction
 
           // insert flush and 5 NOPs before the swap/ldstub instruction
-          BuildMI(MBB, MBBI, DL, TII.get(SP::FLUSH));
-          BuildMI(MBB, MBBI, DL, TII.get(SP::NOP));
-          BuildMI(MBB, MBBI, DL, TII.get(SP::NOP));
-          BuildMI(MBB, MBBI, DL, TII.get(SP::NOP));
-          BuildMI(MBB, MBBI, DL, TII.get(SP::NOP));
-          BuildMI(MBB, MBBI, DL, TII.get(SP::NOP));
+          BuildMI(MBB, MBBI, DL, TII.get(HE::FLUSH));
+          BuildMI(MBB, MBBI, DL, TII.get(HE::NOP));
+          BuildMI(MBB, MBBI, DL, TII.get(HE::NOP));
+          BuildMI(MBB, MBBI, DL, TII.get(HE::NOP));
+          BuildMI(MBB, MBBI, DL, TII.get(HE::NOP));
+          BuildMI(MBB, MBBI, DL, TII.get(HE::NOP));
 
           Modified = true;
         }
@@ -837,13 +837,13 @@ bool InsertNOPsLoadStore::runOnMachineFunction(MachineFunction &MF) {
       MachineInstr &MI = *MBBI;
 
       if (StoreInstructionsToCheck > 0) {
-        if (((MI.getOpcode() == SP::STFrr || MI.getOpcode() == SP::STFri) &&
+        if (((MI.getOpcode() == HE::STFrr || MI.getOpcode() == HE::STFri) &&
              (GetRegIndexForOperand(MI, LAST_OPERAND) == FxRegIndex ||
               GetRegIndexForOperand(MI, LAST_OPERAND) == FyRegIndex)) ||
             GetRegIndexForOperand(MI, 0) == FxRegIndex) {
           // Insert four NOPs
           for (unsigned InsertedCount = 0; InsertedCount < 4; InsertedCount++) {
-            BuildMI(MBB, MBBI, DL, TII.get(SP::NOP));
+            BuildMI(MBB, MBBI, DL, TII.get(HE::NOP));
           }
           Modified = true;
         }
@@ -852,24 +852,24 @@ bool InsertNOPsLoadStore::runOnMachineFunction(MachineFunction &MF) {
 
       switch (MI.getOpcode()) {
       // Watch for Pattern 1 FPop instructions
-      case SP::LDrr:
-      case SP::LDri:
-      case SP::LDFrr:
-      case SP::LDFri:
-      case SP::FADDS:
-      case SP::FSUBS:
-      case SP::FMULS:
-      case SP::FDIVS:
-      case SP::FSQRTS:
-      case SP::FCMPS:
-      case SP::FMOVS:
-      case SP::FNEGS:
-      case SP::FABSS:
-      case SP::FITOS:
-      case SP::FSTOI:
-      case SP::FITOD:
-      case SP::FDTOI:
-      case SP::FDTOS:
+      case HE::LDrr:
+      case HE::LDri:
+      case HE::LDFrr:
+      case HE::LDFri:
+      case HE::FADDS:
+      case HE::FSUBS:
+      case HE::FMULS:
+      case HE::FDIVS:
+      case HE::FSQRTS:
+      case HE::FCMPS:
+      case HE::FMOVS:
+      case HE::FNEGS:
+      case HE::FABSS:
+      case HE::FITOS:
+      case HE::FSTOI:
+      case HE::FITOD:
+      case HE::FDTOI:
+      case HE::FDTOS:
         if (Pattern1FirstInstruction != NULL) {
           FxRegIndex = GetRegIndexForOperand(*Pattern1FirstInstruction, 0);
           FyRegIndex = GetRegIndexForOperand(MI, 0);
@@ -877,8 +877,8 @@ bool InsertNOPsLoadStore::runOnMachineFunction(MachineFunction &MF) {
           // Check to see if these registers are part of the same double
           // precision
           // register pair.
-          int DoublePrecRegIndexForX = (FxRegIndex - SP::F0) / 2;
-          int DoublePrecRegIndexForY = (FyRegIndex - SP::F0) / 2;
+          int DoublePrecRegIndexForX = (FxRegIndex - HE::F0) / 2;
+          int DoublePrecRegIndexForY = (FyRegIndex - HE::F0) / 2;
 
           if (DoublePrecRegIndexForX == DoublePrecRegIndexForY)
             StoreInstructionsToCheck = 4;
@@ -889,27 +889,27 @@ bool InsertNOPsLoadStore::runOnMachineFunction(MachineFunction &MF) {
       // End of Pattern 1
 
       // Search for Pattern 2
-      case SP::FADDD:
-      case SP::FSUBD:
-      case SP::FMULD:
-      case SP::FDIVD:
-      case SP::FSQRTD:
-      case SP::FCMPD:
+      case HE::FADDD:
+      case HE::FSUBD:
+      case HE::FMULD:
+      case HE::FDIVD:
+      case HE::FSQRTD:
+      case HE::FCMPD:
         Pattern2FirstInstruction = &MI;
         Pattern1FirstInstruction = NULL;
         break;
 
-      case SP::STFrr:
-      case SP::STFri:
-      case SP::STDFrr:
-      case SP::STDFri:
+      case HE::STFrr:
+      case HE::STFri:
+      case HE::STDFrr:
+      case HE::STDFri:
         if (Pattern2FirstInstruction != NULL) {
           if (GetRegIndexForOperand(MI, LAST_OPERAND) ==
               GetRegIndexForOperand(*Pattern2FirstInstruction, 0)) {
             // Insert four NOPs
             for (unsigned InsertedCount = 0; InsertedCount < 4;
                  InsertedCount++) {
-              BuildMI(MBB, MBBI, DL, TII.get(SP::NOP));
+              BuildMI(MBB, MBBI, DL, TII.get(HE::NOP));
             }
 
             Pattern2FirstInstruction = NULL;

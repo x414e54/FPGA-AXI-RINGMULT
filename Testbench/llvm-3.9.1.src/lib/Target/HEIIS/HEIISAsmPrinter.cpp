@@ -110,7 +110,7 @@ static void EmitCall(MCStreamer &OutStreamer,
                      const MCSubtargetInfo &STI)
 {
   MCInst CallInst;
-  CallInst.setOpcode(SP::CALL);
+  CallInst.setOpcode(HE::CALL);
   CallInst.addOperand(Callee);
   OutStreamer.EmitInstruction(CallInst, STI);
 }
@@ -120,7 +120,7 @@ static void EmitSETHI(MCStreamer &OutStreamer,
                       const MCSubtargetInfo &STI)
 {
   MCInst SETHIInst;
-  SETHIInst.setOpcode(SP::SETHIi);
+  SETHIInst.setOpcode(HE::SETHIi);
   SETHIInst.addOperand(RD);
   SETHIInst.addOperand(Imm);
   OutStreamer.EmitInstruction(SETHIInst, STI);
@@ -141,19 +141,19 @@ static void EmitBinary(MCStreamer &OutStreamer, unsigned Opcode,
 static void EmitOR(MCStreamer &OutStreamer,
                    MCOperand &RS1, MCOperand &Imm, MCOperand &RD,
                    const MCSubtargetInfo &STI) {
-  EmitBinary(OutStreamer, SP::ORri, RS1, Imm, RD, STI);
+  EmitBinary(OutStreamer, HE::ORri, RS1, Imm, RD, STI);
 }
 
 static void EmitADD(MCStreamer &OutStreamer,
                     MCOperand &RS1, MCOperand &RS2, MCOperand &RD,
                     const MCSubtargetInfo &STI) {
-  EmitBinary(OutStreamer, SP::ADDrr, RS1, RS2, RD, STI);
+  EmitBinary(OutStreamer, HE::ADDrr, RS1, RS2, RD, STI);
 }
 
 static void EmitSHL(MCStreamer &OutStreamer,
                     MCOperand &RS1, MCOperand &Imm, MCOperand &RD,
                     const MCSubtargetInfo &STI) {
-  EmitBinary(OutStreamer, SP::SLLri, RS1, Imm, RD, STI);
+  EmitBinary(OutStreamer, HE::SLLri, RS1, Imm, RD, STI);
 }
 
 
@@ -177,7 +177,7 @@ void HEIISAsmPrinter::LowerGETPCXAndEmitMCInsts(const MachineInstr *MI,
     OutContext.getOrCreateSymbol(Twine("_GLOBAL_OFFSET_TABLE_"));
 
   const MachineOperand &MO = MI->getOperand(0);
-  assert(MO.getReg() != SP::O7 &&
+  assert(MO.getReg() != HE::O7 &&
          "%o7 is assigned as destination for getpcx!");
 
   MCOperand MCRegOP = MCOperand::createReg(MO.getReg());
@@ -213,7 +213,7 @@ void HEIISAsmPrinter::LowerGETPCXAndEmitMCInsts(const MachineInstr *MI,
                                                                    OutContext));
       EmitSHL(*OutStreamer, MCRegOP, imm, MCRegOP, STI);
       // Use register %o7 to load the lower 32 bits.
-      MCOperand RegO7 = MCOperand::createReg(SP::O7);
+      MCOperand RegO7 = MCOperand::createReg(HE::O7);
       EmitHiLo(*OutStreamer, GOTLabel,
                HEIISMCExpr::VK_HEIIS_HI, HEIISMCExpr::VK_HEIIS_LO,
                RegO7, OutContext, STI);
@@ -227,7 +227,7 @@ void HEIISAsmPrinter::LowerGETPCXAndEmitMCInsts(const MachineInstr *MI,
   MCSymbol *EndLabel   = OutContext.createTempSymbol();
   MCSymbol *SethiLabel = OutContext.createTempSymbol();
 
-  MCOperand RegO7   = MCOperand::createReg(SP::O7);
+  MCOperand RegO7   = MCOperand::createReg(HE::O7);
 
   // <StartLabel>:
   //   call <EndLabel>
@@ -261,7 +261,7 @@ void HEIISAsmPrinter::EmitInstruction(const MachineInstr *MI)
   case TargetOpcode::DBG_VALUE:
     // FIXME: Debug Value.
     return;
-  case SP::GETPCX:
+  case HE::GETPCX:
     LowerGETPCXAndEmitMCInsts(MI, getSubtargetInfo());
     return;
   }
@@ -279,13 +279,13 @@ void HEIISAsmPrinter::EmitFunctionBodyStart() {
     return;
 
   const MachineRegisterInfo &MRI = MF->getRegInfo();
-  const unsigned globalRegs[] = { SP::G2, SP::G3, SP::G6, SP::G7, 0 };
+  const unsigned globalRegs[] = { HE::G2, HE::G3, HE::G6, HE::G7, 0 };
   for (unsigned i = 0; globalRegs[i] != 0; ++i) {
     unsigned reg = globalRegs[i];
     if (MRI.use_empty(reg))
       continue;
 
-    if  (reg == SP::G6 || reg == SP::G7)
+    if  (reg == HE::G6 || reg == HE::G7)
       getTargetStreamer().emitHEIISRegisterIgnore(reg);
     else
       getTargetStreamer().emitHEIISRegisterScratch(reg);
@@ -301,10 +301,10 @@ void HEIISAsmPrinter::printOperand(const MachineInstr *MI, int opNum,
 #ifndef NDEBUG
   // Verify the target flags.
   if (MO.isGlobal() || MO.isSymbol() || MO.isCPI()) {
-    if (MI->getOpcode() == SP::CALL)
+    if (MI->getOpcode() == HE::CALL)
       assert(TF == HEIISMCExpr::VK_HEIIS_None &&
              "Cannot handle target flags on call address");
-    else if (MI->getOpcode() == SP::SETHIi || MI->getOpcode() == SP::SETHIXi)
+    else if (MI->getOpcode() == HE::SETHIi || MI->getOpcode() == HE::SETHIXi)
       assert((TF == HEIISMCExpr::VK_HEIIS_HI
               || TF == HEIISMCExpr::VK_HEIIS_H44
               || TF == HEIISMCExpr::VK_HEIIS_HH
@@ -314,24 +314,24 @@ void HEIISAsmPrinter::printOperand(const MachineInstr *MI, int opNum,
               || TF == HEIISMCExpr::VK_HEIIS_TLS_IE_HI22
               || TF == HEIISMCExpr::VK_HEIIS_TLS_LE_HIX22) &&
              "Invalid target flags for address operand on sethi");
-    else if (MI->getOpcode() == SP::TLS_CALL)
+    else if (MI->getOpcode() == HE::TLS_CALL)
       assert((TF == HEIISMCExpr::VK_HEIIS_None
               || TF == HEIISMCExpr::VK_HEIIS_TLS_GD_CALL
               || TF == HEIISMCExpr::VK_HEIIS_TLS_LDM_CALL) &&
              "Cannot handle target flags on tls call address");
-    else if (MI->getOpcode() == SP::TLS_ADDrr)
+    else if (MI->getOpcode() == HE::TLS_ADDrr)
       assert((TF == HEIISMCExpr::VK_HEIIS_TLS_GD_ADD
               || TF == HEIISMCExpr::VK_HEIIS_TLS_LDM_ADD
               || TF == HEIISMCExpr::VK_HEIIS_TLS_LDO_ADD
               || TF == HEIISMCExpr::VK_HEIIS_TLS_IE_ADD) &&
              "Cannot handle target flags on add for TLS");
-    else if (MI->getOpcode() == SP::TLS_LDrr)
+    else if (MI->getOpcode() == HE::TLS_LDrr)
       assert(TF == HEIISMCExpr::VK_HEIIS_TLS_IE_LD &&
              "Cannot handle target flags on ld for TLS");
-    else if (MI->getOpcode() == SP::TLS_LDXrr)
+    else if (MI->getOpcode() == HE::TLS_LDXrr)
       assert(TF == HEIISMCExpr::VK_HEIIS_TLS_IE_LDX &&
              "Cannot handle target flags on ldx for TLS");
-    else if (MI->getOpcode() == SP::XORri || MI->getOpcode() == SP::XORXri)
+    else if (MI->getOpcode() == HE::XORri || MI->getOpcode() == HE::XORXri)
       assert((TF == HEIISMCExpr::VK_HEIIS_TLS_LDO_LOX10
               || TF == HEIISMCExpr::VK_HEIIS_TLS_LE_LOX10) &&
              "Cannot handle target flags on xor for TLS");
@@ -395,7 +395,7 @@ void HEIISAsmPrinter::printMemOperand(const MachineInstr *MI, int opNum,
   }
 
   if (MI->getOperand(opNum+1).isReg() &&
-      MI->getOperand(opNum+1).getReg() == SP::G0)
+      MI->getOperand(opNum+1).getReg() == HE::G0)
     return;   // don't print "+%g0"
   if (MI->getOperand(opNum+1).isImm() &&
       MI->getOperand(opNum+1).getImm() == 0)

@@ -65,88 +65,88 @@ extern "C" void LLVMInitializeHEIISDisassembler() {
 }
 
 static const unsigned IntRegDecoderTable[] = {
-  SP::G0,  SP::G1,  SP::G2,  SP::G3,
-  SP::G4,  SP::G5,  SP::G6,  SP::G7,
-  SP::O0,  SP::O1,  SP::O2,  SP::O3,
-  SP::O4,  SP::O5,  SP::O6,  SP::O7,
-  SP::L0,  SP::L1,  SP::L2,  SP::L3,
-  SP::L4,  SP::L5,  SP::L6,  SP::L7,
-  SP::I0,  SP::I1,  SP::I2,  SP::I3,
-  SP::I4,  SP::I5,  SP::I6,  SP::I7 };
+  HE::G0,  HE::G1,  HE::G2,  HE::G3,
+  HE::G4,  HE::G5,  HE::G6,  HE::G7,
+  HE::O0,  HE::O1,  HE::O2,  HE::O3,
+  HE::O4,  HE::O5,  HE::O6,  HE::O7,
+  HE::L0,  HE::L1,  HE::L2,  HE::L3,
+  HE::L4,  HE::L5,  HE::L6,  HE::L7,
+  HE::I0,  HE::I1,  HE::I2,  HE::I3,
+  HE::I4,  HE::I5,  HE::I6,  HE::I7 };
 
 static const unsigned FPRegDecoderTable[] = {
-  SP::F0,   SP::F1,   SP::F2,   SP::F3,
-  SP::F4,   SP::F5,   SP::F6,   SP::F7,
-  SP::F8,   SP::F9,   SP::F10,  SP::F11,
-  SP::F12,  SP::F13,  SP::F14,  SP::F15,
-  SP::F16,  SP::F17,  SP::F18,  SP::F19,
-  SP::F20,  SP::F21,  SP::F22,  SP::F23,
-  SP::F24,  SP::F25,  SP::F26,  SP::F27,
-  SP::F28,  SP::F29,  SP::F30,  SP::F31 };
+  HE::F0,   HE::F1,   HE::F2,   HE::F3,
+  HE::F4,   HE::F5,   HE::F6,   HE::F7,
+  HE::F8,   HE::F9,   HE::F10,  HE::F11,
+  HE::F12,  HE::F13,  HE::F14,  HE::F15,
+  HE::F16,  HE::F17,  HE::F18,  HE::F19,
+  HE::F20,  HE::F21,  HE::F22,  HE::F23,
+  HE::F24,  HE::F25,  HE::F26,  HE::F27,
+  HE::F28,  HE::F29,  HE::F30,  HE::F31 };
 
 static const unsigned DFPRegDecoderTable[] = {
-  SP::D0,   SP::D16,  SP::D1,   SP::D17,
-  SP::D2,   SP::D18,  SP::D3,   SP::D19,
-  SP::D4,   SP::D20,  SP::D5,   SP::D21,
-  SP::D6,   SP::D22,  SP::D7,   SP::D23,
-  SP::D8,   SP::D24,  SP::D9,   SP::D25,
-  SP::D10,  SP::D26,  SP::D11,  SP::D27,
-  SP::D12,  SP::D28,  SP::D13,  SP::D29,
-  SP::D14,  SP::D30,  SP::D15,  SP::D31 };
+  HE::D0,   HE::D16,  HE::D1,   HE::D17,
+  HE::D2,   HE::D18,  HE::D3,   HE::D19,
+  HE::D4,   HE::D20,  HE::D5,   HE::D21,
+  HE::D6,   HE::D22,  HE::D7,   HE::D23,
+  HE::D8,   HE::D24,  HE::D9,   HE::D25,
+  HE::D10,  HE::D26,  HE::D11,  HE::D27,
+  HE::D12,  HE::D28,  HE::D13,  HE::D29,
+  HE::D14,  HE::D30,  HE::D15,  HE::D31 };
 
 static const unsigned QFPRegDecoderTable[] = {
-  SP::Q0,  SP::Q8,   ~0U,  ~0U,
-  SP::Q1,  SP::Q9,   ~0U,  ~0U,
-  SP::Q2,  SP::Q10,  ~0U,  ~0U,
-  SP::Q3,  SP::Q11,  ~0U,  ~0U,
-  SP::Q4,  SP::Q12,  ~0U,  ~0U,
-  SP::Q5,  SP::Q13,  ~0U,  ~0U,
-  SP::Q6,  SP::Q14,  ~0U,  ~0U,
-  SP::Q7,  SP::Q15,  ~0U,  ~0U } ;
+  HE::Q0,  HE::Q8,   ~0U,  ~0U,
+  HE::Q1,  HE::Q9,   ~0U,  ~0U,
+  HE::Q2,  HE::Q10,  ~0U,  ~0U,
+  HE::Q3,  HE::Q11,  ~0U,  ~0U,
+  HE::Q4,  HE::Q12,  ~0U,  ~0U,
+  HE::Q5,  HE::Q13,  ~0U,  ~0U,
+  HE::Q6,  HE::Q14,  ~0U,  ~0U,
+  HE::Q7,  HE::Q15,  ~0U,  ~0U } ;
 
 static const unsigned FCCRegDecoderTable[] = {
-  SP::FCC0, SP::FCC1, SP::FCC2, SP::FCC3 };
+  HE::FCC0, HE::FCC1, HE::FCC2, HE::FCC3 };
 
 static const unsigned ASRRegDecoderTable[] = {
-  SP::Y,     SP::ASR1,  SP::ASR2,  SP::ASR3,
-  SP::ASR4,  SP::ASR5,  SP::ASR6,  SP::ASR7,
-  SP::ASR8,  SP::ASR9,  SP::ASR10, SP::ASR11,
-  SP::ASR12, SP::ASR13, SP::ASR14, SP::ASR15,
-  SP::ASR16, SP::ASR17, SP::ASR18, SP::ASR19,
-  SP::ASR20, SP::ASR21, SP::ASR22, SP::ASR23,
-  SP::ASR24, SP::ASR25, SP::ASR26, SP::ASR27,
-  SP::ASR28, SP::ASR29, SP::ASR30, SP::ASR31};
+  HE::Y,     HE::ASR1,  HE::ASR2,  HE::ASR3,
+  HE::ASR4,  HE::ASR5,  HE::ASR6,  HE::ASR7,
+  HE::ASR8,  HE::ASR9,  HE::ASR10, HE::ASR11,
+  HE::ASR12, HE::ASR13, HE::ASR14, HE::ASR15,
+  HE::ASR16, HE::ASR17, HE::ASR18, HE::ASR19,
+  HE::ASR20, HE::ASR21, HE::ASR22, HE::ASR23,
+  HE::ASR24, HE::ASR25, HE::ASR26, HE::ASR27,
+  HE::ASR28, HE::ASR29, HE::ASR30, HE::ASR31};
 
 static const unsigned PRRegDecoderTable[] = {
-  SP::TPC, SP::TNPC, SP::TSTATE, SP::TT, SP::TICK, SP::TBA, SP::PSTATE,
-  SP::TL, SP::PIL, SP::CWP, SP::CANSAVE, SP::CANRESTORE, SP::CLEANWIN,
-  SP::OTHERWIN, SP::WSTATE
+  HE::TPC, HE::TNPC, HE::TSTATE, HE::TT, HE::TICK, HE::TBA, HE::PSTATE,
+  HE::TL, HE::PIL, HE::CWP, HE::CANSAVE, HE::CANRESTORE, HE::CLEANWIN,
+  HE::OTHERWIN, HE::WSTATE
 };
 
 static const uint16_t IntPairDecoderTable[] = {
-  SP::G0_G1, SP::G2_G3, SP::G4_G5, SP::G6_G7,
-  SP::O0_O1, SP::O2_O3, SP::O4_O5, SP::O6_O7,
-  SP::L0_L1, SP::L2_L3, SP::L4_L5, SP::L6_L7,
-  SP::I0_I1, SP::I2_I3, SP::I4_I5, SP::I6_I7,
+  HE::G0_G1, HE::G2_G3, HE::G4_G5, HE::G6_G7,
+  HE::O0_O1, HE::O2_O3, HE::O4_O5, HE::O6_O7,
+  HE::L0_L1, HE::L2_L3, HE::L4_L5, HE::L6_L7,
+  HE::I0_I1, HE::I2_I3, HE::I4_I5, HE::I6_I7,
 };
 
 static const unsigned CPRegDecoderTable[] = {
-  SP::C0,  SP::C1,  SP::C2,  SP::C3,
-  SP::C4,  SP::C5,  SP::C6,  SP::C7,
-  SP::C8,  SP::C9,  SP::C10, SP::C11,
-  SP::C12, SP::C13, SP::C14, SP::C15,
-  SP::C16, SP::C17, SP::C18, SP::C19,
-  SP::C20, SP::C21, SP::C22, SP::C23,
-  SP::C24, SP::C25, SP::C26, SP::C27,
-  SP::C28, SP::C29, SP::C30, SP::C31
+  HE::C0,  HE::C1,  HE::C2,  HE::C3,
+  HE::C4,  HE::C5,  HE::C6,  HE::C7,
+  HE::C8,  HE::C9,  HE::C10, HE::C11,
+  HE::C12, HE::C13, HE::C14, HE::C15,
+  HE::C16, HE::C17, HE::C18, HE::C19,
+  HE::C20, HE::C21, HE::C22, HE::C23,
+  HE::C24, HE::C25, HE::C26, HE::C27,
+  HE::C28, HE::C29, HE::C30, HE::C31
 };
 
 
 static const uint16_t CPPairDecoderTable[] = {
-  SP::C0_C1,   SP::C2_C3,   SP::C4_C5,   SP::C6_C7,
-  SP::C8_C9,   SP::C10_C11, SP::C12_C13, SP::C14_C15,
-  SP::C16_C17, SP::C18_C19, SP::C20_C21, SP::C22_C23,
-  SP::C24_C25, SP::C26_C27, SP::C28_C29, SP::C30_C31
+  HE::C0_C1,   HE::C2_C3,   HE::C4_C5,   HE::C6_C7,
+  HE::C8_C9,   HE::C10_C11, HE::C12_C13, HE::C14_C15,
+  HE::C16_C17, HE::C18_C19, HE::C20_C21, HE::C22_C23,
+  HE::C24_C25, HE::C26_C27, HE::C28_C29, HE::C30_C31
 };
 
 static DecodeStatus DecodeIntRegsRegisterClass(MCInst &Inst,

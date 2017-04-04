@@ -135,14 +135,14 @@ public:
     HEIIS::Q12, HEIIS::Q13, HEIIS::Q14, HEIIS::Q15 };
 
   static const MCPhysReg ASRRegs[32] = {
-    SP::Y,     SP::ASR1,  SP::ASR2,  SP::ASR3,
-    SP::ASR4,  SP::ASR5,  SP::ASR6, SP::ASR7,
-    SP::ASR8,  SP::ASR9,  SP::ASR10, SP::ASR11,
-    SP::ASR12, SP::ASR13, SP::ASR14, SP::ASR15,
-    SP::ASR16, SP::ASR17, SP::ASR18, SP::ASR19,
-    SP::ASR20, SP::ASR21, SP::ASR22, SP::ASR23,
-    SP::ASR24, SP::ASR25, SP::ASR26, SP::ASR27,
-    SP::ASR28, SP::ASR29, SP::ASR30, SP::ASR31};
+    HE::Y,     HE::ASR1,  HE::ASR2,  HE::ASR3,
+    HE::ASR4,  HE::ASR5,  HE::ASR6, HE::ASR7,
+    HE::ASR8,  HE::ASR9,  HE::ASR10, HE::ASR11,
+    HE::ASR12, HE::ASR13, HE::ASR14, HE::ASR15,
+    HE::ASR16, HE::ASR17, HE::ASR18, HE::ASR19,
+    HE::ASR20, HE::ASR21, HE::ASR22, HE::ASR23,
+    HE::ASR24, HE::ASR25, HE::ASR26, HE::ASR27,
+    HE::ASR28, HE::ASR29, HE::ASR30, HE::ASR31};
 
   static const MCPhysReg IntPairRegs[] = {
     HEIIS::G0_G1, HEIIS::G2_G3, HEIIS::G4_G5, HEIIS::G6_G7,
@@ -506,7 +506,7 @@ void HEIISAsmParser::expandSET(MCInst &Inst, SMLoc IDLoc,
     MCInst TmpInst;
     const MCExpr *Expr = adjustPICRelocation(HEIISMCExpr::VK_HEIIS_HI, ValExpr);
     TmpInst.setLoc(IDLoc);
-    TmpInst.setOpcode(SP::SETHIi);
+    TmpInst.setOpcode(HE::SETHIi);
     TmpInst.addOperand(MCRegOp);
     TmpInst.addOperand(MCOperand::createExpr(Expr));
     Instructions.push_back(TmpInst);
@@ -531,7 +531,7 @@ void HEIISAsmParser::expandSET(MCInst &Inst, SMLoc IDLoc,
     else
       Expr = adjustPICRelocation(HEIISMCExpr::VK_HEIIS_LO, ValExpr);
     TmpInst.setLoc(IDLoc);
-    TmpInst.setOpcode(SP::ORri);
+    TmpInst.setOpcode(HE::ORri);
     TmpInst.addOperand(MCRegOp);
     TmpInst.addOperand(PrevReg);
     TmpInst.addOperand(MCOperand::createExpr(Expr));
@@ -555,7 +555,7 @@ bool HEIISAsmParser::MatchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode,
       Inst.setLoc(IDLoc);
       Instructions.push_back(Inst);
       break;
-    case SP::SET:
+    case HE::SET:
       expandSET(Inst, IDLoc, Instructions);
       break;
     }

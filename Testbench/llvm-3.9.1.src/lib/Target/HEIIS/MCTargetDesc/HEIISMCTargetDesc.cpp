@@ -35,7 +35,7 @@ using namespace llvm;
 static MCAsmInfo *createHEIISMCAsmInfo(const MCRegisterInfo &MRI,
                                        const Triple &TT) {
   MCAsmInfo *MAI = new HEIISELFMCAsmInfo(TT);
-  unsigned Reg = MRI.getDwarfRegNum(SP::O6, true);
+  unsigned Reg = MRI.getDwarfRegNum(HE::O6, true);
   MCCFIInstruction Inst = MCCFIInstruction::createDefCfa(nullptr, Reg, 0);
   MAI->addInitialFrameState(Inst);
   return MAI;
@@ -44,7 +44,7 @@ static MCAsmInfo *createHEIISMCAsmInfo(const MCRegisterInfo &MRI,
 static MCAsmInfo *createHEIISV9MCAsmInfo(const MCRegisterInfo &MRI,
                                          const Triple &TT) {
   MCAsmInfo *MAI = new HEIISELFMCAsmInfo(TT);
-  unsigned Reg = MRI.getDwarfRegNum(SP::O6, true);
+  unsigned Reg = MRI.getDwarfRegNum(HE::O6, true);
   MCCFIInstruction Inst = MCCFIInstruction::createDefCfa(nullptr, Reg, 2047);
   MAI->addInitialFrameState(Inst);
   return MAI;
@@ -58,7 +58,7 @@ static MCInstrInfo *createHEIISMCInstrInfo() {
 
 static MCRegisterInfo *createHEIISMCRegisterInfo(const Triple &TT) {
   MCRegisterInfo *X = new MCRegisterInfo();
-  InitHEIISMCRegisterInfo(X, SP::O7);
+  InitHEIISMCRegisterInfo(X, HE::O7);
   return X;
 }
 

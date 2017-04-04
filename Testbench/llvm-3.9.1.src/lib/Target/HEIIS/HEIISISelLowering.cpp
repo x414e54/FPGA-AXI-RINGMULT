@@ -54,7 +54,7 @@ static bool CC_HEIIS_Assign_Split_64(unsigned &ValNo, MVT &ValVT,
                                      ISD::ArgFlagsTy &ArgFlags, CCState &State)
 {
   static const MCPhysReg RegList[] = {
-    SP::I0, SP::I1, SP::I2, SP::I3, SP::I4, SP::I5
+    HE::I0, HE::I1, HE::I2, HE::I3, HE::I4, HE::I5
   };
   // Try to get first reg.
   if (unsigned Reg = State.AllocateReg(RegList)) {
@@ -82,7 +82,7 @@ static bool CC_HEIIS_Assign_Ret_Split_64(unsigned &ValNo, MVT &ValVT,
                                          ISD::ArgFlagsTy &ArgFlags, CCState &State)
 {
   static const MCPhysReg RegList[] = {
-    SP::I0, SP::I1, SP::I2, SP::I3, SP::I4, SP::I5
+    HE::I0, HE::I1, HE::I2, HE::I3, HE::I4, HE::I5
   };
 
   // Try to get first reg.
@@ -116,16 +116,16 @@ static bool CC_HEIIS64_Full(unsigned &ValNo, MVT &ValVT,
 
   if (LocVT == MVT::i64 && Offset < 6*8)
     // Promote integers to %i0-%i5.
-    Reg = SP::I0 + Offset/8;
+    Reg = HE::I0 + Offset/8;
   else if (LocVT == MVT::f64 && Offset < 16*8)
     // Promote doubles to %d0-%d30. (Which LLVM calls D0-D15).
-    Reg = SP::D0 + Offset/8;
+    Reg = HE::D0 + Offset/8;
   else if (LocVT == MVT::f32 && Offset < 16*8)
     // Promote floats to %f1, %f3, ...
-    Reg = SP::F1 + Offset/4;
+    Reg = HE::F1 + Offset/4;
   else if (LocVT == MVT::f128 && Offset < 16*8)
     // Promote long doubles to %q0-%q28. (Which LLVM calls Q0-Q7).
-    Reg = SP::Q0 + Offset/16;
+    Reg = HE::Q0 + Offset/16;
 
   // Promote to register when possible, otherwise use the stack slot.
   if (Reg) {
@@ -154,14 +154,14 @@ static bool CC_HEIIS64_Half(unsigned &ValNo, MVT &ValVT,
 
   if (LocVT == MVT::f32 && Offset < 16*8) {
     // Promote floats to %f0-%f31.
-    State.addLoc(CCValAssign::getReg(ValNo, ValVT, SP::F0 + Offset/4,
+    State.addLoc(CCValAssign::getReg(ValNo, ValVT, HE::F0 + Offset/4,
                                      LocVT, LocInfo));
     return true;
   }
 
   if (LocVT == MVT::i32 && Offset < 6*8) {
     // Promote integers to %i0-%i5, using half the register.
-    unsigned Reg = SP::I0 + Offset/8;
+    unsigned Reg = HE::I0 + Offset/8;
     LocVT = MVT::i64;
     LocInfo = CCValAssign::AExt;
 
@@ -184,10 +184,10 @@ static bool CC_HEIIS64_Half(unsigned &ValNo, MVT &ValVT,
 // callee's register window. This function translates registers to the
 // corresponding caller window %o register.
 static unsigned toCallerWindow(unsigned Reg) {
-  static_assert(SP::I0 + 7 == SP::I7 && SP::O0 + 7 == SP::O7,
+  static_assert(HE::I0 + 7 == HE::I7 && HE::O0 + 7 == HE::O7,
                 "Unexpected enum");
-  if (Reg >= SP::I0 && Reg <= SP::I7)
-    return Reg - SP::I0 + SP::O0;
+  if (Reg >= HE::I0 && Reg <= HE::I7)
+    return Reg - HE::I0 + HE::O0;
   return Reg;
 }
 
@@ -269,9 +269,9 @@ HEIISTargetLowering::LowerReturn_32(SDValue Chain, CallingConv::ID CallConv,
       llvm_unreachable("sret virtual register not created in the entry block");
     auto PtrVT = getPointerTy(DAG.getDataLayout());
     SDValue Val = DAG.getCopyFromReg(Chain, DL, Reg, PtrVT);
-    Chain = DAG.getCopyToReg(Chain, DL, SP::I0, Val, Flag);
+    Chain = DAG.getCopyToReg(Chain, DL, HE::I0, Val, Flag);
     Flag = Chain.getValue(1);
-    RetOps.push_back(DAG.getRegister(SP::I0, PtrVT));
+    RetOps.push_back(DAG.getRegister(HE::I0, PtrVT));
     RetAddrOffset = 12; // CallInst + Delay Slot + Unimp
   }
 
@@ -415,7 +415,7 @@ SDValue HEIISTargetLowering::LowerFormalArguments_32(
       if (VA.needsCustom()) {
         assert(VA.getLocVT() == MVT::f64 || VA.getLocVT() == MVT::v2i32);
 
-        unsigned VRegHi = RegInfo.createVirtualRegister(&SP::IntRegsRegClass);
+        unsigned VRegHi = RegInfo.createVirtualRegister(&HE::IntRegsRegClass);
         MF.getRegInfo().addLiveIn(VA.getLocReg(), VRegHi);
         SDValue HiVal = DAG.getCopyFromReg(Chain, dl, VRegHi, MVT::i32);
 
@@ -430,7 +430,7 @@ SDValue HEIISTargetLowering::LowerFormalArguments_32(
           LoVal = DAG.getLoad(MVT::i32, dl, Chain, FIPtr, MachinePointerInfo());
         } else {
           unsigned loReg = MF.addLiveIn(NextVA.getLocReg(),
-                                        &SP::IntRegsRegClass);
+                                        &HE::IntRegsRegClass);
           LoVal = DAG.getCopyFromReg(Chain, dl, loReg, MVT::i32);
         }
 
@@ -443,7 +443,7 @@ SDValue HEIISTargetLowering::LowerFormalArguments_32(
         InVals.push_back(WholeValue);
         continue;
       }
-      unsigned VReg = RegInfo.createVirtualRegister(&SP::IntRegsRegClass);
+      unsigned VReg = RegInfo.createVirtualRegister(&HE::IntRegsRegClass);
       MF.getRegInfo().addLiveIn(VA.getLocReg(), VReg);
       SDValue Arg = DAG.getCopyFromReg(Chain, dl, VReg, MVT::i32);
       if (VA.getLocVT() == MVT::f32)
@@ -522,7 +522,7 @@ SDValue HEIISTargetLowering::LowerFormalArguments_32(
     HEIISMachineFunctionInfo *SFI = MF.getInfo<HEIISMachineFunctionInfo>();
     unsigned Reg = SFI->getSRetReturnReg();
     if (!Reg) {
-      Reg = MF.getRegInfo().createVirtualRegister(&SP::IntRegsRegClass);
+      Reg = MF.getRegInfo().createVirtualRegister(&HE::IntRegsRegClass);
       SFI->setSRetReturnReg(Reg);
     }
     SDValue Copy = DAG.getCopyToReg(DAG.getEntryNode(), dl, Reg, InVals[0]);
@@ -532,7 +532,7 @@ SDValue HEIISTargetLowering::LowerFormalArguments_32(
   // Store remaining ArgRegs to the stack if this is a varargs function.
   if (isVarArg) {
     static const MCPhysReg ArgRegs[] = {
-      SP::I0, SP::I1, SP::I2, SP::I3, SP::I4, SP::I5
+      HE::I0, HE::I1, HE::I2, HE::I3, HE::I4, HE::I5
     };
     unsigned NumAllocated = CCInfo.getFirstUnallocated(ArgRegs);
     const MCPhysReg *CurArgReg = ArgRegs+NumAllocated, *ArgRegEnd = ArgRegs+6;
@@ -550,7 +550,7 @@ SDValue HEIISTargetLowering::LowerFormalArguments_32(
     std::vector<SDValue> OutChains;
 
     for (; CurArgReg != ArgRegEnd; ++CurArgReg) {
-      unsigned VReg = RegInfo.createVirtualRegister(&SP::IntRegsRegClass);
+      unsigned VReg = RegInfo.createVirtualRegister(&HE::IntRegsRegClass);
       MF.getRegInfo().addLiveIn(*CurArgReg, VReg);
       SDValue Arg = DAG.getCopyFromReg(DAG.getRoot(), dl, VReg, MVT::i32);
 
@@ -666,7 +666,7 @@ SDValue HEIISTargetLowering::LowerFormalArguments_64(
   // of how many arguments were actually passed.
   SmallVector<SDValue, 8> OutChains;
   for (; ArgOffset < 6*8; ArgOffset += 8) {
-    unsigned VReg = MF.addLiveIn(SP::I0 + ArgOffset/8, &SP::I64RegsRegClass);
+    unsigned VReg = MF.addLiveIn(HE::I0 + ArgOffset/8, &HE::I64RegsRegClass);
     SDValue VArg = DAG.getCopyFromReg(Chain, DL, VReg, MVT::i64);
     int FI = MF.getFrameInfo()->CreateFixedObject(8, ArgOffset + ArgArea, true);
     auto PtrVT = getPointerTy(MF.getDataLayout());
@@ -817,7 +817,7 @@ HEIISTargetLowering::LowerCall_32(TargetLowering::CallLoweringInfo &CLI,
     if (Flags.isSRet()) {
       assert(VA.needsCustom());
       // store SRet argument in %sp+64
-      SDValue StackPtr = DAG.getRegister(SP::O6, MVT::i32);
+      SDValue StackPtr = DAG.getRegister(HE::O6, MVT::i32);
       SDValue PtrOff = DAG.getIntPtrConstant(64, dl);
       PtrOff = DAG.getNode(ISD::ADD, dl, MVT::i32, StackPtr, PtrOff);
       MemOpChains.push_back(
@@ -833,7 +833,7 @@ HEIISTargetLowering::LowerCall_32(TargetLowering::CallLoweringInfo &CLI,
         unsigned Offset = VA.getLocMemOffset() + StackOffset;
         // if it is double-word aligned, just store.
         if (Offset % 8 == 0) {
-          SDValue StackPtr = DAG.getRegister(SP::O6, MVT::i32);
+          SDValue StackPtr = DAG.getRegister(HE::O6, MVT::i32);
           SDValue PtrOff = DAG.getIntPtrConstant(Offset, dl);
           PtrOff = DAG.getNode(ISD::ADD, dl, MVT::i32, StackPtr, PtrOff);
           MemOpChains.push_back(
@@ -869,7 +869,7 @@ HEIISTargetLowering::LowerCall_32(TargetLowering::CallLoweringInfo &CLI,
         } else {
           // Store the second part in stack.
           unsigned Offset = NextVA.getLocMemOffset() + StackOffset;
-          SDValue StackPtr = DAG.getRegister(SP::O6, MVT::i32);
+          SDValue StackPtr = DAG.getRegister(HE::O6, MVT::i32);
           SDValue PtrOff = DAG.getIntPtrConstant(Offset, dl);
           PtrOff = DAG.getNode(ISD::ADD, dl, MVT::i32, StackPtr, PtrOff);
           MemOpChains.push_back(
@@ -878,7 +878,7 @@ HEIISTargetLowering::LowerCall_32(TargetLowering::CallLoweringInfo &CLI,
       } else {
         unsigned Offset = VA.getLocMemOffset() + StackOffset;
         // Store the first part.
-        SDValue StackPtr = DAG.getRegister(SP::O6, MVT::i32);
+        SDValue StackPtr = DAG.getRegister(HE::O6, MVT::i32);
         SDValue PtrOff = DAG.getIntPtrConstant(Offset, dl);
         PtrOff = DAG.getNode(ISD::ADD, dl, MVT::i32, StackPtr, PtrOff);
         MemOpChains.push_back(
@@ -907,7 +907,7 @@ HEIISTargetLowering::LowerCall_32(TargetLowering::CallLoweringInfo &CLI,
     assert(VA.isMemLoc());
 
     // Create a store off the stack pointer for this argument.
-    SDValue StackPtr = DAG.getRegister(SP::O6, MVT::i32);
+    SDValue StackPtr = DAG.getRegister(HE::O6, MVT::i32);
     SDValue PtrOff = DAG.getIntPtrConstant(VA.getLocMemOffset() + StackOffset,
                                            dl);
     PtrOff = DAG.getNode(ISD::ADD, dl, MVT::i32, StackPtr, PtrOff);
@@ -1015,14 +1015,14 @@ HEIISTargetLowering::LowerCall_32(TargetLowering::CallLoweringInfo &CLI,
 unsigned HEIISTargetLowering::getRegisterByName(const char* RegName, EVT VT,
                                                SelectionDAG &DAG) const {
   unsigned Reg = StringSwitch<unsigned>(RegName)
-    .Case("i0", SP::I0).Case("i1", SP::I1).Case("i2", SP::I2).Case("i3", SP::I3)
-    .Case("i4", SP::I4).Case("i5", SP::I5).Case("i6", SP::I6).Case("i7", SP::I7)
-    .Case("o0", SP::O0).Case("o1", SP::O1).Case("o2", SP::O2).Case("o3", SP::O3)
-    .Case("o4", SP::O4).Case("o5", SP::O5).Case("o6", SP::O6).Case("o7", SP::O7)
-    .Case("l0", SP::L0).Case("l1", SP::L1).Case("l2", SP::L2).Case("l3", SP::L3)
-    .Case("l4", SP::L4).Case("l5", SP::L5).Case("l6", SP::L6).Case("l7", SP::L7)
-    .Case("g0", SP::G0).Case("g1", SP::G1).Case("g2", SP::G2).Case("g3", SP::G3)
-    .Case("g4", SP::G4).Case("g5", SP::G5).Case("g6", SP::G6).Case("g7", SP::G7)
+    .Case("i0", HE::I0).Case("i1", HE::I1).Case("i2", HE::I2).Case("i3", HE::I3)
+    .Case("i4", HE::I4).Case("i5", HE::I5).Case("i6", HE::I6).Case("i7", HE::I7)
+    .Case("o0", HE::O0).Case("o1", HE::O1).Case("o2", HE::O2).Case("o3", HE::O3)
+    .Case("o4", HE::O4).Case("o5", HE::O5).Case("o6", HE::O6).Case("o7", HE::O7)
+    .Case("l0", HE::L0).Case("l1", HE::L1).Case("l2", HE::L2).Case("l3", HE::L3)
+    .Case("l4", HE::L4).Case("l5", HE::L5).Case("l6", HE::L6).Case("l7", HE::L7)
+    .Case("g0", HE::G0).Case("g1", HE::G1).Case("g2", HE::G2).Case("g3", HE::G3)
+    .Case("g4", HE::G4).Case("g5", HE::G5).Case("g6", HE::G6).Case("g7", HE::G7)
     .Default(0);
 
   if (Reg)
@@ -1101,14 +1101,14 @@ static void fixupVariableFloatArgs(SmallVectorImpl<CCValAssign> &ArgLocs,
     CCValAssign NewVA;
 
     // Determine the offset into the argument array.
-    unsigned firstReg = (ValTy == MVT::f64) ? SP::D0 : SP::Q0;
+    unsigned firstReg = (ValTy == MVT::f64) ? HE::D0 : HE::Q0;
     unsigned argSize  = (ValTy == MVT::f64) ? 8 : 16;
     unsigned Offset = argSize * (VA.getLocReg() - firstReg);
     assert(Offset < 16*8 && "Offset out of range, bad register enum?");
 
     if (Offset < 6*8) {
       // This argument should go in %i0-%i5.
-      unsigned IReg = SP::I0 + Offset/8;
+      unsigned IReg = HE::I0 + Offset/8;
       if (ValTy == MVT::f64)
         // Full register, just bitconvert into i64.
         NewVA = CCValAssign::getReg(VA.getValNo(), VA.getValVT(),
@@ -1208,9 +1208,9 @@ HEIISTargetLowering::LowerCall_64(TargetLowering::CallLoweringInfo &CLI,
       if (VA.needsCustom() && VA.getValVT() == MVT::f128
           && VA.getLocVT() == MVT::i128) {
         // Store and reload into the interger register reg and reg+1.
-        unsigned Offset = 8 * (VA.getLocReg() - SP::I0);
+        unsigned Offset = 8 * (VA.getLocReg() - HE::I0);
         unsigned StackOffset = Offset + Subtarget->getStackPointerBias() + 128;
-        SDValue StackPtr = DAG.getRegister(SP::O6, PtrVT);
+        SDValue StackPtr = DAG.getRegister(HE::O6, PtrVT);
         SDValue HiPtrOff = DAG.getIntPtrConstant(StackOffset, DL);
         HiPtrOff = DAG.getNode(ISD::ADD, DL, PtrVT, StackPtr, HiPtrOff);
         SDValue LoPtrOff = DAG.getIntPtrConstant(StackOffset + 8, DL);
@@ -1255,7 +1255,7 @@ HEIISTargetLowering::LowerCall_64(TargetLowering::CallLoweringInfo &CLI,
     assert(VA.isMemLoc());
 
     // Create a store off the stack pointer for this argument.
-    SDValue StackPtr = DAG.getRegister(SP::O6, PtrVT);
+    SDValue StackPtr = DAG.getRegister(HE::O6, PtrVT);
     // The argument area starts at %fp+BIAS+128 in the callee frame,
     // %sp+BIAS+128 in ours.
     SDValue PtrOff = DAG.getIntPtrConstant(VA.getLocMemOffset() +
@@ -1461,18 +1461,18 @@ HEIISTargetLowering::HEIISTargetLowering(const TargetMachine &TM,
   setBooleanVectorContents(ZeroOrOneBooleanContent);
 
   // Set up the register classes.
-  addRegisterClass(MVT::i32, &SP::IntRegsRegClass);
+  addRegisterClass(MVT::i32, &HE::IntRegsRegClass);
   if (!Subtarget->useSoftFloat()) {
-    addRegisterClass(MVT::f32, &SP::FPRegsRegClass);
-    addRegisterClass(MVT::f64, &SP::DFPRegsRegClass);
-    addRegisterClass(MVT::f128, &SP::QFPRegsRegClass);
+    addRegisterClass(MVT::f32, &HE::FPRegsRegClass);
+    addRegisterClass(MVT::f64, &HE::DFPRegsRegClass);
+    addRegisterClass(MVT::f128, &HE::QFPRegsRegClass);
   }
   if (Subtarget->is64Bit()) {
-    addRegisterClass(MVT::i64, &SP::I64RegsRegClass);
+    addRegisterClass(MVT::i64, &HE::I64RegsRegClass);
   } else {
     // On 32bit sparc, we define a double-register 32bit register
     // class, as well. This is modeled in LLVM as a 2-vector of i32.
-    addRegisterClass(MVT::v2i32, &SP::IntPairRegClass);
+    addRegisterClass(MVT::v2i32, &HE::IntPairRegClass);
 
     // ...but almost all operations must be expanded, so set that as
     // the default.
@@ -1707,7 +1707,7 @@ HEIISTargetLowering::HEIISTargetLowering(const TargetMachine &TM,
   setOperationAction(ISD::STACKRESTORE      , MVT::Other, Expand);
   setOperationAction(ISD::DYNAMIC_STACKALLOC, MVT::i32  , Custom);
 
-  setStackPointerRegisterToSaveRestore(SP::O6);
+  setStackPointerRegisterToSaveRestore(HE::O6);
 
   setOperationAction(ISD::CTPOP, MVT::i32,
                      Subtarget->usePopc() ? Legal : Expand);
@@ -2047,7 +2047,7 @@ SDValue HEIISTargetLowering::LowerGlobalTLSAddress(SDValue Op,
     SDValue InFlag;
 
     Chain = DAG.getCALLSEQ_START(Chain, DAG.getIntPtrConstant(1, DL, true), DL);
-    Chain = DAG.getCopyToReg(Chain, DL, SP::O0, Argument, InFlag);
+    Chain = DAG.getCopyToReg(Chain, DL, HE::O0, Argument, InFlag);
     InFlag = Chain.getValue(1);
     SDValue Callee = DAG.getTargetExternalSymbol("__tls_get_addr", PtrVT);
     SDValue Symbol = withTargetFlags(Op, callTF, DAG);
@@ -2059,7 +2059,7 @@ SDValue HEIISTargetLowering::LowerGlobalTLSAddress(SDValue Op,
     SDValue Ops[] = {Chain,
                      Callee,
                      Symbol,
-                     DAG.getRegister(SP::O0, PtrVT),
+                     DAG.getRegister(HE::O0, PtrVT),
                      DAG.getRegisterMask(Mask),
                      InFlag};
     Chain = DAG.getNode(SPISD::TLS_CALL, DL, NodeTys, Ops);
@@ -2067,7 +2067,7 @@ SDValue HEIISTargetLowering::LowerGlobalTLSAddress(SDValue Op,
     Chain = DAG.getCALLSEQ_END(Chain, DAG.getIntPtrConstant(1, DL, true),
                                DAG.getIntPtrConstant(0, DL, true), InFlag, DL);
     InFlag = Chain.getValue(1);
-    SDValue Ret = DAG.getCopyFromReg(Chain, DL, SP::O0, PtrVT, InFlag);
+    SDValue Ret = DAG.getCopyFromReg(Chain, DL, HE::O0, PtrVT, InFlag);
 
     if (model != TLSModel::LocalDynamic)
       return Ret;
@@ -2100,7 +2100,7 @@ SDValue HEIISTargetLowering::LowerGlobalTLSAddress(SDValue Op,
                                  DL, PtrVT, Ptr,
                                  withTargetFlags(Op, ldTF, DAG));
     return DAG.getNode(SPISD::TLS_ADD, DL, PtrVT,
-                       DAG.getRegister(SP::G7, PtrVT), Offset,
+                       DAG.getRegister(HE::G7, PtrVT), Offset,
                        withTargetFlags(Op,
                                        HEIISMCExpr::VK_HEIIS_TLS_IE_ADD, DAG));
   }
@@ -2113,7 +2113,7 @@ SDValue HEIISTargetLowering::LowerGlobalTLSAddress(SDValue Op,
   SDValue Offset =  DAG.getNode(ISD::XOR, DL, PtrVT, Hi, Lo);
 
   return DAG.getNode(ISD::ADD, DL, PtrVT,
-                     DAG.getRegister(SP::G7, PtrVT), Offset);
+                     DAG.getRegister(HE::G7, PtrVT), Offset);
 }
 
 SDValue HEIISTargetLowering::LowerF128_LibCallArg(SDValue Chain,
@@ -2523,7 +2523,7 @@ static SDValue LowerVASTART(SDValue Op, SelectionDAG &DAG,
   // memory location argument.
   SDLoc DL(Op);
   SDValue Offset =
-      DAG.getNode(ISD::ADD, DL, PtrVT, DAG.getRegister(SP::I6, PtrVT),
+      DAG.getNode(ISD::ADD, DL, PtrVT, DAG.getRegister(HE::I6, PtrVT),
                   DAG.getIntPtrConstant(FuncInfo->getVarArgsFrameOffset(), DL));
   const Value *SV = cast<SrcValueSDNode>(Op.getOperand(2))->getValue();
   return DAG.getStore(Op.getOperand(0), DL, Offset, Op.getOperand(1),
@@ -2560,7 +2560,7 @@ static SDValue LowerDYNAMIC_STACKALLOC(SDValue Op, SelectionDAG &DAG,
   EVT VT = Size->getValueType(0);
   SDLoc dl(Op);
 
-  unsigned SPReg = SP::O6;
+  unsigned SPReg = HE::O6;
   SDValue SP = DAG.getCopyFromReg(Chain, dl, SPReg, VT);
   SDValue NewSP = DAG.getNode(ISD::SUB, dl, VT, SP, Size); // Value
   Chain = DAG.getCopyToReg(SP.getValue(1), dl, SPReg, NewSP);    // Output chain
@@ -2591,7 +2591,7 @@ static SDValue getFRAMEADDR(uint64_t depth, SDValue Op, SelectionDAG &DAG,
 
   EVT VT = Op.getValueType();
   SDLoc dl(Op);
-  unsigned FrameReg = SP::I6;
+  unsigned FrameReg = HE::I6;
   unsigned stackBias = Subtarget->getStackPointerBias();
 
   SDValue FrameAddr;
@@ -2647,7 +2647,7 @@ static SDValue LowerRETURNADDR(SDValue Op, SelectionDAG &DAG,
   SDValue RetAddr;
   if (depth == 0) {
     auto PtrVT = TLI.getPointerTy(DAG.getDataLayout());
-    unsigned RetReg = MF.addLiveIn(SP::I7, TLI.getRegClassFor(PtrVT));
+    unsigned RetReg = MF.addLiveIn(HE::I7, TLI.getRegClassFor(PtrVT));
     RetAddr = DAG.getCopyFromReg(DAG.getEntryNode(), dl, RetReg, VT);
     return RetAddr;
   }
@@ -2679,9 +2679,9 @@ static SDValue LowerF64Op(SDValue SrcReg64, const SDLoc &dl, SelectionDAG &DAG,
   // bit is the highest-numbered (odd), rather than the
   // lowest-numbered (even).
 
-  SDValue Hi32 = DAG.getTargetExtractSubreg(SP::sub_even, dl, MVT::f32,
+  SDValue Hi32 = DAG.getTargetExtractSubreg(HE::sub_even, dl, MVT::f32,
                                             SrcReg64);
-  SDValue Lo32 = DAG.getTargetExtractSubreg(SP::sub_odd, dl, MVT::f32,
+  SDValue Lo32 = DAG.getTargetExtractSubreg(HE::sub_odd, dl, MVT::f32,
                                             SrcReg64);
 
   if (DAG.getDataLayout().isLittleEndian())
@@ -2691,9 +2691,9 @@ static SDValue LowerF64Op(SDValue SrcReg64, const SDLoc &dl, SelectionDAG &DAG,
 
   SDValue DstReg64 = SDValue(DAG.getMachineNode(TargetOpcode::IMPLICIT_DEF,
                                                 dl, MVT::f64), 0);
-  DstReg64 = DAG.getTargetInsertSubreg(SP::sub_even, dl, MVT::f64,
+  DstReg64 = DAG.getTargetInsertSubreg(HE::sub_even, dl, MVT::f64,
                                        DstReg64, Hi32);
-  DstReg64 = DAG.getTargetInsertSubreg(SP::sub_odd, dl, MVT::f64,
+  DstReg64 = DAG.getTargetInsertSubreg(HE::sub_odd, dl, MVT::f64,
                                        DstReg64, Lo32);
   return DstReg64;
 }
@@ -2720,8 +2720,8 @@ static SDValue LowerF128Load(SDValue Op, SelectionDAG &DAG)
   SDValue Lo64 = DAG.getLoad(MVT::f64, dl, LdNode->getChain(), LoPtr,
                              LdNode->getPointerInfo(), alignment);
 
-  SDValue SubRegEven = DAG.getTargetConstant(SP::sub_even64, dl, MVT::i32);
-  SDValue SubRegOdd  = DAG.getTargetConstant(SP::sub_odd64, dl, MVT::i32);
+  SDValue SubRegEven = DAG.getTargetConstant(HE::sub_even64, dl, MVT::i32);
+  SDValue SubRegOdd  = DAG.getTargetConstant(HE::sub_odd64, dl, MVT::i32);
 
   SDNode *InFP128 = DAG.getMachineNode(TargetOpcode::IMPLICIT_DEF,
                                        dl, MVT::f128);
@@ -2759,8 +2759,8 @@ static SDValue LowerF128Store(SDValue Op, SelectionDAG &DAG) {
   StoreSDNode *StNode = dyn_cast<StoreSDNode>(Op.getNode());
   assert(StNode && StNode->getOffset().isUndef()
          && "Unexpected node type");
-  SDValue SubRegEven = DAG.getTargetConstant(SP::sub_even64, dl, MVT::i32);
-  SDValue SubRegOdd  = DAG.getTargetConstant(SP::sub_odd64, dl, MVT::i32);
+  SDValue SubRegEven = DAG.getTargetConstant(HE::sub_even64, dl, MVT::i32);
+  SDValue SubRegOdd  = DAG.getTargetConstant(HE::sub_odd64, dl, MVT::i32);
 
   SDNode *Hi64 = DAG.getMachineNode(TargetOpcode::EXTRACT_SUBREG,
                                     dl,
@@ -2829,9 +2829,9 @@ static SDValue LowerFNEGorFABS(SDValue Op, SelectionDAG &DAG, bool isV9) {
   // subreg)
 
   SDValue SrcReg128 = Op.getOperand(0);
-  SDValue Hi64 = DAG.getTargetExtractSubreg(SP::sub_even64, dl, MVT::f64,
+  SDValue Hi64 = DAG.getTargetExtractSubreg(HE::sub_even64, dl, MVT::f64,
                                             SrcReg128);
-  SDValue Lo64 = DAG.getTargetExtractSubreg(SP::sub_odd64, dl, MVT::f64,
+  SDValue Lo64 = DAG.getTargetExtractSubreg(HE::sub_odd64, dl, MVT::f64,
                                             SrcReg128);
 
   if (DAG.getDataLayout().isLittleEndian()) {
@@ -2848,9 +2848,9 @@ static SDValue LowerFNEGorFABS(SDValue Op, SelectionDAG &DAG, bool isV9) {
 
   SDValue DstReg128 = SDValue(DAG.getMachineNode(TargetOpcode::IMPLICIT_DEF,
                                                  dl, MVT::f128), 0);
-  DstReg128 = DAG.getTargetInsertSubreg(SP::sub_even64, dl, MVT::f128,
+  DstReg128 = DAG.getTargetInsertSubreg(HE::sub_even64, dl, MVT::f128,
                                         DstReg128, Hi64);
-  DstReg128 = DAG.getTargetInsertSubreg(SP::sub_odd64, dl, MVT::f128,
+  DstReg128 = DAG.getTargetInsertSubreg(HE::sub_odd64, dl, MVT::f128,
                                         DstReg128, Lo64);
   return DstReg128;
 }
@@ -2969,7 +2969,7 @@ SDValue HEIISTargetLowering::LowerINTRINSIC_WO_CHAIN(SDValue Op,
   default: return SDValue();    // Don't custom lower most intrinsics.
   case Intrinsic::thread_pointer: {
     EVT PtrVT = getPointerTy(DAG.getDataLayout());
-    return DAG.getRegister(SP::G7, PtrVT);
+    return DAG.getRegister(HE::G7, PtrVT);
   }
   }
 }
@@ -3043,21 +3043,21 @@ HEIISTargetLowering::EmitInstrWithCustomInserter(MachineInstr &MI,
                                                  MachineBasicBlock *BB) const {
   switch (MI.getOpcode()) {
   default: llvm_unreachable("Unknown Custom Instruction!");
-  case SP::SELECT_CC_Int_ICC:
-  case SP::SELECT_CC_FP_ICC:
-  case SP::SELECT_CC_DFP_ICC:
-  case SP::SELECT_CC_QFP_ICC:
-    return expandSelectCC(MI, BB, SP::BCOND);
-  case SP::SELECT_CC_Int_FCC:
-  case SP::SELECT_CC_FP_FCC:
-  case SP::SELECT_CC_DFP_FCC:
-  case SP::SELECT_CC_QFP_FCC:
-    return expandSelectCC(MI, BB, SP::FBCOND);
-  case SP::EH_SJLJ_SETJMP32ri:
-  case SP::EH_SJLJ_SETJMP32rr:
+  case HE::SELECT_CC_Int_ICC:
+  case HE::SELECT_CC_FP_ICC:
+  case HE::SELECT_CC_DFP_ICC:
+  case HE::SELECT_CC_QFP_ICC:
+    return expandSelectCC(MI, BB, HE::BCOND);
+  case HE::SELECT_CC_Int_FCC:
+  case HE::SELECT_CC_FP_FCC:
+  case HE::SELECT_CC_DFP_FCC:
+  case HE::SELECT_CC_QFP_FCC:
+    return expandSelectCC(MI, BB, HE::FBCOND);
+  case HE::EH_SJLJ_SETJMP32ri:
+  case HE::EH_SJLJ_SETJMP32rr:
     return emitEHSjLjSetJmp(MI, BB);
-  case SP::EH_SJLJ_LONGJMP32rr:
-  case SP::EH_SJLJ_LONGJMP32ri:
+  case HE::EH_SJLJ_LONGJMP32rr:
+  case HE::EH_SJLJ_LONGJMP32ri:
     return emitEHSjLjLongJmp(MI, BB);
   }
 }
@@ -3112,7 +3112,7 @@ HEIISTargetLowering::expandSelectCC(MachineInstr &MI, MachineBasicBlock *BB,
   //   %Result = phi [ %FalseValue, copy0MBB ], [ %TrueValue, thisMBB ]
   //  ...
   BB = sinkMBB;
-  BuildMI(*BB, BB->begin(), dl, TII.get(SP::PHI), MI.getOperand(0).getReg())
+  BuildMI(*BB, BB->begin(), dl, TII.get(HE::PHI), MI.getOperand(0).getReg())
       .addReg(MI.getOperand(2).getReg())
       .addMBB(copy0MBB)
       .addReg(MI.getOperand(1).getReg())
@@ -3137,39 +3137,39 @@ HEIISTargetLowering::emitEHSjLjLongJmp(MachineInstr &MI,
   assert(PVT == MVT::i32 && "Invalid Pointer Size!");
 
   unsigned Buf = MI.getOperand(0).getReg();
-  unsigned JmpLoc = MRI.createVirtualRegister(&SP::IntRegsRegClass);
+  unsigned JmpLoc = MRI.createVirtualRegister(&HE::IntRegsRegClass);
 
   // TO DO: If we do 64-bit handling, this perhaps should be FLUSHW, not TA 3
-  MIB = BuildMI(*MBB, MI, DL, TII->get(SP::TRAPri), SP::G0).addImm(3).addImm(SPCC::ICC_A);
+  MIB = BuildMI(*MBB, MI, DL, TII->get(HE::TRAPri), HE::G0).addImm(3).addImm(SPCC::ICC_A);
 
   // Instruction to restore FP
-  const unsigned FP  = SP::I6;
-  MIB = BuildMI(*MBB, MI, DL, TII->get(SP::LDri))
+  const unsigned FP  = HE::I6;
+  MIB = BuildMI(*MBB, MI, DL, TII->get(HE::LDri))
             .addReg(FP)
             .addReg(Buf)
             .addImm(0);
 
   // Instruction to load jmp location
-  MIB = BuildMI(*MBB, MI, DL, TII->get(SP::LDri))
+  MIB = BuildMI(*MBB, MI, DL, TII->get(HE::LDri))
             .addReg(JmpLoc, RegState::Define)
             .addReg(Buf)
             .addImm(RegSize);
 
   // Instruction to restore SP
-  const unsigned SP  = SP::O6;
-  MIB = BuildMI(*MBB, MI, DL, TII->get(SP::LDri))
+  const unsigned SP  = HE::O6;
+  MIB = BuildMI(*MBB, MI, DL, TII->get(HE::LDri))
             .addReg(SP)
             .addReg(Buf)
             .addImm(2 * RegSize);
 
   // Instruction to restore I7
-  MIB = BuildMI(*MBB, MI, DL, TII->get(SP::LDri))
-            .addReg(SP::I7)
+  MIB = BuildMI(*MBB, MI, DL, TII->get(HE::LDri))
+            .addReg(HE::I7)
             .addReg(Buf, RegState::Kill)
             .addImm(3 * RegSize);
 
   // Jump to JmpLoc
-  BuildMI(*MBB, MI, DL, TII->get(SP::JMPLrr)).addReg(SP::G0).addReg(JmpLoc, RegState::Kill).addReg(SP::G0);
+  BuildMI(*MBB, MI, DL, TII->get(HE::JMPLrr)).addReg(HE::G0).addReg(JmpLoc, RegState::Kill).addReg(HE::G0);
 
   MI.eraseFromParent();
   return MBB;
@@ -3234,56 +3234,56 @@ HEIISTargetLowering::emitEHSjLjSetJmp(MachineInstr &MI,
                   MBB->end());
   sinkMBB->transferSuccessorsAndUpdatePHIs(MBB);
 
-  unsigned LabelReg = MRI.createVirtualRegister(&SP::IntRegsRegClass);
-  unsigned LabelReg2 = MRI.createVirtualRegister(&SP::IntRegsRegClass);
+  unsigned LabelReg = MRI.createVirtualRegister(&HE::IntRegsRegClass);
+  unsigned LabelReg2 = MRI.createVirtualRegister(&HE::IntRegsRegClass);
   unsigned BufReg = MI.getOperand(1).getReg();
 
   // Instruction to store FP
-  const unsigned FP  = SP::I6;
-  MIB = BuildMI(thisMBB, DL, TII->get(SP::STri))
+  const unsigned FP  = HE::I6;
+  MIB = BuildMI(thisMBB, DL, TII->get(HE::STri))
             .addReg(BufReg)
             .addImm(0)
             .addReg(FP);
 
   // Instructions to store jmp location
-  MIB = BuildMI(thisMBB, DL, TII->get(SP::SETHIi))
+  MIB = BuildMI(thisMBB, DL, TII->get(HE::SETHIi))
             .addReg(LabelReg, RegState::Define)
             .addMBB(restoreMBB, HEIISMCExpr::VK_HEIIS_HI);
 
-  MIB = BuildMI(thisMBB, DL, TII->get(SP::ORri))
+  MIB = BuildMI(thisMBB, DL, TII->get(HE::ORri))
             .addReg(LabelReg2, RegState::Define)
             .addReg(LabelReg, RegState::Kill)
             .addMBB(restoreMBB, HEIISMCExpr::VK_HEIIS_LO);
 
-  MIB = BuildMI(thisMBB, DL, TII->get(SP::STri))
+  MIB = BuildMI(thisMBB, DL, TII->get(HE::STri))
             .addReg(BufReg)
             .addImm(RegSize)
             .addReg(LabelReg2, RegState::Kill);
 
   // Instruction to store SP
-  const unsigned SP  = SP::O6;
-  MIB = BuildMI(thisMBB, DL, TII->get(SP::STri))
+  const unsigned SP  = HE::O6;
+  MIB = BuildMI(thisMBB, DL, TII->get(HE::STri))
             .addReg(BufReg)
             .addImm(2 * RegSize)
             .addReg(SP);
 
   // Instruction to store I7
-  MIB = BuildMI(thisMBB, DL, TII->get(SP::STri))
+  MIB = BuildMI(thisMBB, DL, TII->get(HE::STri))
             .addReg(BufReg)
             .addImm(3 * RegSize)
-            .addReg(SP::I7);
+            .addReg(HE::I7);
 
 
   // FIX ME: This next instruction ensures that the restoreMBB block address remains
   // valid through optimization passes and serves no other purpose. The ICC_N ensures
   // that the branch is never taken. This commented-out code here was an alternative
   // attempt to achieve this which brought myriad problems.
-  //MIB = BuildMI(thisMBB, DL, TII->get(SP::EH_SjLj_Setup)).addMBB(restoreMBB, HEIISMCExpr::VK_HEIIS_None);
-  MIB = BuildMI(thisMBB, DL, TII->get(SP::BCOND))
+  //MIB = BuildMI(thisMBB, DL, TII->get(HE::EH_SjLj_Setup)).addMBB(restoreMBB, HEIISMCExpr::VK_HEIIS_None);
+  MIB = BuildMI(thisMBB, DL, TII->get(HE::BCOND))
               .addMBB(restoreMBB)
               .addImm(SPCC::ICC_N);
 
-  MIB = BuildMI(thisMBB, DL, TII->get(SP::BCOND))
+  MIB = BuildMI(thisMBB, DL, TII->get(HE::BCOND))
               .addMBB(mainMBB)
               .addImm(SPCC::ICC_A);
 
@@ -3292,26 +3292,26 @@ HEIISTargetLowering::emitEHSjLjSetJmp(MachineInstr &MI,
 
 
   // mainMBB:
-  MIB = BuildMI(mainMBB, DL, TII->get(SP::ORrr))
+  MIB = BuildMI(mainMBB, DL, TII->get(HE::ORrr))
              .addReg(mainDstReg, RegState::Define)
-             .addReg(SP::G0)
-             .addReg(SP::G0);
-  MIB = BuildMI(mainMBB, DL, TII->get(SP::BCOND)).addMBB(sinkMBB).addImm(SPCC::ICC_A);
+             .addReg(HE::G0)
+             .addReg(HE::G0);
+  MIB = BuildMI(mainMBB, DL, TII->get(HE::BCOND)).addMBB(sinkMBB).addImm(SPCC::ICC_A);
 
   mainMBB->addSuccessor(sinkMBB);
 
 
   // restoreMBB:
-  MIB = BuildMI(restoreMBB, DL, TII->get(SP::ORri))
+  MIB = BuildMI(restoreMBB, DL, TII->get(HE::ORri))
               .addReg(restoreDstReg, RegState::Define)
-              .addReg(SP::G0)
+              .addReg(HE::G0)
               .addImm(1);
-  //MIB = BuildMI(restoreMBB, DL, TII->get(SP::BCOND)).addMBB(sinkMBB).addImm(SPCC::ICC_A);
+  //MIB = BuildMI(restoreMBB, DL, TII->get(HE::BCOND)).addMBB(sinkMBB).addImm(SPCC::ICC_A);
   restoreMBB->addSuccessor(sinkMBB);
 
   // sinkMBB:
   MIB = BuildMI(*sinkMBB, sinkMBB->begin(), DL,
-                TII->get(SP::PHI), DstReg)
+                TII->get(HE::PHI), DstReg)
              .addReg(mainDstReg).addMBB(mainMBB)
              .addReg(restoreDstReg).addMBB(restoreMBB);
 
@@ -3408,13 +3408,13 @@ HEIISTargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
   if (Constraint.size() == 1) {
     switch (Constraint[0]) {
     case 'f':
-      return std::make_pair(0U, &SP::FPRegsRegClass);
+      return std::make_pair(0U, &HE::FPRegsRegClass);
 
     case 'r':
       if (VT == MVT::v2i32)
-        return std::make_pair(0U, &SP::IntPairRegClass);
+        return std::make_pair(0U, &HE::IntPairRegClass);
       else
-        return std::make_pair(0U, &SP::IntRegsRegClass);
+        return std::make_pair(0U, &HE::IntRegsRegClass);
     }
   } else if (!Constraint.empty() && Constraint.size() <= 5
               && Constraint[0] == '{' && *(Constraint.end()-1) == '}') {

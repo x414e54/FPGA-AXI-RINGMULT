@@ -49,8 +49,8 @@ void HEIISFrameLowering::emitSPAdjustment(MachineFunction &MF,
       *static_cast<const HEIISInstrInfo *>(MF.getSubtarget().getInstrInfo());
 
   if (NumBytes >= -4096 && NumBytes < 4096) {
-    BuildMI(MBB, MBBI, dl, TII.get(ADDri), SP::O6)
-      .addReg(SP::O6).addImm(NumBytes);
+    BuildMI(MBB, MBBI, dl, TII.get(ADDri), HE::O6)
+      .addReg(HE::O6).addImm(NumBytes);
     return;
   }
 
@@ -61,12 +61,12 @@ void HEIISFrameLowering::emitSPAdjustment(MachineFunction &MF,
     // sethi %hi(NumBytes), %g1
     // or %g1, %lo(NumBytes), %g1
     // add %sp, %g1, %sp
-    BuildMI(MBB, MBBI, dl, TII.get(SP::SETHIi), SP::G1)
+    BuildMI(MBB, MBBI, dl, TII.get(HE::SETHIi), HE::G1)
       .addImm(HI22(NumBytes));
-    BuildMI(MBB, MBBI, dl, TII.get(SP::ORri), SP::G1)
-      .addReg(SP::G1).addImm(LO10(NumBytes));
-    BuildMI(MBB, MBBI, dl, TII.get(ADDrr), SP::O6)
-      .addReg(SP::O6).addReg(SP::G1);
+    BuildMI(MBB, MBBI, dl, TII.get(HE::ORri), HE::G1)
+      .addReg(HE::G1).addImm(LO10(NumBytes));
+    BuildMI(MBB, MBBI, dl, TII.get(ADDrr), HE::O6)
+      .addReg(HE::O6).addReg(HE::G1);
     return ;
   }
 
@@ -74,12 +74,12 @@ void HEIISFrameLowering::emitSPAdjustment(MachineFunction &MF,
   // sethi %hix(NumBytes), %g1
   // xor %g1, %lox(NumBytes), %g1
   // add %sp, %g1, %sp
-  BuildMI(MBB, MBBI, dl, TII.get(SP::SETHIi), SP::G1)
+  BuildMI(MBB, MBBI, dl, TII.get(HE::SETHIi), HE::G1)
     .addImm(HIX22(NumBytes));
-  BuildMI(MBB, MBBI, dl, TII.get(SP::XORri), SP::G1)
-    .addReg(SP::G1).addImm(LOX10(NumBytes));
-  BuildMI(MBB, MBBI, dl, TII.get(ADDrr), SP::O6)
-    .addReg(SP::O6).addReg(SP::G1);
+  BuildMI(MBB, MBBI, dl, TII.get(HE::XORri), HE::G1)
+    .addReg(HE::G1).addImm(LOX10(NumBytes));
+  BuildMI(MBB, MBBI, dl, TII.get(ADDrr), HE::O6)
+    .addReg(HE::O6).addReg(HE::G1);
 }
 
 void HEIISFrameLowering::emitPrologue(MachineFunction &MF,
@@ -111,13 +111,13 @@ void HEIISFrameLowering::emitPrologue(MachineFunction &MF,
   // Get the number of bytes to allocate from the FrameInfo
   int NumBytes = (int) MFI->getStackSize();
 
-  unsigned SAVEri = SP::SAVEri;
-  unsigned SAVErr = SP::SAVErr;
+  unsigned SAVEri = HE::SAVEri;
+  unsigned SAVErr = HE::SAVErr;
   if (FuncInfo->isLeafProc()) {
     if (NumBytes == 0)
       return;
-    SAVEri = SP::ADDri;
-    SAVErr = SP::ADDrr;
+    SAVEri = HE::ADDri;
+    SAVErr = HE::ADDrr;
   }
 
   // The SPARC ABI is a bit odd in that it requires a reserved 92-byte
@@ -155,7 +155,7 @@ void HEIISFrameLowering::emitPrologue(MachineFunction &MF,
   emitSPAdjustment(MF, MBB, MBBI, -NumBytes, SAVErr, SAVEri);
 
   MachineModuleInfo &MMI = MF.getMMI();
-  unsigned regFP = RegInfo.getDwarfRegNum(SP::I6, true);
+  unsigned regFP = RegInfo.getDwarfRegNum(HE::I6, true);
 
   // Emit ".cfi_def_cfa_register 30".
   unsigned CFIIndex =
@@ -168,8 +168,8 @@ void HEIISFrameLowering::emitPrologue(MachineFunction &MF,
   BuildMI(MBB, MBBI, dl, TII.get(TargetOpcode::CFI_INSTRUCTION))
       .addCFIIndex(CFIIndex);
 
-  unsigned regInRA = RegInfo.getDwarfRegNum(SP::I7, true);
-  unsigned regOutRA = RegInfo.getDwarfRegNum(SP::O7, true);
+  unsigned regInRA = RegInfo.getDwarfRegNum(HE::I7, true);
+  unsigned regOutRA = RegInfo.getDwarfRegNum(HE::O7, true);
   // Emit ".cfi_register 15, 31".
   CFIIndex = MMI.addFrameInst(
       MCCFIInstruction::createRegister(nullptr, regOutRA, regInRA));
@@ -179,7 +179,7 @@ void HEIISFrameLowering::emitPrologue(MachineFunction &MF,
   if (NeedsStackRealignment) {
     // andn %o6, MaxAlign-1, %o6
     int MaxAlign = MFI->getMaxAlignment();
-    BuildMI(MBB, MBBI, dl, TII.get(SP::ANDNri), SP::O6).addReg(SP::O6).addImm(MaxAlign - 1);
+    BuildMI(MBB, MBBI, dl, TII.get(HE::ANDNri), HE::O6).addReg(HE::O6).addImm(MaxAlign - 1);
   }
 }
 
@@ -189,11 +189,11 @@ eliminateCallFramePseudoInstr(MachineFunction &MF, MachineBasicBlock &MBB,
   if (!hasReservedCallFrame(MF)) {
     MachineInstr &MI = *I;
     int Size = MI.getOperand(0).getImm();
-    if (MI.getOpcode() == SP::ADJCALLSTACKDOWN)
+    if (MI.getOpcode() == HE::ADJCALLSTACKDOWN)
       Size = -Size;
 
     if (Size)
-      emitSPAdjustment(MF, MBB, I, Size, SP::ADDrr, SP::ADDri);
+      emitSPAdjustment(MF, MBB, I, Size, HE::ADDrr, HE::ADDri);
   }
   return MBB.erase(I);
 }
@@ -206,11 +206,11 @@ void HEIISFrameLowering::emitEpilogue(MachineFunction &MF,
   const HEIISInstrInfo &TII =
       *static_cast<const HEIISInstrInfo *>(MF.getSubtarget().getInstrInfo());
   DebugLoc dl = MBBI->getDebugLoc();
-  assert(MBBI->getOpcode() == SP::RETL &&
+  assert(MBBI->getOpcode() == HE::RETL &&
          "Can only put epilog before 'retl' instruction!");
   if (!FuncInfo->isLeafProc()) {
-    BuildMI(MBB, MBBI, dl, TII.get(SP::RESTORErr), SP::G0).addReg(SP::G0)
-      .addReg(SP::G0);
+    BuildMI(MBB, MBBI, dl, TII.get(HE::RESTORErr), HE::G0).addReg(HE::G0)
+      .addReg(HE::G0);
     return;
   }
   MachineFrameInfo *MFI = MF.getFrameInfo();
@@ -219,7 +219,7 @@ void HEIISFrameLowering::emitEpilogue(MachineFunction &MF,
   if (NumBytes == 0)
     return;
 
-  emitSPAdjustment(MF, MBB, MBBI, NumBytes, SP::ADDrr, SP::ADDri);
+  emitSPAdjustment(MF, MBB, MBBI, NumBytes, HE::ADDrr, HE::ADDri);
 }
 
 bool HEIISFrameLowering::hasReservedCallFrame(const MachineFunction &MF) const {
@@ -280,7 +280,7 @@ int HEIISFrameLowering::getFrameIndexReference(const MachineFunction &MF, int FI
     FrameReg = RegInfo->getFrameRegister(MF);
     return FrameOffset;
   } else {
-    FrameReg = SP::O6; // %sp
+    FrameReg = HE::O6; // %sp
     return FrameOffset + MF.getFrameInfo()->getStackSize();
   }
 }
@@ -288,11 +288,11 @@ int HEIISFrameLowering::getFrameIndexReference(const MachineFunction &MF, int FI
 static bool LLVM_ATTRIBUTE_UNUSED verifyLeafProcRegUse(MachineRegisterInfo *MRI)
 {
 
-  for (unsigned reg = SP::I0; reg <= SP::I7; ++reg)
+  for (unsigned reg = HE::I0; reg <= HE::I7; ++reg)
     if (!MRI->reg_nodbg_empty(reg))
       return false;
 
-  for (unsigned reg = SP::L0; reg <= SP::L7; ++reg)
+  for (unsigned reg = HE::L0; reg <= HE::L7; ++reg)
     if (!MRI->reg_nodbg_empty(reg))
       return false;
 
@@ -306,28 +306,28 @@ bool HEIISFrameLowering::isLeafProc(MachineFunction &MF) const
   MachineFrameInfo    *MFI = MF.getFrameInfo();
 
   return !(MFI->hasCalls()                 // has calls
-           || !MRI.reg_nodbg_empty(SP::L0) // Too many registers needed
-           || !MRI.reg_nodbg_empty(SP::O6) // %SP is used
+           || !MRI.reg_nodbg_empty(HE::L0) // Too many registers needed
+           || !MRI.reg_nodbg_empty(HE::O6) // %SP is used
            || hasFP(MF));                  // need %FP
 }
 
 void HEIISFrameLowering::remapRegsForLeafProc(MachineFunction &MF) const {
   MachineRegisterInfo &MRI = MF.getRegInfo();
   // Remap %i[0-7] to %o[0-7].
-  for (unsigned reg = SP::I0; reg <= SP::I7; ++reg) {
+  for (unsigned reg = HE::I0; reg <= HE::I7; ++reg) {
     if (MRI.reg_nodbg_empty(reg))
       continue;
 
-    unsigned mapped_reg = reg - SP::I0 + SP::O0;
+    unsigned mapped_reg = reg - HE::I0 + HE::O0;
     assert(MRI.reg_nodbg_empty(mapped_reg));
 
     // Replace I register with O register.
     MRI.replaceRegWith(reg, mapped_reg);
 
     // Also replace register pair super-registers.
-    if ((reg - SP::I0) % 2 == 0) {
-      unsigned preg = (reg - SP::I0) / 2 + SP::I0_I1;
-      unsigned mapped_preg = preg - SP::I0_I1 + SP::O0_O1;
+    if ((reg - HE::I0) % 2 == 0) {
+      unsigned preg = (reg - HE::I0) / 2 + HE::I0_I1;
+      unsigned mapped_preg = preg - HE::I0_I1 + HE::O0_O1;
       MRI.replaceRegWith(preg, mapped_preg);
     }
   }
@@ -335,17 +335,17 @@ void HEIISFrameLowering::remapRegsForLeafProc(MachineFunction &MF) const {
   // Rewrite MBB's Live-ins.
   for (MachineFunction::iterator MBB = MF.begin(), E = MF.end();
        MBB != E; ++MBB) {
-    for (unsigned reg = SP::I0_I1; reg <= SP::I6_I7; ++reg) {
+    for (unsigned reg = HE::I0_I1; reg <= HE::I6_I7; ++reg) {
       if (!MBB->isLiveIn(reg))
         continue;
       MBB->removeLiveIn(reg);
-      MBB->addLiveIn(reg - SP::I0_I1 + SP::O0_O1);
+      MBB->addLiveIn(reg - HE::I0_I1 + HE::O0_O1);
     }
-    for (unsigned reg = SP::I0; reg <= SP::I7; ++reg) {
+    for (unsigned reg = HE::I0; reg <= HE::I7; ++reg) {
       if (!MBB->isLiveIn(reg))
         continue;
       MBB->removeLiveIn(reg);
-      MBB->addLiveIn(reg - SP::I0 + SP::O0);
+      MBB->addLiveIn(reg - HE::I0 + HE::O0);
     }
   }
 

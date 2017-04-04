@@ -109,14 +109,14 @@ namespace llvm {
     /// exception address on entry to an EH pad.
     unsigned
     getExceptionPointerRegister(const Constant *PersonalityFn) const override {
-      return SP::I0;
+      return HE::I0;
     }
 
     /// If a physical register, this returns the register that receives the
     /// exception typeid on entry to a landing pad.
     unsigned
     getExceptionSelectorRegister(const Constant *PersonalityFn) const override {
-      return SP::I1;
+      return HE::I1;
     }
 
     /// Override to support customized stack guard loading.

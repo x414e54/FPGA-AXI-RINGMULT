@@ -34,7 +34,7 @@ static cl::opt<bool>
 ReserveAppRegisters("sparc-reserve-app-registers", cl::Hidden, cl::init(false),
                     cl::desc("Reserve application registers (%g2-%g4)"));
 
-HEIISRegisterInfo::HEIISRegisterInfo() : HEIISGenRegisterInfo(SP::O7) {}
+HEIISRegisterInfo::HEIISRegisterInfo() : HEIISGenRegisterInfo(HE::O7) {}
 
 const MCPhysReg*
 HEIISRegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
@@ -56,41 +56,41 @@ BitVector HEIISRegisterInfo::getReservedRegs(const MachineFunction &MF) const {
   BitVector Reserved(getNumRegs());
   const HEIISSubtarget &Subtarget = MF.getSubtarget<HEIISSubtarget>();
   // FIXME: G1 reserved for now for large imm generation by frame code.
-  Reserved.set(SP::G1);
+  Reserved.set(HE::G1);
 
   // G1-G4 can be used in applications.
   if (ReserveAppRegisters) {
-    Reserved.set(SP::G2);
-    Reserved.set(SP::G3);
-    Reserved.set(SP::G4);
+    Reserved.set(HE::G2);
+    Reserved.set(HE::G3);
+    Reserved.set(HE::G4);
   }
   // G5 is not reserved in 64 bit mode.
   if (!Subtarget.is64Bit())
-    Reserved.set(SP::G5);
+    Reserved.set(HE::G5);
 
-  Reserved.set(SP::O6);
-  Reserved.set(SP::I6);
-  Reserved.set(SP::I7);
-  Reserved.set(SP::G0);
-  Reserved.set(SP::G6);
-  Reserved.set(SP::G7);
+  Reserved.set(HE::O6);
+  Reserved.set(HE::I6);
+  Reserved.set(HE::I7);
+  Reserved.set(HE::G0);
+  Reserved.set(HE::G6);
+  Reserved.set(HE::G7);
 
   // Also reserve the register pair aliases covering the above
   // registers, with the same conditions.
-  Reserved.set(SP::G0_G1);
+  Reserved.set(HE::G0_G1);
   if (ReserveAppRegisters)
-    Reserved.set(SP::G2_G3);
+    Reserved.set(HE::G2_G3);
   if (ReserveAppRegisters || !Subtarget.is64Bit())
-    Reserved.set(SP::G4_G5);
+    Reserved.set(HE::G4_G5);
 
-  Reserved.set(SP::O6_O7);
-  Reserved.set(SP::I6_I7);
-  Reserved.set(SP::G6_G7);
+  Reserved.set(HE::O6_O7);
+  Reserved.set(HE::I6_I7);
+  Reserved.set(HE::G6_G7);
 
   // Unaliased double registers are not available in non-V9 targets.
   if (!Subtarget.isV9()) {
     for (unsigned n = 0; n != 16; ++n) {
-      for (MCRegAliasIterator AI(SP::D16 + n, this, true); AI.isValid(); ++AI)
+      for (MCRegAliasIterator AI(HE::D16 + n, this, true); AI.isValid(); ++AI)
         Reserved.set(*AI);
     }
   }
@@ -102,7 +102,7 @@ const TargetRegisterClass*
 HEIISRegisterInfo::getPointerRegClass(const MachineFunction &MF,
                                       unsigned Kind) const {
   const HEIISSubtarget &Subtarget = MF.getSubtarget<HEIISSubtarget>();
-  return Subtarget.is64Bit() ? &SP::I64RegsRegClass : &SP::IntRegsRegClass;
+  return Subtarget.is64Bit() ? &HE::I64RegsRegClass : &HE::IntRegsRegClass;
 }
 
 static void replaceFI(MachineFunction &MF, MachineBasicBlock::iterator II,
@@ -126,15 +126,15 @@ static void replaceFI(MachineFunction &MF, MachineBasicBlock::iterator II,
     // sethi %hi(Offset), %g1
     // add %g1, %fp, %g1
     // Insert G1+%lo(offset) into the user.
-    BuildMI(*MI.getParent(), II, dl, TII.get(SP::SETHIi), SP::G1)
+    BuildMI(*MI.getParent(), II, dl, TII.get(HE::SETHIi), HE::G1)
       .addImm(HI22(Offset));
 
 
     // Emit G1 = G1 + I6
-    BuildMI(*MI.getParent(), II, dl, TII.get(SP::ADDrr), SP::G1).addReg(SP::G1)
+    BuildMI(*MI.getParent(), II, dl, TII.get(HE::ADDrr), HE::G1).addReg(HE::G1)
       .addReg(FramePtr);
     // Insert: G1+%lo(offset) into the user.
-    MI.getOperand(FIOperandNum).ChangeToRegister(SP::G1, false);
+    MI.getOperand(FIOperandNum).ChangeToRegister(HE::G1, false);
     MI.getOperand(FIOperandNum + 1).ChangeToImmediate(LO10(Offset));
     return;
   }
@@ -144,15 +144,15 @@ static void replaceFI(MachineFunction &MF, MachineBasicBlock::iterator II,
   // xor  %g1, %lox(offset), %g1
   // add %g1, %fp, %g1
   // Insert: G1 + 0 into the user.
-  BuildMI(*MI.getParent(), II, dl, TII.get(SP::SETHIi), SP::G1)
+  BuildMI(*MI.getParent(), II, dl, TII.get(HE::SETHIi), HE::G1)
     .addImm(HIX22(Offset));
-  BuildMI(*MI.getParent(), II, dl, TII.get(SP::XORri), SP::G1)
-    .addReg(SP::G1).addImm(LOX10(Offset));
+  BuildMI(*MI.getParent(), II, dl, TII.get(HE::XORri), HE::G1)
+    .addReg(HE::G1).addImm(LOX10(Offset));
 
-  BuildMI(*MI.getParent(), II, dl, TII.get(SP::ADDrr), SP::G1).addReg(SP::G1)
+  BuildMI(*MI.getParent(), II, dl, TII.get(HE::ADDrr), HE::G1).addReg(HE::G1)
     .addReg(FramePtr);
   // Insert: G1+%lo(offset) into the user.
-  MI.getOperand(FIOperandNum).ChangeToRegister(SP::G1, false);
+  MI.getOperand(FIOperandNum).ChangeToRegister(HE::G1, false);
   MI.getOperand(FIOperandNum + 1).ChangeToImmediate(0);
 }
 
@@ -177,29 +177,29 @@ HEIISRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
   Offset += MI.getOperand(FIOperandNum + 1).getImm();
 
   if (!Subtarget.isV9() || !Subtarget.hasHardQuad()) {
-    if (MI.getOpcode() == SP::STQFri) {
+    if (MI.getOpcode() == HE::STQFri) {
       const TargetInstrInfo &TII = *Subtarget.getInstrInfo();
       unsigned SrcReg = MI.getOperand(2).getReg();
-      unsigned SrcEvenReg = getSubReg(SrcReg, SP::sub_even64);
-      unsigned SrcOddReg  = getSubReg(SrcReg, SP::sub_odd64);
+      unsigned SrcEvenReg = getSubReg(SrcReg, HE::sub_even64);
+      unsigned SrcOddReg  = getSubReg(SrcReg, HE::sub_odd64);
       MachineInstr *StMI =
-        BuildMI(*MI.getParent(), II, dl, TII.get(SP::STDFri))
+        BuildMI(*MI.getParent(), II, dl, TII.get(HE::STDFri))
         .addReg(FrameReg).addImm(0).addReg(SrcEvenReg);
       replaceFI(MF, II, *StMI, dl, 0, Offset, FrameReg);
-      MI.setDesc(TII.get(SP::STDFri));
+      MI.setDesc(TII.get(HE::STDFri));
       MI.getOperand(2).setReg(SrcOddReg);
       Offset += 8;
-    } else if (MI.getOpcode() == SP::LDQFri) {
+    } else if (MI.getOpcode() == HE::LDQFri) {
       const TargetInstrInfo &TII = *Subtarget.getInstrInfo();
       unsigned DestReg     = MI.getOperand(0).getReg();
-      unsigned DestEvenReg = getSubReg(DestReg, SP::sub_even64);
-      unsigned DestOddReg  = getSubReg(DestReg, SP::sub_odd64);
+      unsigned DestEvenReg = getSubReg(DestReg, HE::sub_even64);
+      unsigned DestOddReg  = getSubReg(DestReg, HE::sub_odd64);
       MachineInstr *StMI =
-        BuildMI(*MI.getParent(), II, dl, TII.get(SP::LDDFri), DestEvenReg)
+        BuildMI(*MI.getParent(), II, dl, TII.get(HE::LDDFri), DestEvenReg)
         .addReg(FrameReg).addImm(0);
       replaceFI(MF, II, *StMI, dl, 1, Offset, FrameReg);
 
-      MI.setDesc(TII.get(SP::LDDFri));
+      MI.setDesc(TII.get(HE::LDDFri));
       MI.getOperand(0).setReg(DestOddReg);
       Offset += 8;
     }
@@ -210,7 +210,7 @@ HEIISRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
 }
 
 unsigned HEIISRegisterInfo::getFrameRegister(const MachineFunction &MF) const {
-  return SP::I6;
+  return HE::I6;
 }
 
 // HEIIS has no architectural need for stack realignment support,
