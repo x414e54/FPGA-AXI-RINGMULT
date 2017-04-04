@@ -58,7 +58,7 @@ architecture Behavioral of testmult is
     subtype INSTRUCTION_TYPE is std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
     type RAM_TYPE is array(C_MAX_PROG_LENGTH-1 downto 0) of INSTRUCTION_TYPE;
     
-    type STATE_TYPE is (IDLE, LOAD_CODE, LOAD_MOD_CHAIN, LOAD_PUB_KEY, LOAD_SEC_KEY, LOAD_EV_KEY, RUN, EXEC);
+    type STATE_TYPE is (IDLE, LOAD_CODE, LOAD_MOD_CHAIN, LOAD_PUB_KEY, LOAD_SEC_KEY, LOAD_EV_KEY, LOAD_FFT_TABLE, RUN, EXEC);
 
     -- Program integer registers (not for HE)
     constant REG_0              : REGISTER_INDEX_TYPE := b"0000";
@@ -157,14 +157,8 @@ begin
                     end if;
                                            
                 when LOAD_MOD_CHAIN => -- Maybe move into prog code
-                    if (valid_a = '1') then
-                        program(program_length) := data_a;
-                        if (program_length = C_MAX_PROG_LENGTH - 1) then
-                            state <= IDLE;
-                            ready_a <= '0';
-                        end if;
-                        program_length <= program_length + 1;
-                    end if;
+                                                               
+                when LOAD_FFT_TABLE => -- Maybe move into prog code
                                                                    
                 when LOAD_PUB_KEY => -- Maybe move into prog code
                                                                                            
@@ -215,7 +209,6 @@ begin
                     if (valid_b = '1') then
                             --
                     end if;
-                
                 
             end case;
         end if;

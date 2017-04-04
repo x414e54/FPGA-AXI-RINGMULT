@@ -1,0 +1,16 @@
+# compile vhdl design source files
+vhdl xil_defaultlib  "../../../axi_test_1.0/hdl/sub_core.vhd"
+vhdl xil_defaultlib  "../../../axi_test_1.0/hdl/mul_core.vhd"
+vhdl xil_defaultlib  "../../../axi_test_1.0/hdl/enc_core.vhd"
+vhdl xil_defaultlib  "../../../axi_test_1.0/hdl/dec_core.vhd"
+vhdl xil_defaultlib  "../../../axi_test_1.0/hdl/add_core.vhd"
+vhdl xil_defaultlib  "../../../axi_test_1.0/hdl/core_mux.vhd"
+vhdl xil_defaultlib  "../../../axi_test_1.0/hdl/axi_test_v1_0_S00_AXI.vhd"
+vhdl xil_defaultlib  "../../../axi_test_1.0/hdl/axi_test_v1_0_S00_AXIS.vhd"
+vhdl xil_defaultlib  "../../../axi_test_1.0/hdl/axi_test_v1_0_M00_AXIS.vhd"
+vhdl xil_defaultlib  "../../../axi_test_1.0/hdl/testmult.vhd"
+vhdl xil_defaultlib  "../../../axi_test_1.0/hdl/axi_test_v1_0.vhd"
+vhdl xil_defaultlib  "../../../axi_test_1.0/hdl/tb_axi_test.vhd"
+
+# Do not sort compile order
+nosort
