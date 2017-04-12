@@ -40,7 +40,7 @@ entity rem_fold_reg is
 		clk       : in std_logic;
 		value     : in std_logic_vector(C_INPUT_WIDTH-1 downto 0)                         := (others => '0');     
         m         : in std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)                   := (others => '0');
-		fold      : out std_logic_vector(C_INPUT_WIDTH-C_MAX_MODULUS_WIDTH downto 0)      := (others => '0');
+		fold      : out std_logic_vector(C_INPUT_WIDTH-C_MAX_MODULUS_WIDTH-1 downto 0)    := (others => '0');
 		carry     : out std_logic
 	);  
 end rem_fold_reg;

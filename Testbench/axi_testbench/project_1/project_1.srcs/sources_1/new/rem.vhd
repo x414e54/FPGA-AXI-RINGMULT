@@ -77,7 +77,7 @@ begin
 				clk	      => clk,
 				value	  => fold_reg(i)(C_MAX_INPUT_WIDTH-(i*C_MAX_MODULUS_WIDTH)-1 downto 0),
                 m	      => modulus_ms(i),
-				fold      => fold_reg(i+1)(C_MAX_INPUT_WIDTH-((i+1)*C_MAX_MODULUS_WIDTH) downto 0)
+				fold      => fold_reg(i+1)(C_MAX_INPUT_WIDTH-((i+1)*C_MAX_MODULUS_WIDTH)-1 downto 0)
 			);
 	end generate folds;
 	

@@ -47,15 +47,16 @@ entity red is
 end red;
 
 architecture Behavioral of red is
+constant C_MODULUS_WIDTH : integer := C_MAX_MODULUS_WIDTH - 4; -- use modulus_s instead of hardcoding
 signal a_reg_0 : unsigned(C_MAX_INPUT_WIDTH-1 downto 0) := (others => '0');
 signal a_reg_1 : unsigned(C_MAX_INPUT_WIDTH-1 downto 0) := (others => '0');
 signal a_reg_2 : unsigned(C_MAX_INPUT_WIDTH-1 downto 0) := (others => '0');
 signal a_reg_3 : unsigned(C_MAX_INPUT_WIDTH-1 downto 0) := (others => '0');
 signal a_reg_4 : unsigned(C_MAX_INPUT_WIDTH-1 downto 0) := (others => '0');
 
-signal b_reg : unsigned(C_MAX_MODULUS_WIDTH-1 downto 0) := (others => '0');
+signal b_reg : unsigned(C_MAX_INPUT_WIDTH-C_MODULUS_WIDTH-1 downto 0) := (others => '0');
 signal c_reg : unsigned(C_MAX_INPUT_WIDTH-1 downto 0) := (others => '0');
-signal d_reg : unsigned(C_MAX_MODULUS_WIDTH-1 downto 0) := (others => '0');
+signal d_reg : unsigned(C_MAX_INPUT_WIDTH-C_MODULUS_WIDTH-1 downto 0) := (others => '0');
 signal e_reg : unsigned(C_MAX_INPUT_WIDTH-1 downto 0) := (others => '0');
 signal f_reg : unsigned(C_MAX_MODULUS_WIDTH-1 downto 0) := (others => '0');
 begin
@@ -70,11 +71,11 @@ begin
             a_reg_1 <= a_reg_0;
             a_reg_0 <= unsigned(value);
             --
-            b_reg <= a_reg_0 srl 60;--modulus_s;
-            c_reg <= b_reg * unsigned(modulus_r);
-            d_reg <= c_reg srl 60;--modulus_s;
-            e_reg <= b_reg * unsigned(modulus);
-            f_reg <= a_reg_4 - e_reg;
+            b_reg <= resize(a_reg_0 srl C_MODULUS_WIDTH, C_MAX_INPUT_WIDTH-C_MODULUS_WIDTH);--modulus_s;
+            c_reg <= b_reg * resize(unsigned(modulus_r), C_MODULUS_WIDTH);
+            d_reg <= resize(c_reg srl C_MODULUS_WIDTH, C_MAX_INPUT_WIDTH-C_MODULUS_WIDTH);--modulus_s;
+            e_reg <= b_reg * resize(unsigned(modulus), C_MODULUS_WIDTH);
+            f_reg <= resize(a_reg_4 - e_reg, C_MAX_MODULUS_WIDTH);
             
             if (f_reg >= unsigned(modulus)) then
                 remainder <= std_logic_vector(f_reg - unsigned(modulus));
