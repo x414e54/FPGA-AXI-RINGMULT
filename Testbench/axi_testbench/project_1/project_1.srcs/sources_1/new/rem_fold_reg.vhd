@@ -31,27 +31,34 @@ use IEEE.NUMERIC_STD.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity reduce is
+entity rem_fold_reg is
 	generic (
 		C_MAX_MODULUS_WIDTH : integer    := 64;
-		C_MAX_INPUT_WIDTH   : integer    := 64
+		C_INPUT_WIDTH       : integer    := 64
 	);
 	port (
 		clk       : in std_logic;
-		modulus   : in std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)       := (others => '0');
-		value     : in std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0)         := (others => '0');
-		remainder : out std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)      := (others => '0')
+		value     : in std_logic_vector(C_INPUT_WIDTH-1 downto 0)                         := (others => '0');     
+        m         : in std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)                   := (others => '0');
+		fold      : out std_logic_vector(C_INPUT_WIDTH-C_MAX_MODULUS_WIDTH downto 0)      := (others => '0');
+		carry     : out std_logic
 	);  
-end reduce;
+end rem_fold_reg;
 
-architecture Behavioral of reduce is
-
+architecture Behavioral of rem_fold_reg is
+signal a_reg : unsigned(C_INPUT_WIDTH-1 downto 0) := (others => '0');
+alias a_reg_top : unsigned(C_MAX_MODULUS_WIDTH-1 downto 0) is a_reg(C_INPUT_WIDTH-1 downto C_INPUT_WIDTH-C_MAX_MODULUS_WIDTH);
+signal b_reg : unsigned((2*C_MAX_MODULUS_WIDTH)-1 downto 0) := (others => '0');
+signal c_reg : unsigned(C_INPUT_WIDTH-C_MAX_MODULUS_WIDTH-1 downto 0) := (others => '0');
 begin
-
+    
     state_proc : process (clk) is
     begin	
         if rising_edge(clk) then
-            remainder <= x"4444444455555555";
+            c_reg <= a_reg;
+            a_reg <= unsigned(value);
+            b_reg <= unsigned(m) * a_reg_top;
+            fold <= std_logic_vector(b_reg + c_reg);
         end if;
     end process state_proc;
 
