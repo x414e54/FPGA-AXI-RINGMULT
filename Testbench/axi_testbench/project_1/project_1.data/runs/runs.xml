@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <Runs Version="1" Minor="9">
-	<Run Id="synth_1" Type="Ft3:Synth" SrcSet="sources_1" Part="xc7vx485tffg1157-1" LaunchPart="xc7vx485tffg1157-1" ConstrsSet="constrs_1" Description="Vivado Synthesis Defaults" State="current" Dir="$PRUNDIR/synth_1" LaunchTime="1491205767">
+	<Run Id="synth_1" Type="Ft3:Synth" SrcSet="sources_1" Part="xc7vx485tffg1157-1" LaunchPart="xc7vx485tffg1157-1" ConstrsSet="constrs_1" Description="Vivado Synthesis Defaults" State="current" Dir="$PRUNDIR/synth_1" LaunchTime="1492057088">
 		<File Type="RDS-UTIL" Name="crt_utilization_synth.rpt"/>
 		<File Type="RUN-STRAT" Name="$PDATADIR/runs/synth_1/synth_1.psg"/>
 		<File Type="RDS-UTIL-PB" Name="crt_utilization_synth.pb"/>
@@ -9,48 +9,9 @@
 		<File Type="VDS-TIMING-PB" Name="crt_timing_summary_synth.pb"/>
 		<File Type="PA-TCL" Name="crt.tcl"/>
 		<File Type="RUN-SRCS" Name="$PDATADIR/runs/synth_1/sources.xml"/>
-		<File Type="RDS-RDS" Name="crt.rds"/>
 		<File Type="RUN-CONSTRS" Name="$PDATADIR/runs/synth_1/constrs_in.xml"/>
+		<File Type="RDS-RDS" Name="crt.rds"/>
 	</Run>
-	<Run Id="impl_1" Type="Ft2:EntireDesign" SynthRun="synth_1" Part="xc7vx485tffg1157-1" LaunchPart="xc7vx485tffg1157-1" ConstrsSet="constrs_1" Description="Vivado Implementation Defaults" State="current" Dir="$PRUNDIR/impl_1" LaunchTime="1491205929">
-		<File Type="RUN-STRAT" Name="$PDATADIR/runs/impl_1/impl_1.psg"/>
-		<File Type="OPT-DRC" Name="crt_drc_opted.rpt"/>
-		<File Type="PLACE-IO" Name="crt_io_placed.rpt"/>
-		<File Type="PLACE-CLK" Name="crt_clock_utilization_placed.rpt"/>
-		<File Type="PLACE-UTIL" Name="crt_utilization_placed.rpt"/>
-		<File Type="PLACE-UTIL-PB" Name="crt_utilization_placed.pb"/>
-		<File Type="PLACE-CTRL" Name="crt_control_sets_placed.rpt"/>
-		<File Type="PLACE-SIMILARITY" Name="crt_incremental_reuse_placed.rpt"/>
-		<File Type="PLACE-PRE-SIMILARITY" Name="crt_incremental_reuse_pre_placed.rpt"/>
-		<File Type="PA-TCL" Name="crt.tcl"/>
-		<File Type="ROUTE-DRC" Name="crt_drc_routed.rpt"/>
-		<File Type="ROUTE-DRC-PB" Name="crt_drc_routed.pb"/>
-		<File Type="ROUTE-PWR" Name="crt_power_routed.rpt"/>
-		<File Type="ROUTE-PWR-SUM" Name="crt_power_summary_routed.pb"/>
-		<File Type="ROUTE-STATUS" Name="crt_route_status.rpt"/>
-		<File Type="ROUTE-STATUS-PB" Name="crt_route_status.pb"/>
-		<File Type="ROUTE-DCP" Name="crt_routed.dcp"/>
-		<File Type="ROUTE-TIMINGSUMMARY" Name="crt_timing_summary_routed.rpt"/>
-		<File Type="ROUTE-TIMING-PB" Name="crt_timing_summary_routed.pb"/>
-		<File Type="ROUTE-SIMILARITY" Name="crt_incremental_reuse_routed.rpt"/>
-		<File Type="OPT-DCP" Name="crt_opt.dcp"/>
-		<File Type="RDI-RDI" Name="crt.rdi"/>
-		<File Type="PLACE-DCP" Name="crt_placed.dcp"/>
-		<File Type="PWROPT-DCP" Name="crt_pwropt.dcp"/>
-		<File Type="POSTPLACE-PWROPT-DCP" Name="crt_postplace_pwropt.dcp"/>
-		<File Type="PWROPT-DRC" Name="crt_drc_pwropted.rpt"/>
-		<File Type="PHYSOPT-DCP" Name="crt_physopt.dcp"/>
-		<File Type="PHYSOPT-DRC" Name="crt_drc_physopted.rpt"/>
-		<File Type="BG-BIT" Name="crt.bit"/>
-		<File Type="BG-DRC" Name="crt.drc"/>
-		<File Type="BG-BGN" Name="crt.bgn"/>
-		<File Type="BG-BIN" Name="crt.bin"/>
-		<File Type="BITSTR-MSK" Name="crt.msk"/>
-		<File Type="BITSTR-RBT" Name="crt.rbt"/>
-		<File Type="BITSTR-NKY" Name="crt.nky"/>
-		<File Type="BITSTR-BMM" Name="crt_bd.bmm"/>
-		<File Type="WBT-USG" Name="usage_statistics_webtalk.html"/>
-		<File Type="RUN-CONSTRS" Name="$PDATADIR/runs/impl_1/constrs_in.xml"/>
-	</Run>
+	<Run Id="impl_1" Type="Ft2:EntireDesign" SynthRun="synth_1" Part="xc7vx485tffg1157-1" ConstrsSet="constrs_1" Description="Vivado Implementation Defaults" State="current"/>
 </Runs>
 

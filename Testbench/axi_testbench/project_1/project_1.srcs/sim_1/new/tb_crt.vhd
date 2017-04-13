@@ -7,9 +7,9 @@ use work.rem_pkg.all;
 entity tb_crt is
     generic (		
         C_MAX_FFT_PRIME_WIDTH        : integer   := 64;		
-        C_MAX_CRT_PRIME_WIDTH        : integer   := 162; -- 256;	
+        C_MAX_CRT_PRIME_WIDTH        : integer   := 192; -- 256;	
         C_MAX_FFT_PRIMES             : integer   := 6;--9;
-        C_MAX_FFT_PRIMES_FOLDS       : integer   := 1;--(256/64)-2--C_MAX_CRT_PRIME_WIDTH/C_MAX_FFT_PRIME_WIDTH - 2
+        C_MAX_FFT_PRIMES_FOLDS       : integer   := 1--(256/64)-2--C_MAX_CRT_PRIME_WIDTH/C_MAX_FFT_PRIME_WIDTH - 2
     );
     --port ();
 end tb_crt;
@@ -32,14 +32,14 @@ architecture behavior of tb_crt is
 
         type int_array is array(0 to 8) of integer;
 
-		constant INPUT: std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0) := x"2c36e5d4e53f1650fd56d99480361ff7e07877040";
+		constant INPUT: std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0) := x"00000002c36e5d4e53f1650fd56d99480361ff7e07877040";
         constant OUTPUT: crt_bus := (x"20A2F4F0C26E334", x"AA23BED8E77C371", x"C135850F9AAB2C", x"882128516018167829", x"EE57F0B945D498D", x"5141BBACDD6E19E");-- x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF");
         constant PRIMES: crt_bus := (x"1000000000000D41", x"1000000000004341", x"1000000000007041", x"10000000000104C1", x"1000000000011FC1", x"1000000000012F81");-- x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF");
-        constant PRIMES_RED: crt_bus := (x"FFFFFFFFFFFF2BF", x"FFFFFFFFFFFBCBF", x"FFFFFFFFFFF8FBF", x"FFFFFFFFFFEFB3F", x"FFFFFFFFFFEE03F", x"FFFFFFFFFFED07F");-- x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF");
-        constant PRIMES_FOLDS: crt_bus_2 := ((x"AFAA8100", x"11AB168100", x"3138F08100", x"10998998100", x"143724F8100", x"167D29F0100"));
+        constant PRIMES_RED: crt_bus := (x"0FFFFFFFFFFFF2BF", x"0FFFFFFFFFFFBCBF", x"0FFFFFFFFFFF8FBF", x"0FFFFFFFFFFEFB3F", x"0FFFFFFFFFFEE03F", x"0FFFFFFFFFFED07F");-- x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF");
+        constant PRIMES_FOLDS: crt_bus_2 := ((x"00000000AFAA8100", x"FFFFFFFFFFFFFFFF"), (x"0000000011AB168100", x"FFFFFFFFFFFFFFFF"), (x"000000003138F08100", x"FFFFFFFFFFFFFFFF"), (x"0000000010998998100", x"FFFFFFFFFFFFFFFF"), (x"00000000143724F8100", x"FFFFFFFFFFFFFFFF"), (x"00000000167D29F0100", x"FFFFFFFFFFFFFFFF"));
                                             --((x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), 
                                             -- (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF")); (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"));
-        constant PRIME_LEN : integer := 60; 
+        constant PRIME_LEN : integer := 61; 
 begin
 
     crt_inst : entity work.crt
@@ -91,6 +91,7 @@ begin
 		crt_value <= INPUT;
         
         wait until rising_edge(clk);
+        wait for 500ns;
 
 		for i in 0 to C_MAX_FFT_PRIMES - 1 loop
 			assert crt_remainders(i) = OUTPUT(i);

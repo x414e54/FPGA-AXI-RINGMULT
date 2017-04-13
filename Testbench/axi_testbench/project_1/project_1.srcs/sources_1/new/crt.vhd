@@ -24,7 +24,7 @@ use work.rem_pkg.all;
 
 package crt_pkg is
 	type crt_bus   is array(natural range <>) of std_logic_vector(64-1 downto 0);
-	type crt_bus_2 is array(natural range <>) of rem_bus(((256/64)-2)-1 downto 0);
+	type crt_bus_2 is array(natural range <>) of rem_bus(0 to 1); -- rem_bus(((256/64)-2)-1 downto 0);
 end package;
 
 library ieee;

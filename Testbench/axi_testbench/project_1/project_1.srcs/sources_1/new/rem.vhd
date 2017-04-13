@@ -49,7 +49,7 @@ entity rem_fold is
 		clk        : in std_logic;
 		modulus    : in std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)       := (others => '0');
 		modulus_r  : in std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)       := (others => '0');
-		modulus_ms : in rem_bus(C_MAX_MODULUS_FOLDS-1 downto 0)                   := (others => (others => '0'));
+		modulus_ms : in rem_bus(0 to 1)            := (others => (others => '0')); -- (C_MAX_MODULUS_FOLDS-1 downto 0))            := (others => (others => '0'));
         modulus_s  : in std_logic_vector(16-1 downto 0)                        := (others => '0');
         input_len  : in std_logic_vector(16-1 downto 0)                        := (others => '0');        
         value      : in std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0)         := (others => '0');
@@ -94,13 +94,4 @@ begin
           value     => red_reg,
 		  remainder => remainder
 	   );
-
-    state_proc : process (clk) is
-    begin	
-        if rising_edge(clk) then
-            -- pipeline barret
-            red_reg <= fold_reg(C_MAX_MODULUS_FOLDS - 1);
-        end if;
-    end process state_proc;
-
 end Behavioral;

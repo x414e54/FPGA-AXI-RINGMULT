@@ -55,7 +55,7 @@ begin
     state_proc : process (clk) is
     begin	
         if rising_edge(clk) then
-            c_reg <= a_reg;
+            c_reg <= resize(a_reg, C_INPUT_WIDTH-C_MAX_MODULUS_WIDTH);
             a_reg <= unsigned(value);
             b_reg <= unsigned(m) * a_reg_top;
             fold <= std_logic_vector(b_reg + c_reg);
