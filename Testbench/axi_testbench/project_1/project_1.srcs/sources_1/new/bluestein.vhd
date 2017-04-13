@@ -45,7 +45,7 @@ entity bs is
         prime_len    : in std_logic_vector(16-1 downto 0)     := (others => '0');		
 		outputs      : out bs_bus(C_MAX_FFT_PRIMES-1 downto 0)  := (others => (others => '0'))
 	);  
-end crt;
+end bs;
 
 architecture Behavioral of bs is
 begin
@@ -53,7 +53,7 @@ begin
 		prime_i : entity work.bluestein_fft
 			generic map (
 				C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-				C_MAX_FFT_LENGTH      => C_MAX_FFT_LENGTH,
+				C_MAX_FFT_LENGTH      => C_MAX_FFT_LENGTH
 			)
 			port map (
 				clk	       => clk,

@@ -20,7 +20,6 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use work.rem_pkg.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values

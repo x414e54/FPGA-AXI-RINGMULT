@@ -25,9 +25,9 @@ architecture behavior of tb_bs is
         signal bs_primes          :  bs_bus(C_MAX_FFT_PRIMES-1 downto 0) := (others => (others => '0'));
         signal bs_primes_red      :  bs_bus(C_MAX_FFT_PRIMES-1 downto 0) := (others => (others => '0'));
         signal bs_prime_len       :  std_logic_vector(16-1 downto 0) := (others => '0');
-        signal bs_output          :  bs_bus(C_MAX_FFT_PRIMES-1 downto 0) := (others => (others => '0'));
+        signal bs_outputs         :  bs_bus(C_MAX_FFT_PRIMES-1 downto 0) := (others => (others => '0'));
 
-        type fft_array is array(0 to C_MAX_FFT_LENGTH - 1) of integer;
+        type fft_array is array(0 to C_MAX_FFT_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
 
 		constant INPUT: fft_array := (x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000");
         constant OUTPUT: fft_array := (x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000");
@@ -50,7 +50,6 @@ begin
             values       => bs_values,
             primes       => bs_primes,
             primes_red   => bs_primes_red,
-            primes_folds => bs_primes_folds,
             prime_len    => bs_prime_len,
             outputs      => bs_outputs
         );  
@@ -70,7 +69,7 @@ begin
     begin
         wait until rising_edge(clk);
                         
-        crt_prime_len <= std_logic_vector(to_unsigned(PRIME_LEN, crt_prime_len'length));
+        bs_prime_len <= std_logic_vector(to_unsigned(PRIME_LEN, bs_prime_len'length));
         
         for i in 0 to C_MAX_FFT_PRIMES - 1 loop
             bs_primes(i) <= PRIMES(i);
