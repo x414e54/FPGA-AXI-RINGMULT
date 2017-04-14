@@ -1,11 +1,12 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.bs_pkg.all;
+use work.fft_stage_pkg.all;
 
 entity tb_bs is
     generic (		
-        C_MAX_FFT_LENGTH             : integer   := 18;
+        C_MAX_FFT_LENGTH             : integer   := 64;
+        C_MAX_BLUESTEIN_LENGTH       : integer   := 18;	
         C_MAX_FFT_PRIME_WIDTH        : integer   := 64;		
         C_MAX_FFT_PRIMES             : integer   := 1
     );
@@ -21,24 +22,28 @@ architecture behavior of tb_bs is
 
         -- bs       
         signal bs_enabled         :  std_logic := '0';
-        signal bs_values          :  bs_bus(C_MAX_FFT_PRIMES-1 downto 0) := (others => (others => '0'));
-        signal bs_primes          :  bs_bus(C_MAX_FFT_PRIMES-1 downto 0) := (others => (others => '0'));
-        signal bs_primes_red      :  bs_bus(C_MAX_FFT_PRIMES-1 downto 0) := (others => (others => '0'));
+        signal bs_values          :  stage_io(0 to C_MAX_FFT_PRIMES-1) := (others => (others => '0'));
+        signal bs_primes          :  stage_io(0 to C_MAX_FFT_PRIMES-1) := (others => (others => '0'));
+        signal bs_primes_red      :  stage_io(0 to C_MAX_FFT_PRIMES-1) := (others => (others => '0'));
         signal bs_prime_len       :  std_logic_vector(16-1 downto 0) := (others => '0');
-        signal bs_outputs         :  bs_bus(C_MAX_FFT_PRIMES-1 downto 0) := (others => (others => '0'));
+        signal bs_w_table         :  stage_io(0 to C_MAX_FFT_LENGTH/2-1) := (others => (others => '0'));
+        signal bs_outputs         :  stage_io(0 to C_MAX_FFT_PRIMES-1) := (others => (others => '0'));
+        
+        type bs_array is array(0 to C_MAX_BLUESTEIN_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
+        type fft_table_array is array(0 to C_MAX_FFT_LENGTH/2 - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
 
-        type fft_array is array(0 to C_MAX_FFT_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
-
-		constant INPUT: fft_array := (x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000");
-        constant OUTPUT: fft_array := (x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000");
-        constant PRIMES: bs_bus := (x"1000000000000D41", x"1000000000004341", x"1000000000007041", x"10000000000104C1", x"1000000000011FC1", x"1000000000012F81");
-        constant PRIMES_RED: bs_bus := (x"0FFFFFFFFFFFF2BF", x"0FFFFFFFFFFFBCBF", x"0FFFFFFFFFFF8FBF", x"0FFFFFFFFFFEFB3F", x"0FFFFFFFFFFEE03F", x"0FFFFFFFFFFED07F");
+		constant INPUT: bs_array := (x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000");
+        constant OUTPUT: bs_array := (x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000");
+        constant W_TABLE: fft_table_array := (x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000");
+        constant PRIMES: stage_io := (x"1000000000000D41", x"1000000000004341", x"1000000000007041", x"10000000000104C1", x"1000000000011FC1", x"1000000000012F81");
+        constant PRIMES_RED: stage_io := (x"0FFFFFFFFFFFF2BF", x"0FFFFFFFFFFFBCBF", x"0FFFFFFFFFFF8FBF", x"0FFFFFFFFFFEFB3F", x"0FFFFFFFFFFEE03F", x"0FFFFFFFFFFED07F");
         constant PRIME_LEN : integer := 61; 
 begin
 
     bs_inst : entity work.bs
         generic map (
             C_MAX_FFT_LENGTH       => C_MAX_FFT_LENGTH,
+            C_MAX_BLUESTEIN_LENGTH => C_MAX_BLUESTEIN_LENGTH,
             C_MAX_FFT_PRIME_WIDTH  => C_MAX_FFT_PRIME_WIDTH,
             C_MAX_FFT_PRIMES       => C_MAX_FFT_PRIMES
         )
@@ -51,6 +56,7 @@ begin
             primes       => bs_primes,
             primes_red   => bs_primes_red,
             prime_len    => bs_prime_len,
+            w_table      => bs_w_table,
             outputs      => bs_outputs
         );  
 
@@ -75,7 +81,11 @@ begin
             bs_primes(i) <= PRIMES(i);
             bs_primes_red(i) <= PRIMES_RED(i);
         end loop;
-        		        
+                     
+        for i in 0 to C_MAX_FFT_LENGTH/2 - 1 loop
+            bs_w_table(i) <= W_TABLE(i);
+        end loop;
+                  
         wait until rising_edge(clk);
         
         bs_enabled <= '1';

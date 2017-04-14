@@ -25,6 +25,7 @@ use work.fft_stage_pkg.all;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 use IEEE.NUMERIC_STD.ALL;
+use IEEE.MATH_REAL.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx leaf cells in this code.
@@ -39,7 +40,8 @@ entity bluestein_fft is
 	port (
 		clk        : in std_logic;
 		prime      : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
-		prime_r    : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');       
+		prime_r    : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');     
+        w_table    : in stage_io(0 to C_MAX_FFT_LENGTH/2-1)                       := (others => (others => '0'));  
         value      : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
 		output     : out std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)    := (others => '0')
 	);  
@@ -53,10 +55,8 @@ begin
 return res;
 end function reg_index;
 
-constant NUM_STAGES : integer := 6; 
+constant NUM_STAGES : integer := integer(ceil(log2(real(C_MAX_FFT_LENGTH)))); 
 signal regs : stage_io(0 to reg_index(NUM_STAGES+1))  := (others => (others => '0'));
-signal w_table : stage_io(0 to reg_index(NUM_STAGES+1))  := (others => (others => '0'));
-
 begin
     
     regs(0) <= value;
