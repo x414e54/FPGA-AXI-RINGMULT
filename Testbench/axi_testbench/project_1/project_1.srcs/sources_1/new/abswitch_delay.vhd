@@ -21,13 +21,13 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-package abswitch_delay_pkg is
-	type abswitch_io is array(natural range <>) of std_logic_vector(64-1 downto 0);
+package fft_stage_pkg is
+	type stage_io is array(natural range <>) of std_logic_vector(64-1 downto 0);
 end package;
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use work.abswitch_delay_pkg.all;
+use work.fft_stage_pkg.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -45,16 +45,16 @@ entity abswitch_delay is
 	);
 	port (
 		clk     : in std_logic;
-		in_ab   : in abswitch_io(C_INPUT_LENGTH-1 downto 0)     := (others => (others => '0'));
-		out_a   : out abswitch_io(C_INPUT_LENGTH-1 downto 0)    := (others => (others => '0'));
-		out_b   : out abswitch_io(C_INPUT_LENGTH-1 downto 0)    := (others => (others => '0'))
+		in_ab   : in stage_io(0 to C_INPUT_LENGTH-1)     := (others => (others => '0'));
+		out_a   : out stage_io(0 to C_INPUT_LENGTH-1)    := (others => (others => '0'));
+		out_b   : out stage_io(0 to C_INPUT_LENGTH-1)    := (others => (others => '0'))
 	);  
 end abswitch_delay;
 
 architecture Behavioral of abswitch_delay is
-signal a_tmp_regs : abswitch_io(C_INPUT_LENGTH-1 downto 0) := (others => '0');
+signal a_tmp_regs : stage_io(0 to C_INPUT_LENGTH-1) := (others => (others => '0'));
 
-signal switch : std_logic_vector := '0';
+signal switch : std_logic := '0';
 
 begin
        	   

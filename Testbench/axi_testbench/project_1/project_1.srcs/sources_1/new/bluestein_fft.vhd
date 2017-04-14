@@ -20,6 +20,7 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use work.fft_stage_pkg.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -45,26 +46,35 @@ entity bluestein_fft is
 end bluestein_fft;
 
 architecture Behavioral of bluestein_fft is
+function reg_index(d : integer) return integer is
+    variable res : natural;
+begin
+    res := (2**d) - 1;
+return res;
+end function reg_index;
+
 constant NUM_STAGES : integer := 6; 
-type fft_array is array(0 to reg_index(NUM_STAGES)-1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
-signal regs : fft_array  := (others => (others => (others => '0')));
-signal w_table : fft_array  := (others => (others => (others => '0')));
+signal regs : stage_io(0 to reg_index(NUM_STAGES+1))  := (others => (others => '0'));
+signal w_table : stage_io(0 to reg_index(NUM_STAGES+1))  := (others => (others => '0'));
 
 begin
-
+    
+    regs(0) <= value;
+    
     fft_stages : for i in 0 to NUM_STAGES - 1 generate
         stage_i : entity work.fft_stage
             generic map (
                 C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-                C_STAGE_LENGTH => 2 ** (i+1)
+                C_STAGE_LENGTH => 2**i,
+                C_STAGE_INDEX => i
             )
             port map (
                 clk     => clk,
-                w       => w_table, -- needs to be mux
+                w_table => w_table(reg_index(i) to (reg_index(i)*2)), -- needs to be mux
                 prime   => prime,
                 prime_r => prime_r,
-                inputs  => regs(reg_index(i) to (reg_index(i) + C_STAGE_LENGTH)-1),
-                outputs => regs(reg_index(i)+C_STAGE_LENGTH to (reg_index(i) + (3*C_STAGE_LENGTH))-1),
+                inputs  => regs(reg_index(i) to (reg_index(i)*2)),
+                outputs => regs(reg_index(i+1) to (reg_index(i+1)*2))
             );
     end generate fft_stages;
     

@@ -53,16 +53,16 @@ signal a_reg_0 : unsigned(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
 signal b_reg : unsigned(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
 signal w_reg : unsigned(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
 signal tmp_reg : unsigned((2*C_MAX_FFT_PRIME_WIDTH)-1 downto 0) := (others => '0');
-signal x_reg : unsigned((2*C_MAX_FFT_PRIME_WIDTH)-1 downto 0) := (others => '0');
-signal y_reg : unsigned((2*C_MAX_FFT_PRIME_WIDTH)-1 downto 0) := (others => '0');
-constant shift_val : integer := C_MAX_FFT_PRIME_WIDTH - 3; -- dont hardcode
+signal x_reg : std_logic_vector((2*C_MAX_FFT_PRIME_WIDTH)-1 downto 0) := (others => '0');
+signal y_reg : std_logic_vector((2*C_MAX_FFT_PRIME_WIDTH)-1 downto 0) := (others => '0');
+constant shift_val : std_logic_vector(16-1 downto 0) := std_logic_vector(to_unsigned(C_MAX_FFT_PRIME_WIDTH - 3, 16)); -- dont hardcode
 
 begin
     
     red_x : entity work.red
         generic map (
             C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-            C_MAX_INPUT_WIDTH   => 2 * C_MAX_MODULUS_WIDTH
+            C_MAX_INPUT_WIDTH   => 2 * C_MAX_FFT_PRIME_WIDTH
         )
         port map (
             clk       => clk,
@@ -76,7 +76,7 @@ begin
     red_y : entity work.red
         generic map (
        	    C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-       		C_MAX_INPUT_WIDTH   => 2 * C_MAX_MODULUS_WIDTH
+       		C_MAX_INPUT_WIDTH   => 2 * C_MAX_FFT_PRIME_WIDTH
         )
        	port map (
             clk       => clk,
@@ -96,8 +96,8 @@ begin
             w_reg <= unsigned(b);
             
             tmp_reg <= b_reg * w_reg;
-            x_reg <= a_reg_1 - tmp_reg;
-            y_reg <= a_reg_1 + tmp_reg;
+            x_reg <= std_logic_vector(a_reg_1 - tmp_reg);
+            y_reg <= std_logic_vector(a_reg_1 + tmp_reg);
         end if;
     end process state_proc;
 
