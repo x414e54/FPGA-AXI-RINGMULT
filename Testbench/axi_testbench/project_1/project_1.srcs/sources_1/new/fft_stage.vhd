@@ -38,7 +38,7 @@ entity fft_stage is
 	);
 	port (
 		clk        : in std_logic;
-		w_table    : in stage_io(0 to C_STAGE_LENGTH-1)                        := (others => (others => '0'));
+		w_table    : in stage_io(0 to C_STAGE_LENGTH-1)                         := (others => (others => '0'));
 		prime      : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 		prime_r    : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');       
         inputs     : in stage_io(0 to C_STAGE_LENGTH-1)                         := (others => (others => '0'));
@@ -63,8 +63,8 @@ begin
         out_b   => regs_b
     );
 
-    stage_dits : for i in 0 to C_STAGE_LENGTH-1 generate          
-        butterfly_dit_2_i : entity work.butterfly_dit_2
+    stage_difs : for i in 0 to C_STAGE_LENGTH-1 generate          
+        butterfly_dif_2_i : entity work.butterfly_dif_2
             generic map (
        	       C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_PRIME_WIDTH
             )

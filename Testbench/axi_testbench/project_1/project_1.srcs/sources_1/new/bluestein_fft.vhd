@@ -41,7 +41,7 @@ entity bluestein_fft is
 		clk        : in std_logic;
 		prime      : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
 		prime_r    : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');     
-        w_table    : in stage_io(0 to C_MAX_FFT_LENGTH/2-1)                       := (others => (others => '0'));  
+        w_table    : in stage_io(0 to C_MAX_FFT_LENGTH-1)                         := (others => (others => '0'));  
         value      : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
 		output     : out std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)    := (others => '0')
 	);  
@@ -70,7 +70,7 @@ begin
             )
             port map (
                 clk     => clk,
-                w_table => w_table(reg_index(i) to (reg_index(i)*2)), -- needs to be mux
+                w_table => w_table(reg_index(i) to (reg_index(i)*2)), -- last stage wasted table space as only need bluestein range
                 prime   => prime,
                 prime_r => prime_r,
                 inputs  => regs(reg_index(i) to (reg_index(i)*2)),
