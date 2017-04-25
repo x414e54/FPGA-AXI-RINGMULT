@@ -17,17 +17,10 @@
 -- Additional Comments:
 -- 
 ----------------------------------------------------------------------------------
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
 
-package fft_stage_pkg is
-	type stage_io is array(natural range <>) of std_logic_vector(64-1 downto 0);
-end package;
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use work.fft_stage_pkg.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -38,38 +31,27 @@ use IEEE.NUMERIC_STD.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity abswitch_delay is
+entity delay is
 	generic (
-        C_INPUT_LENGTH      : integer    := 2;
-		C_MAX_INPUT_WIDTH   : integer    := 64
+		C_MAX_INPUT_WIDTH : integer    := 64;
+		C_DELAY		      : integer    := 5
 	);
 	port (
-		clk      : in std_logic;
-    	in_a     : in stage_io(0 to C_INPUT_LENGTH-1)     := (others => (others => '0'));
-		in_b     : in stage_io(0 to C_INPUT_LENGTH-1)     := (others => (others => '0'));
-		out_ab   : out stage_io(0 to C_INPUT_LENGTH-1)    := (others => (others => '0'))
+		clk       : in  std_logic;
+		i		  : in  std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0)       := (others => '0');
+		o		  : out std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0)       := (others => '0')
 	);  
-end abswitch_delay;
+end delay;
 
-architecture Behavioral of abswitch_delay is
-signal tmp_regs : stage_io(0 to C_INPUT_LENGTH-1) := (others => (others => '0'));
-
-signal switch : std_logic := '0';
-
+architecture Behavioral of delay is
+signal a_reg : unsigned(C_MAX_INPUT_WIDTH-1 downto 0) := (others => '0');
 begin
-       	   
     state_proc : process (clk) is
     begin	
         if rising_edge(clk) then
-			out_ab <= tmp_regs;
-
-		    if (switch = '0') then
-				switch <= '1';
-				tmp_regs <= in_a;
-			else 
-				switch <= '0';
-				tmp_regs <= in_b;
-			end if;
+            for i in 0 to C_DELAY-2 loop
+				a_reg(i) <= a_reg(i+1);
+			end loop;
         end if;
     end process state_proc;
 

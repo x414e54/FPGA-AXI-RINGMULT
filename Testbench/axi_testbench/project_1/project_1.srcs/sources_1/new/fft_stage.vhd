@@ -41,8 +41,8 @@ entity fft_stage is
 		w_table    : in stage_io(0 to C_STAGE_LENGTH-1)                         := (others => (others => '0'));
 		prime      : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 		prime_r    : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');       
-        input      : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => (others => '0'));
-		output     : out std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => (others => '0'))
+        input      : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+		output     : out std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0')
 	);  
 end fft_stage;
 
@@ -63,7 +63,7 @@ begin
         )
         port map (
             clk     => clk,
-            a       => inputs(0),
+            a       => input,
             b       => dif_0_shift(0),
             x       => regs(1),
             y       => regs(0),
@@ -71,9 +71,8 @@ begin
             prime_r => prime_r
         );   
                 
-    abswitch_delay_0_0 : entity work.abswitch_delay
+    abswitch_delay_0_0 : entity work.abswitch
         generic map (
-            C_INPUT_LENGTH => C_STAGE_LENGTH,
             C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
         )
         port map (
@@ -83,9 +82,8 @@ begin
             out_ab => regs(2)
         );
                 
-    abswitch_delay_0_1 : entity work.abswitch_delay
+    abswitch_delay_0_1 : entity work.abswitch
         generic map (
-            C_INPUT_LENGTH => C_STAGE_LENGTH,
             C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
         )
         port map (
@@ -102,7 +100,7 @@ begin
         )
         port map (
             clk     => clk,
-            w       => w_table(i),
+            w       => w_table(0),
             a       => regs(2),
             b       => dif_1_shift(0),
             x       => regs(4),
@@ -111,9 +109,8 @@ begin
             prime_r => prime_r
         );   
     
-    abswitch_delay_0 : entity work.abswitch_delay
+    abswitch_delay_0 : entity work.abswitch
     generic map (
-        C_INPUT_LENGTH => C_STAGE_LENGTH,
         C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
     )
     port map (
@@ -123,9 +120,8 @@ begin
         out_ab => output
     );
     
-    abswitch_delay_1 : entity work.abswitch_delay
+    abswitch_delay_1 : entity work.abswitch
     generic map (
-        C_INPUT_LENGTH => C_STAGE_LENGTH,
         C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
     )
     port map (
