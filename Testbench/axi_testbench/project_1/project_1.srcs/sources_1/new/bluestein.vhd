@@ -37,7 +37,7 @@ entity bs is
         primes       : in stage_io(0 to C_MAX_FFT_PRIMES-1)    := (others => (others => '0'));
         primes_red   : in stage_io(0 to C_MAX_FFT_PRIMES-1)    := (others => (others => '0'));
         prime_len    : in std_logic_vector(16-1 downto 0)   := (others => '0');		
-        w_table      : in stage_io(0 to C_MAX_FFT_LENGTH-1)  := (others => (others => '0'));
+        w_table      : in stage_io(0 to C_MAX_FFT_LENGTH-1)    := (others => (others => '0'));
 		outputs      : out stage_io(0 to C_MAX_FFT_PRIMES-1)   := (others => (others => '0'))
 	);  
 end bs;

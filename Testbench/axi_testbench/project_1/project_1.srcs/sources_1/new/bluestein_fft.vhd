@@ -66,7 +66,7 @@ begin
         stage_i : entity work.fft_stage
             generic map (
                 C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-                C_STAGE_LENGTH => 2**i,
+                C_STAGE_LENGTH => 2**(NUM_STAGES-1-i),
                 C_STAGE_INDEX => i
             )
             port map (

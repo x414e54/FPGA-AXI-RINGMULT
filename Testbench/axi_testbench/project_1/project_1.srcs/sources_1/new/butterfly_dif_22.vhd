@@ -89,6 +89,10 @@ begin
     state_proc : process (clk) is
     begin	
         if rising_edge(clk) then
+            if then
+            else
+            endif;
+            
             a_reg_1 <= a_reg_0;
             a_reg_0 <= unsigned(a);
             b_reg_1 <= b_reg_0;
