@@ -56,10 +56,11 @@ return res;
 end function reg_index;
 
 constant NUM_STAGES : integer := integer(ceil(log2(real(C_MAX_FFT_LENGTH)))); 
-signal regs : stage_io(0 to reg_index(NUM_STAGES+1))  := (others => (others => '0'));
+signal regs : stage_io(0 to NUM_STAGES)  := (others => (others => '0'));
 begin
     
     regs(0) <= value;
+    output <= regs(NUM_STAGES);
     
     fft_stages : for i in 0 to NUM_STAGES - 1 generate
         stage_i : entity work.fft_stage
@@ -70,11 +71,11 @@ begin
             )
             port map (
                 clk     => clk,
-                w_table => w_table(reg_index(i) to (reg_index(i)*2)), -- last stage wasted table space as only need bluestein range
+                w_table => w_table(reg_index(i) to (reg_index(i)*2)),
                 prime   => prime,
                 prime_r => prime_r,
-                inputs  => regs(reg_index(i) to (reg_index(i)*2)),
-                outputs => regs(reg_index(i+1) to (reg_index(i+1)*2))
+                input   => regs(i),
+                output  => regs(i+1)
             );
     end generate fft_stages;
     

@@ -41,43 +41,110 @@ entity fft_stage is
 		w_table    : in stage_io(0 to C_STAGE_LENGTH-1)                         := (others => (others => '0'));
 		prime      : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 		prime_r    : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');       
-        inputs     : in stage_io(0 to C_STAGE_LENGTH-1)                         := (others => (others => '0'));
-		outputs    : out stage_io(0 to (2*C_STAGE_LENGTH-1))                    := (others => (others => '0'))
+        input      : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => (others => '0'));
+		output     : out std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => (others => '0'))
 	);  
 end fft_stage;
 
 architecture Behavioral of fft_stage is
-signal regs_a : stage_io(0 to C_STAGE_LENGTH-1)  := (others => (others => '0'));
-signal regs_b : stage_io(0 to C_STAGE_LENGTH-1)  := (others => (others => '0'));
-begin
+signal regs : stage_io(0 to 8-1)  := (others => (others => '0')); -- 2 * 2 * 4
 
-    abswitch_delay : entity work.abswitch_delay
+signal dif_0_shift : stage_io(0 to C_STAGE_LENGTH-1)  := (others => (others => '0')); -- 2 * 2 * 4
+signal dif_1_shift : stage_io(0 to C_STAGE_LENGTH/2-1)  := (others => (others => '0')); -- 2 * 2 * 4
+
+begin
+  
+--- 0
+    dif_0_shift(0) <= input;
+    
+    butterfly_dif_2_0 : entity work.butterfly_dif_2
+        generic map (
+            C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_PRIME_WIDTH
+        )
+        port map (
+            clk     => clk,
+            a       => inputs(0),
+            b       => dif_0_shift(0),
+            x       => regs(1),
+            y       => regs(0),
+            prime   => prime,
+            prime_r => prime_r
+        );   
+                
+    abswitch_delay_0_0 : entity work.abswitch_delay
+        generic map (
+            C_INPUT_LENGTH => C_STAGE_LENGTH,
+            C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
+        )
+        port map (
+            clk    => clk,
+            in_a   => input,
+            in_b   => regs(0),
+            out_ab => regs(2)
+        );
+                
+    abswitch_delay_0_1 : entity work.abswitch_delay
+        generic map (
+            C_INPUT_LENGTH => C_STAGE_LENGTH,
+            C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
+        )
+        port map (
+            clk    => clk,
+            in_a   => dif_0_shift(0),
+            in_b   => regs(1),
+            out_ab => dif_0_shift(C_STAGE_LENGTH-1)
+        );
+    
+--- 1
+    butterfly_dif_2_1_0 : entity work.butterfly_dif_22
+        generic map (
+            C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_PRIME_WIDTH
+        )
+        port map (
+            clk     => clk,
+            w       => w_table(i),
+            a       => regs(2),
+            b       => dif_1_shift(0),
+            x       => regs(4),
+            y       => regs(3),
+            prime   => prime,
+            prime_r => prime_r
+        );   
+    
+    abswitch_delay_0 : entity work.abswitch_delay
     generic map (
         C_INPUT_LENGTH => C_STAGE_LENGTH,
         C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
     )
     port map (
-        clk     => clk,
-        in_ab   => inputs,
-        out_a   => regs_a,
-        out_b   => regs_b
+        clk    => clk,
+        in_a   => regs(4),
+        in_b   => regs(3),
+        out_ab => output
+    );
+    
+    abswitch_delay_1 : entity work.abswitch_delay
+    generic map (
+        C_INPUT_LENGTH => C_STAGE_LENGTH,
+        C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
+    )
+    port map (
+        clk    => clk,
+        in_a   => regs(4),
+        in_b   => dif_1_shift(0),
+        out_ab => dif_1_shift(C_STAGE_LENGTH/2-1)
     );
 
-    stage_difs : for i in 0 to C_STAGE_LENGTH-1 generate          
-        butterfly_dif_2_i : entity work.butterfly_dif_2
-            generic map (
-       	       C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_PRIME_WIDTH
-            )
-            port map (
-                clk     => clk,
-                w       => w_table(i), -- needs to be mux
-                a       => regs_a(i),
-                b       => regs_b(i),
-                x       => outputs(i),
-                y       => outputs(i+(C_STAGE_LENGTH/2)),
-                prime   => prime,
-                prime_r => prime_r
-            );
-    end generate stage_dits;
-    
+---
+    shift_proc : process (clk) is
+    begin	
+        if rising_edge(clk) then
+            for i in 0 to C_STAGE_LENGTH-2 loop
+                dif_0_shift(i) <= dif_0_shift(i+1);
+            end loop;
+            for i in 0 to C_STAGE_LENGTH/2-2 loop
+                dif_1_shift(i) <= dif_1_shift(i+1);
+            end loop; 
+        end if;
+    end process shift_proc;
 end Behavioral;
