@@ -138,7 +138,7 @@ bool HEIISDAGToDAGISel::SelectADDRrr(SDValue Addr, SDValue &R1, SDValue &R2) {
   }
 
   R1 = Addr;
-  R2 = CurDAG->getRegister(SP::G0, TLI->getPointerTy(CurDAG->getDataLayout()));
+  R2 = CurDAG->getRegister(HE::G0, TLI->getPointerTy(CurDAG->getDataLayout()));
   return true;
 }
 
@@ -215,7 +215,7 @@ bool HEIISDAGToDAGISel::tryInlineAsm(SDNode *N){
 
     unsigned RC;
     bool HasRC = InlineAsm::hasRegClassConstraint(Flag, RC);
-    if ((!IsTiedToChangedOp && (!HasRC || RC != SP::IntRegsRegClassID))
+    if ((!IsTiedToChangedOp && (!HasRC || RC != HE::IntRegsRegClassID))
         || NumRegs != 2)
       continue;
 
@@ -232,7 +232,7 @@ bool HEIISDAGToDAGISel::tryInlineAsm(SDNode *N){
       // Replace the two GPRs with 1 GPRPair and copy values from GPRPair to
       // the original GPRs.
 
-      unsigned GPVR = MRI.createVirtualRegister(&SP::IntPairRegClass);
+      unsigned GPVR = MRI.createVirtualRegister(&HE::IntPairRegClass);
       PairedReg = CurDAG->getRegister(GPVR, MVT::v2i32);
       SDValue Chain = SDValue(N,0);
 
@@ -241,9 +241,9 @@ bool HEIISDAGToDAGISel::tryInlineAsm(SDNode *N){
                                                Chain.getValue(1));
 
       // Extract values from a GPRPair reg and copy to the original GPR reg.
-      SDValue Sub0 = CurDAG->getTargetExtractSubreg(SP::sub_even, dl, MVT::i32,
+      SDValue Sub0 = CurDAG->getTargetExtractSubreg(HE::sub_even, dl, MVT::i32,
                                                     RegCopy);
-      SDValue Sub1 = CurDAG->getTargetExtractSubreg(SP::sub_odd, dl, MVT::i32,
+      SDValue Sub1 = CurDAG->getTargetExtractSubreg(HE::sub_odd, dl, MVT::i32,
                                                     RegCopy);
       SDValue T0 = CurDAG->getCopyToReg(Sub0, dl, Reg0, Sub0,
                                         RegCopy.getValue(1));
@@ -268,18 +268,18 @@ bool HEIISDAGToDAGISel::tryInlineAsm(SDNode *N){
           CurDAG->getMachineNode(
               TargetOpcode::REG_SEQUENCE, dl, MVT::v2i32,
               {
-                  CurDAG->getTargetConstant(SP::IntPairRegClassID, dl,
+                  CurDAG->getTargetConstant(HE::IntPairRegClassID, dl,
                                             MVT::i32),
                   T0,
-                  CurDAG->getTargetConstant(SP::sub_even, dl, MVT::i32),
+                  CurDAG->getTargetConstant(HE::sub_even, dl, MVT::i32),
                   T1,
-                  CurDAG->getTargetConstant(SP::sub_odd, dl, MVT::i32),
+                  CurDAG->getTargetConstant(HE::sub_odd, dl, MVT::i32),
               }),
           0);
 
       // Copy REG_SEQ into a GPRPair-typed VR and replace the original two
       // i32 VRs of inline asm with it.
-      unsigned GPVR = MRI.createVirtualRegister(&SP::IntPairRegClass);
+      unsigned GPVR = MRI.createVirtualRegister(&HE::IntPairRegClass);
       PairedReg = CurDAG->getRegister(GPVR, MVT::v2i32);
       Chain = CurDAG->getCopyToReg(T1, dl, GPVR, Pair, T1.getValue(1));
 
@@ -295,7 +295,7 @@ bool HEIISDAGToDAGISel::tryInlineAsm(SDNode *N){
       if (IsTiedToChangedOp)
         Flag = InlineAsm::getFlagWordForMatchingOp(Flag, DefIdx);
       else
-        Flag = InlineAsm::getFlagWordForRegClass(Flag, SP::IntPairRegClassID);
+        Flag = InlineAsm::getFlagWordForRegClass(Flag, HE::IntPairRegClassID);
       // Replace the current flag.
       AsmNodeOperands[AsmNodeOperands.size() -1] = CurDAG->getTargetConstant(
           Flag, dl, MVT::i32);
@@ -348,18 +348,18 @@ void HEIISDAGToDAGISel::Select(SDNode *N) {
     // Set the Y register to the high-part.
     SDValue TopPart;
     if (N->getOpcode() == ISD::SDIV) {
-      TopPart = SDValue(CurDAG->getMachineNode(SP::SRAri, dl, MVT::i32, DivLHS,
+      TopPart = SDValue(CurDAG->getMachineNode(HE::SRAri, dl, MVT::i32, DivLHS,
                                    CurDAG->getTargetConstant(31, dl, MVT::i32)),
                         0);
     } else {
-      TopPart = CurDAG->getRegister(SP::G0, MVT::i32);
+      TopPart = CurDAG->getRegister(HE::G0, MVT::i32);
     }
-    TopPart = CurDAG->getCopyToReg(CurDAG->getEntryNode(), dl, SP::Y, TopPart,
+    TopPart = CurDAG->getCopyToReg(CurDAG->getEntryNode(), dl, HE::Y, TopPart,
                                    SDValue())
                   .getValue(1);
 
     // FIXME: Handle div by immediate.
-    unsigned Opcode = N->getOpcode() == ISD::SDIV ? SP::SDIVrr : SP::UDIVrr;
+    unsigned Opcode = N->getOpcode() == ISD::SDIV ? HE::SDIVrr : HE::UDIVrr;
     CurDAG->SelectNodeTo(N, Opcode, MVT::i32, DivLHS, DivRHS, TopPart);
     return;
   }
@@ -368,7 +368,7 @@ void HEIISDAGToDAGISel::Select(SDNode *N) {
     // FIXME: Handle mul by immediate.
     SDValue MulLHS = N->getOperand(0);
     SDValue MulRHS = N->getOperand(1);
-    unsigned Opcode = N->getOpcode() == ISD::MULHU ? SP::UMULrr : SP::SMULrr;
+    unsigned Opcode = N->getOpcode() == ISD::MULHU ? HE::UMULrr : HE::SMULrr;
     SDNode *Mul =
         CurDAG->getMachineNode(Opcode, dl, MVT::i32, MVT::i32, MulLHS, MulRHS);
     SDValue ResultHigh = SDValue(Mul, 1);

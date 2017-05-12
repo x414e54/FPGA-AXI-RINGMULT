@@ -1,0 +1,475 @@
+
+*** Running vivado
+    with args -log axi_test_v1_0.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source axi_test_v1_0.tcl
+
+awk: symbol lookup error: awk: undefined symbol: mpfr_z_sub
+
+****** Vivado v2016.4 (64-bit)
+  **** SW Build 1733598 on Wed Dec 14 22:35:42 MST 2016
+  **** IP Build 1731160 on Wed Dec 14 23:47:21 MST 2016
+    ** Copyright 1986-2016 Xilinx, Inc. All Rights Reserved.
+
+source axi_test_v1_0.tcl -notrace
+Command: synth_design -top axi_test_v1_0 -part xc7k70tfbv676-1
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xc7k70t'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7k70t'
+INFO: Launching helper process for spawning children vivado processes
+INFO: Helper process launched with PID 4639 
+awk: symbol lookup error: awk: undefined symbol: mpfr_z_sub
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:06 ; elapsed = 00:00:07 . Memory (MB): peak = 1154.164 ; gain = 127.086 ; free physical = 345 ; free virtual = 16904
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-2048] function clogb2 does not always return a value [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0_S00_AXIS.vhd:58]
+INFO: [Synth 8-638] synthesizing module 'axi_test_v1_0' [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0.vhd:75]
+	Parameter C_MAX_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_M00_AXIS_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_M00_AXIS_START_COUNT bound to: 32 - type: integer 
+	Parameter C_S00_AXIS_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_S00_AXI_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_S00_AXI_ADDR_WIDTH bound to: 4 - type: integer 
+	Parameter C_MAX_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_M_AXIS_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_M_START_COUNT bound to: 32 - type: integer 
+INFO: [Synth 8-3491] module 'axi_test_v1_0_M00_AXIS' declared at '/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0_M00_AXIS.vhd:5' bound to instance 'axi_test_v1_0_M00_AXIS_inst' of component 'axi_test_v1_0_M00_AXIS' [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0.vhd:159]
+INFO: [Synth 8-638] synthesizing module 'axi_test_v1_0_M00_AXIS' [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0_M00_AXIS.vhd:41]
+	Parameter C_MAX_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_M_AXIS_TDATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_M_START_COUNT bound to: 32 - type: integer 
+INFO: [Synth 8-256] done synthesizing module 'axi_test_v1_0_M00_AXIS' (1#1) [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0_M00_AXIS.vhd:41]
+	Parameter C_MAX_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_S_AXIS_TDATA_WIDTH bound to: 32 - type: integer 
+INFO: [Synth 8-3491] module 'axi_test_v1_0_S00_AXIS' declared at '/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0_S00_AXIS.vhd:5' bound to instance 'axi_test_v1_0_S00_AXIS_inst' of component 'axi_test_v1_0_S00_AXIS' [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0.vhd:178]
+INFO: [Synth 8-638] synthesizing module 'axi_test_v1_0_S00_AXIS' [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0_S00_AXIS.vhd:41]
+	Parameter C_MAX_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_S_AXIS_TDATA_WIDTH bound to: 32 - type: integer 
+INFO: [Synth 8-226] default block is never used [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0_S00_AXIS.vhd:97]
+WARNING: [Synth 8-3848] Net valid_a in module/entity axi_test_v1_0_S00_AXIS does not have driver. [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0_S00_AXIS.vhd:17]
+WARNING: [Synth 8-3848] Net a in module/entity axi_test_v1_0_S00_AXIS does not have driver. [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0_S00_AXIS.vhd:18]
+WARNING: [Synth 8-3848] Net valid_b in module/entity axi_test_v1_0_S00_AXIS does not have driver. [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0_S00_AXIS.vhd:19]
+WARNING: [Synth 8-3848] Net b in module/entity axi_test_v1_0_S00_AXIS does not have driver. [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0_S00_AXIS.vhd:20]
+INFO: [Synth 8-256] done synthesizing module 'axi_test_v1_0_S00_AXIS' (2#1) [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0_S00_AXIS.vhd:41]
+	Parameter C_S_AXI_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_S_AXI_ADDR_WIDTH bound to: 4 - type: integer 
+INFO: [Synth 8-3491] module 'axi_test_v1_0_S00_AXI' declared at '/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0_S00_AXI.vhd:5' bound to instance 'axi_test_v1_0_S00_AXI_inst' of component 'axi_test_v1_0_S00_AXI' [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0.vhd:198]
+INFO: [Synth 8-638] synthesizing module 'axi_test_v1_0_S00_AXI' [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0_S00_AXI.vhd:85]
+	Parameter C_S_AXI_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_S_AXI_ADDR_WIDTH bound to: 4 - type: integer 
+INFO: [Synth 8-226] default block is never used [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0_S00_AXI.vhd:217]
+INFO: [Synth 8-226] default block is never used [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0_S00_AXI.vhd:347]
+INFO: [Synth 8-256] done synthesizing module 'axi_test_v1_0_S00_AXI' (3#1) [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0_S00_AXI.vhd:85]
+INFO: [Synth 8-638] synthesizing module 'testmult' [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/testmult.vhd:51]
+	Parameter C_MAX_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_REGISTER_WIDTH bound to: 32 - type: integer 
+INFO: [Synth 8-256] done synthesizing module 'testmult' (4#1) [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/testmult.vhd:51]
+WARNING: [Synth 8-3848] Net start in module/entity axi_test_v1_0 does not have driver. [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0.vhd:76]
+INFO: [Synth 8-256] done synthesizing module 'axi_test_v1_0' (5#1) [/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0.vhd:75]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXI has unconnected port S_AXI_AWPROT[2]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXI has unconnected port S_AXI_AWPROT[1]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXI has unconnected port S_AXI_AWPROT[0]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXI has unconnected port S_AXI_ARPROT[2]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXI has unconnected port S_AXI_ARPROT[1]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXI has unconnected port S_AXI_ARPROT[0]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port valid_a
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[31]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[30]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[29]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[28]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[27]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[26]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[25]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[24]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[23]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[22]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[21]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[20]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[19]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[18]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[17]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[16]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[15]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[14]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[13]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[12]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[11]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[10]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[9]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[8]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[7]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[6]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[5]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[4]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[3]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[2]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[1]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port a[0]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port valid_b
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[31]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[30]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[29]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[28]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[27]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[26]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[25]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[24]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[23]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[22]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[21]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[20]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[19]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[18]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[17]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[16]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[15]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[14]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[13]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[12]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[11]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[10]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[9]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[8]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[7]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[6]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[5]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[4]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[3]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[2]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[1]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port b[0]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[31]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[30]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[29]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[28]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[27]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[26]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[25]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[24]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[23]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[22]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[21]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[20]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[19]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[18]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[17]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[16]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[15]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[14]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[13]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[12]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[11]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[10]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[9]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[8]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[7]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[6]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[5]
+WARNING: [Synth 8-3331] design axi_test_v1_0_S00_AXIS has unconnected port S_AXIS_TDATA[4]
+INFO: [Common 17-14] Message 'Synth 8-3331' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:08 ; elapsed = 00:00:08 . Memory (MB): peak = 1192.633 ; gain = 165.555 ; free physical = 313 ; free virtual = 16872
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:08 ; elapsed = 00:00:08 . Memory (MB): peak = 1192.633 ; gain = 165.555 ; free physical = 313 ; free virtual = 16872
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7k70tfbv676-1
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:08 ; elapsed = 00:00:08 . Memory (MB): peak = 1200.637 ; gain = 173.559 ; free physical = 313 ; free virtual = 16872
+---------------------------------------------------------------------------------
+INFO: [Device 21-403] Loading part xc7k70tfbv676-1
+INFO: [Synth 8-5546] ROM "mst_exec_state" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5546] ROM "count" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5544] ROM "axis_tvalid" won't be mapped to Block RAM because address size (2) smaller than threshold (5)
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:08 ; elapsed = 00:00:08 . Memory (MB): peak = 1208.645 ; gain = 181.566 ; free physical = 305 ; free virtual = 16865
+---------------------------------------------------------------------------------
+
+Report RTL Partitions: 
++-+--------------+------------+----------+
+| |RTL Partition |Replication |Instances |
++-+--------------+------------+----------+
++-+--------------+------------+----------+
+No constraint files found.
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input      5 Bit       Adders := 1     
+	   2 Input      3 Bit       Adders := 1     
+	   2 Input      2 Bit       Adders := 1     
++---Registers : 
+	               32 Bit    Registers := 6     
+	                5 Bit    Registers := 1     
+	                4 Bit    Registers := 2     
+	                2 Bit    Registers := 4     
+	                1 Bit    Registers := 10    
++---Muxes : 
+	   2 Input     32 Bit        Muxes := 4     
+	   4 Input     32 Bit        Muxes := 5     
+	   2 Input      2 Bit        Muxes := 1     
+	   5 Input      2 Bit        Muxes := 1     
+	   2 Input      1 Bit        Muxes := 8     
+	   5 Input      1 Bit        Muxes := 1     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start RTL Hierarchical Component Statistics 
+---------------------------------------------------------------------------------
+Hierarchical RTL Component report 
+Module axi_test_v1_0_M00_AXIS 
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input      5 Bit       Adders := 1     
+	   2 Input      3 Bit       Adders := 1     
+	   2 Input      2 Bit       Adders := 1     
++---Registers : 
+	               32 Bit    Registers := 1     
+	                5 Bit    Registers := 1     
+	                2 Bit    Registers := 2     
+	                1 Bit    Registers := 3     
++---Muxes : 
+	   2 Input      2 Bit        Muxes := 1     
+	   5 Input      2 Bit        Muxes := 1     
+	   2 Input      1 Bit        Muxes := 2     
+	   5 Input      1 Bit        Muxes := 1     
+Module axi_test_v1_0_S00_AXIS 
+Detailed RTL Component Info : 
++---Registers : 
+	                1 Bit    Registers := 2     
++---Muxes : 
+	   2 Input      1 Bit        Muxes := 2     
+Module axi_test_v1_0_S00_AXI 
+Detailed RTL Component Info : 
++---Registers : 
+	               32 Bit    Registers := 5     
+	                4 Bit    Registers := 2     
+	                2 Bit    Registers := 2     
+	                1 Bit    Registers := 5     
++---Muxes : 
+	   2 Input     32 Bit        Muxes := 4     
+	   4 Input     32 Bit        Muxes := 5     
+	   2 Input      1 Bit        Muxes := 4     
+---------------------------------------------------------------------------------
+Finished RTL Hierarchical Component Statistics
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 240 (col length:80)
+BRAMs: 270 (col length: RAMB18 80 RAMB36 40)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-3917] design axi_test_v1_0 has port m00_axis_tstrb[3] driven by constant 1
+WARNING: [Synth 8-3917] design axi_test_v1_0 has port m00_axis_tstrb[2] driven by constant 1
+WARNING: [Synth 8-3917] design axi_test_v1_0 has port m00_axis_tstrb[1] driven by constant 1
+WARNING: [Synth 8-3917] design axi_test_v1_0 has port m00_axis_tstrb[0] driven by constant 1
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\axi_test_v1_0_M00_AXIS_inst/tx_done_reg )
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_S00_AXI_inst/axi_rresp_reg[0]' (FDRE) to 'axi_test_v1_0_S00_AXI_inst/axi_rresp_reg[1]'
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\axi_test_v1_0_S00_AXI_inst/axi_rresp_reg[1] )
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_S00_AXI_inst/axi_bresp_reg[0]' (FDRE) to 'axi_test_v1_0_S00_AXI_inst/axi_bresp_reg[1]'
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\axi_test_v1_0_S00_AXI_inst/axi_bresp_reg[1] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\axi_test_v1_0_M00_AXIS_inst/axis_tlast_delay_reg )
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[3]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[4]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[4]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[5]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[5]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[6]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[6]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[7]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[7]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[8]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[8]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[9]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[9]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[10]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[10]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[11]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[11]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[12]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[12]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[13]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[13]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[14]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[14]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[15]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[15]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[16]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[16]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[17]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[17]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[18]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[18]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[19]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[19]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[20]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[20]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[21]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[21]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[22]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[22]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[23]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[23]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[24]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[24]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[25]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[25]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[26]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[26]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[27]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[27]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[28]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[28]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[29]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[29]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[30]'
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[30]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[31]'
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[31] )
+WARNING: [Synth 8-3332] Sequential element (axi_test_v1_0_M00_AXIS_inst/tx_done_reg) is unused and will be removed from module axi_test_v1_0.
+WARNING: [Synth 8-3332] Sequential element (axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[31]) is unused and will be removed from module axi_test_v1_0.
+WARNING: [Synth 8-3332] Sequential element (axi_test_v1_0_M00_AXIS_inst/axis_tlast_delay_reg) is unused and will be removed from module axi_test_v1_0.
+WARNING: [Synth 8-3332] Sequential element (axi_test_v1_0_S00_AXI_inst/axi_awaddr_reg[1]) is unused and will be removed from module axi_test_v1_0.
+WARNING: [Synth 8-3332] Sequential element (axi_test_v1_0_S00_AXI_inst/axi_awaddr_reg[0]) is unused and will be removed from module axi_test_v1_0.
+WARNING: [Synth 8-3332] Sequential element (axi_test_v1_0_S00_AXI_inst/axi_bresp_reg[1]) is unused and will be removed from module axi_test_v1_0.
+WARNING: [Synth 8-3332] Sequential element (axi_test_v1_0_S00_AXI_inst/axi_araddr_reg[1]) is unused and will be removed from module axi_test_v1_0.
+WARNING: [Synth 8-3332] Sequential element (axi_test_v1_0_S00_AXI_inst/axi_araddr_reg[0]) is unused and will be removed from module axi_test_v1_0.
+WARNING: [Synth 8-3332] Sequential element (axi_test_v1_0_S00_AXI_inst/axi_rresp_reg[1]) is unused and will be removed from module axi_test_v1_0.
+INFO: [Synth 8-3886] merging instance 'axi_test_v1_0_M00_AXIS_inst/read_pointer_reg[1]' (FDRE) to 'axi_test_v1_0_M00_AXIS_inst/stream_data_out_reg[1]'
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:12 ; elapsed = 00:00:12 . Memory (MB): peak = 1304.684 ; gain = 277.605 ; free physical = 200 ; free virtual = 16759
+---------------------------------------------------------------------------------
+
+Report RTL Partitions: 
++-+--------------+------------+----------+
+| |RTL Partition |Replication |Instances |
++-+--------------+------------+----------+
++-+--------------+------------+----------+
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:12 ; elapsed = 00:00:12 . Memory (MB): peak = 1304.684 ; gain = 277.605 ; free physical = 199 ; free virtual = 16759
+---------------------------------------------------------------------------------
+
+Report RTL Partitions: 
++-+--------------+------------+----------+
+| |RTL Partition |Replication |Instances |
++-+--------------+------------+----------+
++-+--------------+------------+----------+
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:00:12 ; elapsed = 00:00:12 . Memory (MB): peak = 1304.684 ; gain = 277.605 ; free physical = 199 ; free virtual = 16758
+---------------------------------------------------------------------------------
+
+Report RTL Partitions: 
++-+--------------+------------+----------+
+| |RTL Partition |Replication |Instances |
++-+--------------+------------+----------+
++-+--------------+------------+----------+
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+CRITICAL WARNING: [Synth 8-4442] BlackBox module testmult_inst has unconnected pin start
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 1304.684 ; gain = 277.605 ; free physical = 198 ; free virtual = 16757
+---------------------------------------------------------------------------------
+
+Report Check Netlist: 
++------+------------------+-------+---------+-------+------------------+
+|      |Item              |Errors |Warnings |Status |Description       |
++------+------------------+-------+---------+-------+------------------+
+|1     |multi_driven_nets |      0|        0|Passed |Multi driven nets |
++------+------------------+-------+---------+-------+------------------+
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 1304.684 ; gain = 277.605 ; free physical = 198 ; free virtual = 16757
+---------------------------------------------------------------------------------
+
+Report RTL Partitions: 
++-+--------------+------------+----------+
+| |RTL Partition |Replication |Instances |
++-+--------------+------------+----------+
++-+--------------+------------+----------+
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 1304.684 ; gain = 277.605 ; free physical = 198 ; free virtual = 16757
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 1304.684 ; gain = 277.605 ; free physical = 198 ; free virtual = 16757
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 1304.684 ; gain = 277.605 ; free physical = 197 ; free virtual = 16757
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 1304.684 ; gain = 277.605 ; free physical = 197 ; free virtual = 16757
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++------+--------------+----------+
+|      |BlackBox name |Instances |
++------+--------------+----------+
+|1     |testmult      |         1|
++------+--------------+----------+
+
+Report Cell Usage: 
++------+---------+------+
+|      |Cell     |Count |
++------+---------+------+
+|1     |testmult |     1|
+|2     |BUFG     |     3|
+|3     |LUT1     |     5|
+|4     |LUT2     |     5|
+|5     |LUT3     |     6|
+|6     |LUT4     |    21|
+|7     |LUT5     |     4|
+|8     |LUT6     |    35|
+|9     |FDRE     |   180|
+|10    |FDSE     |     3|
+|11    |IBUF     |    56|
+|12    |OBUF     |    80|
++------+---------+------+
+
+Report Instance Areas: 
++------+------------------------------+-----------------------+------+
+|      |Instance                      |Module                 |Cells |
++------+------------------------------+-----------------------+------+
+|1     |top                           |                       |   431|
+|2     |  axi_test_v1_0_M00_AXIS_inst |axi_test_v1_0_M00_AXIS |    29|
+|3     |  axi_test_v1_0_S00_AXIS_inst |axi_test_v1_0_S00_AXIS |     5|
+|4     |  axi_test_v1_0_S00_AXI_inst  |axi_test_v1_0_S00_AXI  |   225|
++------+------------------------------+-----------------------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 1304.684 ; gain = 277.605 ; free physical = 197 ; free virtual = 16757
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 1 critical warnings and 202 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:10 ; elapsed = 00:00:11 . Memory (MB): peak = 1304.684 ; gain = 197.520 ; free physical = 197 ; free virtual = 16757
+Synthesis Optimization Complete : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 1304.691 ; gain = 277.613 ; free physical = 197 ; free virtual = 16757
+INFO: [Project 1-571] Translating synthesized netlist
+INFO: [Netlist 29-17] Analyzing 56 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+INFO: [Common 17-83] Releasing license: Synthesis
+70 Infos, 119 Warnings, 1 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 1399.695 ; gain = 305.113 ; free physical = 157 ; free virtual = 16681
+INFO: [Common 17-1381] The checkpoint '/home/x414e54/Documents/FPGA-tests/Testbench/ip_repo/edit_axi_test_v1_0.runs/synth_1/axi_test_v1_0.dcp' has been generated.
+report_utilization: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 1423.707 ; gain = 0.000 ; free physical = 155 ; free virtual = 16679
+INFO: [Common 17-206] Exiting Vivado at Mon Jan 16 11:59:37 2017...

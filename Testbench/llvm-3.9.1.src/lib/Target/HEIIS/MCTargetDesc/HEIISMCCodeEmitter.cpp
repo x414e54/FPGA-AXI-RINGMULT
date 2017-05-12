@@ -95,11 +95,11 @@ void HEIISMCCodeEmitter::encodeInstruction(const MCInst &MI, raw_ostream &OS,
   unsigned tlsOpNo = 0;
   switch (MI.getOpcode()) {
   default: break;
-  case SP::TLS_CALL:   tlsOpNo = 1; break;
-  case SP::TLS_ADDrr:
-  case SP::TLS_ADDXrr:
-  case SP::TLS_LDrr:
-  case SP::TLS_LDXrr:  tlsOpNo = 3; break;
+  case HE::TLS_CALL:   tlsOpNo = 1; break;
+  case HE::TLS_ADDrr:
+  case HE::TLS_ADDXrr:
+  case HE::TLS_LDrr:
+  case HE::TLS_LDXrr:  tlsOpNo = 3; break;
   }
   if (tlsOpNo != 0) {
     const MCOperand &MO = MI.getOperand(tlsOpNo);
@@ -147,7 +147,7 @@ getCallTargetOpValue(const MCInst &MI, unsigned OpNo,
   if (MO.isReg() || MO.isImm())
     return getMachineOpValue(MI, MO, Fixups, STI);
 
-  if (MI.getOpcode() == SP::TLS_CALL) {
+  if (MI.getOpcode() == HE::TLS_CALL) {
     // No fixups for __tls_get_addr. Will emit for fixups for tls_symbol in
     // encodeInstruction.
 #ifndef NDEBUG

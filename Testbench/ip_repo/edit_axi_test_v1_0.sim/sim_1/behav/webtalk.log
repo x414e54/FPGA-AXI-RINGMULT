@@ -1,0 +1,14 @@
+#-----------------------------------------------------------
+# Webtalk v2016.4 (64-bit)
+# SW Build 1733598 on Wed Dec 14 22:35:42 MST 2016
+# IP Build 1731160 on Wed Dec 14 23:47:21 MST 2016
+# Start of session at: Sun Feb 12 16:25:42 2017
+# Process ID: 19517
+# Current directory: /run/media/x414e54/Games/opt/Code/FPGA-tests/Testbench/ip_repo/edit_axi_test_v1_0.sim/sim_1/behav
+# Command line: wbtcv -mode batch -source /run/media/x414e54/Games/opt/Code/FPGA-tests/Testbench/ip_repo/edit_axi_test_v1_0.sim/sim_1/behav/xsim.dir/axi_test_v1_0_behav/webtalk/xsim_webtalk.tcl -notrace
+# Log file: /run/media/x414e54/Games/opt/Code/FPGA-tests/Testbench/ip_repo/edit_axi_test_v1_0.sim/sim_1/behav/webtalk.log
+# Journal file: /run/media/x414e54/Games/opt/Code/FPGA-tests/Testbench/ip_repo/edit_axi_test_v1_0.sim/sim_1/behav/webtalk.jou
+#-----------------------------------------------------------
+source /run/media/x414e54/Games/opt/Code/FPGA-tests/Testbench/ip_repo/edit_axi_test_v1_0.sim/sim_1/behav/xsim.dir/axi_test_v1_0_behav/webtalk/xsim_webtalk.tcl -notrace
+INFO: [Common 17-186] '/run/media/x414e54/Games/opt/Code/FPGA-tests/Testbench/ip_repo/edit_axi_test_v1_0.sim/sim_1/behav/xsim.dir/axi_test_v1_0_behav/webtalk/usage_statistics_ext_xsim.xml' has been successfully sent to Xilinx on Sun Feb 12 16:25:45 2017. For additional details about this file, please refer to the WebTalk help file at /run/media/x414e54/Games/opt/Xilinx/Vivado/2016.4/doc/webtalk_introduction.html.
+INFO: [Common 17-206] Exiting Webtalk at Sun Feb 12 16:25:45 2017...

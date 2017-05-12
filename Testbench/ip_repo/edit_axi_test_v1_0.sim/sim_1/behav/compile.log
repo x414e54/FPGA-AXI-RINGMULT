@@ -1,0 +1,25 @@
+awk: symbol lookup error: awk: undefined symbol: mpfr_z_sub
+INFO: [VRFC 10-163] Analyzing VHDL file "/run/media/x414e54/Games/opt/Code/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/sub_core.vhd" into library xil_defaultlib
+INFO: [VRFC 10-307] analyzing entity sub_core
+INFO: [VRFC 10-163] Analyzing VHDL file "/run/media/x414e54/Games/opt/Code/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/mul_core.vhd" into library xil_defaultlib
+INFO: [VRFC 10-307] analyzing entity mul_core
+INFO: [VRFC 10-163] Analyzing VHDL file "/run/media/x414e54/Games/opt/Code/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/enc_core.vhd" into library xil_defaultlib
+INFO: [VRFC 10-307] analyzing entity enc_core
+INFO: [VRFC 10-163] Analyzing VHDL file "/run/media/x414e54/Games/opt/Code/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/dec_core.vhd" into library xil_defaultlib
+INFO: [VRFC 10-307] analyzing entity dec_core
+INFO: [VRFC 10-163] Analyzing VHDL file "/run/media/x414e54/Games/opt/Code/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/add_core.vhd" into library xil_defaultlib
+INFO: [VRFC 10-307] analyzing entity add_core
+INFO: [VRFC 10-163] Analyzing VHDL file "/run/media/x414e54/Games/opt/Code/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/core_mux.vhd" into library xil_defaultlib
+INFO: [VRFC 10-307] analyzing entity core_mux
+INFO: [VRFC 10-163] Analyzing VHDL file "/run/media/x414e54/Games/opt/Code/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0_S00_AXI.vhd" into library xil_defaultlib
+INFO: [VRFC 10-307] analyzing entity axi_test_v1_0_S00_AXI
+INFO: [VRFC 10-163] Analyzing VHDL file "/run/media/x414e54/Games/opt/Code/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0_S00_AXIS.vhd" into library xil_defaultlib
+INFO: [VRFC 10-307] analyzing entity axi_test_v1_0_S00_AXIS
+INFO: [VRFC 10-163] Analyzing VHDL file "/run/media/x414e54/Games/opt/Code/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0_M00_AXIS.vhd" into library xil_defaultlib
+INFO: [VRFC 10-307] analyzing entity axi_test_v1_0_M00_AXIS
+INFO: [VRFC 10-163] Analyzing VHDL file "/run/media/x414e54/Games/opt/Code/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/testmult.vhd" into library xil_defaultlib
+INFO: [VRFC 10-307] analyzing entity testmult
+INFO: [VRFC 10-163] Analyzing VHDL file "/run/media/x414e54/Games/opt/Code/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/axi_test_v1_0.vhd" into library xil_defaultlib
+INFO: [VRFC 10-307] analyzing entity axi_test_v1_0
+INFO: [VRFC 10-163] Analyzing VHDL file "/run/media/x414e54/Games/opt/Code/FPGA-tests/Testbench/ip_repo/axi_test_1.0/hdl/tb_axi_test.vhd" into library xil_defaultlib
+INFO: [VRFC 10-307] analyzing entity axi_test_tb

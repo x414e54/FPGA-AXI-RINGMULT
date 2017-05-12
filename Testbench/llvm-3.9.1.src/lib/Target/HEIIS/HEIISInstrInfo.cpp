@@ -33,7 +33,7 @@ using namespace llvm;
 void HEIISInstrInfo::anchor() {}
 
 HEIISInstrInfo::HEIISInstrInfo(HEIISSubtarget &ST)
-    : HEIISGenInstrInfo(SP::ADJCALLSTACKDOWN, SP::ADJCALLSTACKUP), RI(),
+    : HEIISGenInstrInfo(HE::ADJCALLSTACKDOWN, HE::ADJCALLSTACKUP), RI(),
       Subtarget(ST) {}
 
 /// isLoadFromStackSlot - If the specified machine instruction is a direct
@@ -43,9 +43,9 @@ HEIISInstrInfo::HEIISInstrInfo(HEIISSubtarget &ST)
 /// any side effects other than loading from the stack slot.
 unsigned HEIISInstrInfo::isLoadFromStackSlot(const MachineInstr &MI,
                                              int &FrameIndex) const {
-  if (MI.getOpcode() == SP::LDri || MI.getOpcode() == SP::LDXri ||
-      MI.getOpcode() == SP::LDFri || MI.getOpcode() == SP::LDDFri ||
-      MI.getOpcode() == SP::LDQFri) {
+  if (MI.getOpcode() == HE::LDri || MI.getOpcode() == HE::LDXri ||
+      MI.getOpcode() == HE::LDFri || MI.getOpcode() == HE::LDDFri ||
+      MI.getOpcode() == HE::LDQFri) {
     if (MI.getOperand(1).isFI() && MI.getOperand(2).isImm() &&
         MI.getOperand(2).getImm() == 0) {
       FrameIndex = MI.getOperand(1).getIndex();
@@ -62,9 +62,9 @@ unsigned HEIISInstrInfo::isLoadFromStackSlot(const MachineInstr &MI,
 /// any side effects other than storing to the stack slot.
 unsigned HEIISInstrInfo::isStoreToStackSlot(const MachineInstr &MI,
                                             int &FrameIndex) const {
-  if (MI.getOpcode() == SP::STri || MI.getOpcode() == SP::STXri ||
-      MI.getOpcode() == SP::STFri || MI.getOpcode() == SP::STDFri ||
-      MI.getOpcode() == SP::STQFri) {
+  if (MI.getOpcode() == HE::STri || MI.getOpcode() == HE::STXri ||
+      MI.getOpcode() == HE::STFri || MI.getOpcode() == HE::STDFri ||
+      MI.getOpcode() == HE::STQFri) {
     if (MI.getOperand(0).isFI() && MI.getOperand(1).isImm() &&
         MI.getOperand(1).getImm() == 0) {
       FrameIndex = MI.getOperand(0).getIndex();
@@ -141,14 +141,14 @@ static SPCC::CondCodes GetOppositeBranchCondition(SPCC::CondCodes CC)
   llvm_unreachable("Invalid cond code");
 }
 
-static bool isUncondBranchOpcode(int Opc) { return Opc == SP::BA; }
+static bool isUncondBranchOpcode(int Opc) { return Opc == HE::BA; }
 
 static bool isCondBranchOpcode(int Opc) {
-  return Opc == SP::FBCOND || Opc == SP::BCOND;
+  return Opc == HE::FBCOND || Opc == HE::BCOND;
 }
 
 static bool isIndirectBranchOpcode(int Opc) {
-  return Opc == SP::BINDrr || Opc == SP::BINDri;
+  return Opc == HE::BINDrr || Opc == HE::BINDri;
 }
 
 static void parseCondBranch(MachineInstr *LastInst, MachineBasicBlock *&Target,
@@ -251,7 +251,7 @@ unsigned HEIISInstrInfo::InsertBranch(MachineBasicBlock &MBB,
 
   if (Cond.empty()) {
     assert(!FBB && "Unconditional branch with multiple successors!");
-    BuildMI(&MBB, DL, get(SP::BA)).addMBB(TBB);
+    BuildMI(&MBB, DL, get(HE::BA)).addMBB(TBB);
     return 1;
   }
 
@@ -259,13 +259,13 @@ unsigned HEIISInstrInfo::InsertBranch(MachineBasicBlock &MBB,
   unsigned CC = Cond[0].getImm();
 
   if (IsIntegerCC(CC))
-    BuildMI(&MBB, DL, get(SP::BCOND)).addMBB(TBB).addImm(CC);
+    BuildMI(&MBB, DL, get(HE::BCOND)).addMBB(TBB).addImm(CC);
   else
-    BuildMI(&MBB, DL, get(SP::FBCOND)).addMBB(TBB).addImm(CC);
+    BuildMI(&MBB, DL, get(HE::FBCOND)).addMBB(TBB).addImm(CC);
   if (!FBB)
     return 1;
 
-  BuildMI(&MBB, DL, get(SP::BA)).addMBB(FBB);
+  BuildMI(&MBB, DL, get(HE::BA)).addMBB(FBB);
   return 2;
 }
 
@@ -279,9 +279,9 @@ unsigned HEIISInstrInfo::RemoveBranch(MachineBasicBlock &MBB) const
     if (I->isDebugValue())
       continue;
 
-    if (I->getOpcode() != SP::BA
-        && I->getOpcode() != SP::BCOND
-        && I->getOpcode() != SP::FBCOND)
+    if (I->getOpcode() != HE::BA
+        && I->getOpcode() != HE::BCOND
+        && I->getOpcode() != HE::FBCOND)
       break; // Not a branch
 
     I->eraseFromParent();
@@ -308,59 +308,59 @@ void HEIISInstrInfo::copyPhysReg(MachineBasicBlock &MBB,
   const unsigned *subRegIdx = nullptr;
   bool ExtraG0 = false;
 
-  const unsigned DW_SubRegsIdx[]  = { SP::sub_even, SP::sub_odd };
-  const unsigned DFP_FP_SubRegsIdx[]  = { SP::sub_even, SP::sub_odd };
-  const unsigned QFP_DFP_SubRegsIdx[] = { SP::sub_even64, SP::sub_odd64 };
-  const unsigned QFP_FP_SubRegsIdx[]  = { SP::sub_even, SP::sub_odd,
-                                          SP::sub_odd64_then_sub_even,
-                                          SP::sub_odd64_then_sub_odd };
+  const unsigned DW_SubRegsIdx[]  = { HE::sub_even, HE::sub_odd };
+  const unsigned DFP_FP_SubRegsIdx[]  = { HE::sub_even, HE::sub_odd };
+  const unsigned QFP_DFP_SubRegsIdx[] = { HE::sub_even64, HE::sub_odd64 };
+  const unsigned QFP_FP_SubRegsIdx[]  = { HE::sub_even, HE::sub_odd,
+                                          HE::sub_odd64_then_sub_even,
+                                          HE::sub_odd64_then_sub_odd };
 
-  if (SP::IntRegsRegClass.contains(DestReg, SrcReg))
-    BuildMI(MBB, I, DL, get(SP::ORrr), DestReg).addReg(SP::G0)
+  if (HE::IntRegsRegClass.contains(DestReg, SrcReg))
+    BuildMI(MBB, I, DL, get(HE::ORrr), DestReg).addReg(HE::G0)
       .addReg(SrcReg, getKillRegState(KillSrc));
-  else if (SP::IntPairRegClass.contains(DestReg, SrcReg)) {
+  else if (HE::IntPairRegClass.contains(DestReg, SrcReg)) {
     subRegIdx  = DW_SubRegsIdx;
     numSubRegs = 2;
-    movOpc     = SP::ORrr;
+    movOpc     = HE::ORrr;
     ExtraG0 = true;
-  } else if (SP::FPRegsRegClass.contains(DestReg, SrcReg))
-    BuildMI(MBB, I, DL, get(SP::FMOVS), DestReg)
+  } else if (HE::FPRegsRegClass.contains(DestReg, SrcReg))
+    BuildMI(MBB, I, DL, get(HE::FMOVS), DestReg)
       .addReg(SrcReg, getKillRegState(KillSrc));
-  else if (SP::DFPRegsRegClass.contains(DestReg, SrcReg)) {
+  else if (HE::DFPRegsRegClass.contains(DestReg, SrcReg)) {
     if (Subtarget.isV9()) {
-      BuildMI(MBB, I, DL, get(SP::FMOVD), DestReg)
+      BuildMI(MBB, I, DL, get(HE::FMOVD), DestReg)
         .addReg(SrcReg, getKillRegState(KillSrc));
     } else {
       // Use two FMOVS instructions.
       subRegIdx  = DFP_FP_SubRegsIdx;
       numSubRegs = 2;
-      movOpc     = SP::FMOVS;
+      movOpc     = HE::FMOVS;
     }
-  } else if (SP::QFPRegsRegClass.contains(DestReg, SrcReg)) {
+  } else if (HE::QFPRegsRegClass.contains(DestReg, SrcReg)) {
     if (Subtarget.isV9()) {
       if (Subtarget.hasHardQuad()) {
-        BuildMI(MBB, I, DL, get(SP::FMOVQ), DestReg)
+        BuildMI(MBB, I, DL, get(HE::FMOVQ), DestReg)
           .addReg(SrcReg, getKillRegState(KillSrc));
       } else {
         // Use two FMOVD instructions.
         subRegIdx  = QFP_DFP_SubRegsIdx;
         numSubRegs = 2;
-        movOpc     = SP::FMOVD;
+        movOpc     = HE::FMOVD;
       }
     } else {
       // Use four FMOVS instructions.
       subRegIdx  = QFP_FP_SubRegsIdx;
       numSubRegs = 4;
-      movOpc     = SP::FMOVS;
+      movOpc     = HE::FMOVS;
     }
-  } else if (SP::ASRRegsRegClass.contains(DestReg) &&
-             SP::IntRegsRegClass.contains(SrcReg)) {
-    BuildMI(MBB, I, DL, get(SP::WRASRrr), DestReg)
-        .addReg(SP::G0)
+  } else if (HE::ASRRegsRegClass.contains(DestReg) &&
+             HE::IntRegsRegClass.contains(SrcReg)) {
+    BuildMI(MBB, I, DL, get(HE::WRASRrr), DestReg)
+        .addReg(HE::G0)
         .addReg(SrcReg, getKillRegState(KillSrc));
-  } else if (SP::IntRegsRegClass.contains(DestReg) &&
-             SP::ASRRegsRegClass.contains(SrcReg)) {
-    BuildMI(MBB, I, DL, get(SP::RDASR), DestReg)
+  } else if (HE::IntRegsRegClass.contains(DestReg) &&
+             HE::ASRRegsRegClass.contains(SrcReg)) {
+    BuildMI(MBB, I, DL, get(HE::RDASR), DestReg)
         .addReg(SrcReg, getKillRegState(KillSrc));
   } else
     llvm_unreachable("Impossible reg-to-reg copy");
@@ -378,7 +378,7 @@ void HEIISInstrInfo::copyPhysReg(MachineBasicBlock &MBB,
 
     MachineInstrBuilder MIB = BuildMI(MBB, I, DL, get(movOpc), Dst);
     if (ExtraG0)
-      MIB.addReg(SP::G0);
+      MIB.addReg(HE::G0);
     MIB.addReg(Src);
     MovMI = MIB.getInstr();
   }
@@ -403,25 +403,25 @@ storeRegToStackSlot(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
       MFI.getObjectSize(FI), MFI.getObjectAlignment(FI));
 
   // On the order of operands here: think "[FrameIdx + 0] = SrcReg".
-  if (RC == &SP::I64RegsRegClass)
-    BuildMI(MBB, I, DL, get(SP::STXri)).addFrameIndex(FI).addImm(0)
+  if (RC == &HE::I64RegsRegClass)
+    BuildMI(MBB, I, DL, get(HE::STXri)).addFrameIndex(FI).addImm(0)
       .addReg(SrcReg, getKillRegState(isKill)).addMemOperand(MMO);
-  else if (RC == &SP::IntRegsRegClass)
-    BuildMI(MBB, I, DL, get(SP::STri)).addFrameIndex(FI).addImm(0)
+  else if (RC == &HE::IntRegsRegClass)
+    BuildMI(MBB, I, DL, get(HE::STri)).addFrameIndex(FI).addImm(0)
       .addReg(SrcReg, getKillRegState(isKill)).addMemOperand(MMO);
-  else if (RC == &SP::IntPairRegClass)
-    BuildMI(MBB, I, DL, get(SP::STDri)).addFrameIndex(FI).addImm(0)
+  else if (RC == &HE::IntPairRegClass)
+    BuildMI(MBB, I, DL, get(HE::STDri)).addFrameIndex(FI).addImm(0)
       .addReg(SrcReg, getKillRegState(isKill)).addMemOperand(MMO);
-  else if (RC == &SP::FPRegsRegClass)
-    BuildMI(MBB, I, DL, get(SP::STFri)).addFrameIndex(FI).addImm(0)
+  else if (RC == &HE::FPRegsRegClass)
+    BuildMI(MBB, I, DL, get(HE::STFri)).addFrameIndex(FI).addImm(0)
       .addReg(SrcReg,  getKillRegState(isKill)).addMemOperand(MMO);
-  else if (SP::DFPRegsRegClass.hasSubClassEq(RC))
-    BuildMI(MBB, I, DL, get(SP::STDFri)).addFrameIndex(FI).addImm(0)
+  else if (HE::DFPRegsRegClass.hasSubClassEq(RC))
+    BuildMI(MBB, I, DL, get(HE::STDFri)).addFrameIndex(FI).addImm(0)
       .addReg(SrcReg,  getKillRegState(isKill)).addMemOperand(MMO);
-  else if (SP::QFPRegsRegClass.hasSubClassEq(RC))
+  else if (HE::QFPRegsRegClass.hasSubClassEq(RC))
     // Use STQFri irrespective of its legality. If STQ is not legal, it will be
     // lowered into two STDs in eliminateFrameIndex.
-    BuildMI(MBB, I, DL, get(SP::STQFri)).addFrameIndex(FI).addImm(0)
+    BuildMI(MBB, I, DL, get(HE::STQFri)).addFrameIndex(FI).addImm(0)
       .addReg(SrcReg,  getKillRegState(isKill)).addMemOperand(MMO);
   else
     llvm_unreachable("Can't store this register to stack slot");
@@ -441,25 +441,25 @@ loadRegFromStackSlot(MachineBasicBlock &MBB, MachineBasicBlock::iterator I,
       MachinePointerInfo::getFixedStack(*MF, FI), MachineMemOperand::MOLoad,
       MFI.getObjectSize(FI), MFI.getObjectAlignment(FI));
 
-  if (RC == &SP::I64RegsRegClass)
-    BuildMI(MBB, I, DL, get(SP::LDXri), DestReg).addFrameIndex(FI).addImm(0)
+  if (RC == &HE::I64RegsRegClass)
+    BuildMI(MBB, I, DL, get(HE::LDXri), DestReg).addFrameIndex(FI).addImm(0)
       .addMemOperand(MMO);
-  else if (RC == &SP::IntRegsRegClass)
-    BuildMI(MBB, I, DL, get(SP::LDri), DestReg).addFrameIndex(FI).addImm(0)
+  else if (RC == &HE::IntRegsRegClass)
+    BuildMI(MBB, I, DL, get(HE::LDri), DestReg).addFrameIndex(FI).addImm(0)
       .addMemOperand(MMO);
-  else if (RC == &SP::IntPairRegClass)
-    BuildMI(MBB, I, DL, get(SP::LDDri), DestReg).addFrameIndex(FI).addImm(0)
+  else if (RC == &HE::IntPairRegClass)
+    BuildMI(MBB, I, DL, get(HE::LDDri), DestReg).addFrameIndex(FI).addImm(0)
       .addMemOperand(MMO);
-  else if (RC == &SP::FPRegsRegClass)
-    BuildMI(MBB, I, DL, get(SP::LDFri), DestReg).addFrameIndex(FI).addImm(0)
+  else if (RC == &HE::FPRegsRegClass)
+    BuildMI(MBB, I, DL, get(HE::LDFri), DestReg).addFrameIndex(FI).addImm(0)
       .addMemOperand(MMO);
-  else if (SP::DFPRegsRegClass.hasSubClassEq(RC))
-    BuildMI(MBB, I, DL, get(SP::LDDFri), DestReg).addFrameIndex(FI).addImm(0)
+  else if (HE::DFPRegsRegClass.hasSubClassEq(RC))
+    BuildMI(MBB, I, DL, get(HE::LDDFri), DestReg).addFrameIndex(FI).addImm(0)
       .addMemOperand(MMO);
-  else if (SP::QFPRegsRegClass.hasSubClassEq(RC))
+  else if (HE::QFPRegsRegClass.hasSubClassEq(RC))
     // Use LDQFri irrespective of its legality. If LDQ is not legal, it will be
     // lowered into two LDDs in eliminateFrameIndex.
-    BuildMI(MBB, I, DL, get(SP::LDQFri), DestReg).addFrameIndex(FI).addImm(0)
+    BuildMI(MBB, I, DL, get(HE::LDQFri), DestReg).addFrameIndex(FI).addImm(0)
       .addMemOperand(MMO);
   else
     llvm_unreachable("Can't load this register from stack slot");
@@ -478,12 +478,12 @@ unsigned HEIISInstrInfo::getGlobalBaseReg(MachineFunction *MF) const
   MachineRegisterInfo &RegInfo = MF->getRegInfo();
 
   const TargetRegisterClass *PtrRC =
-    Subtarget.is64Bit() ? &SP::I64RegsRegClass : &SP::IntRegsRegClass;
+    Subtarget.is64Bit() ? &HE::I64RegsRegClass : &HE::IntRegsRegClass;
   GlobalBaseReg = RegInfo.createVirtualRegister(PtrRC);
 
   DebugLoc dl;
 
-  BuildMI(FirstMBB, MBBI, dl, get(SP::GETPCX), GlobalBaseReg);
+  BuildMI(FirstMBB, MBBI, dl, get(HE::GETPCX), GlobalBaseReg);
   HEIISFI->setGlobalBaseReg(GlobalBaseReg);
   return GlobalBaseReg;
 }
@@ -495,9 +495,9 @@ bool HEIISInstrInfo::expandPostRAPseudo(MachineInstr &MI) const {
            "Only Linux target is expected to contain LOAD_STACK_GUARD");
     // offsetof(tcbhead_t, stack_guard) from sysdeps/sparc/nptl/tls.h in glibc.
     const int64_t Offset = Subtarget.is64Bit() ? 0x28 : 0x14;
-    MI.setDesc(get(Subtarget.is64Bit() ? SP::LDXri : SP::LDri));
+    MI.setDesc(get(Subtarget.is64Bit() ? HE::LDXri : HE::LDri));
     MachineInstrBuilder(*MI.getParent()->getParent(), MI)
-        .addReg(SP::G7)
+        .addReg(HE::G7)
         .addImm(Offset);
     return true;
   }
