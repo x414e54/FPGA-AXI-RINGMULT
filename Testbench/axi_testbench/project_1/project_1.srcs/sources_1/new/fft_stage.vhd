@@ -48,17 +48,17 @@ entity fft_stage is
 end fft_stage;
 
 architecture Behavioral of fft_stage is
-signal regs : stage_io(0 to 8-1)  := (others => (others => '0')); -- 2 * 2 * 4
+signal table_idx : integer := 0;
 
-signal dif_0_shift : stage_io(0 to C_STAGE_LENGTH-1)  := (others => (others => '0')); -- 2 * 2 * 4
-signal dif_1_shift : stage_io(0 to C_STAGE_LENGTH/2-1)  := (others => (others => '0')); -- 2 * 2 * 4
+signal regs : stage_io(0 to 8-1)  := (others => (others => '0'));
+
+signal dif_0_shift : stage_io(0 to C_STAGE_LENGTH-1)  := (others => (others => '0'));
+signal dif_1_shift : stage_io(0 to C_STAGE_LENGTH/2-1)  := (others => (others => '0'));
 
 begin
   
---- 0
-    dif_0_shift(0) <= input;
-    
-    butterfly_dif_2_0 : entity work.butterfly_dif_2
+--- 0    
+    butterfly_dif_2_0 : entity work.butterfly_dif_22
         generic map (
             C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_PRIME_WIDTH
         )
@@ -81,7 +81,7 @@ begin
             clk    => clk,
             in_a   => input,
             in_b   => regs(0),
-            out_ab => regs(2)
+            out_ab => dif_0_shift(C_STAGE_LENGTH-1)
         );
                 
     abswitch_delay_0_1 : entity work.abswitch
@@ -92,7 +92,7 @@ begin
             clk    => clk,
             in_a   => dif_0_shift(0),
             in_b   => regs(1),
-            out_ab => dif_0_shift(C_STAGE_LENGTH-1)
+            out_ab => regs(2)
         );
     
 --- 1
@@ -102,7 +102,6 @@ begin
         )
         port map (
             clk     => clk,
-            w       => w_table(0),
             a       => regs(2),
             b       => dif_1_shift(0),
             x       => regs(4),
@@ -120,7 +119,7 @@ begin
         clk    => clk,
         in_a   => regs(4),
         in_b   => regs(3),
-        out_ab => regs
+        out_ab => dif_1_shift(C_STAGE_LENGTH/2-1)
     );
     
     abswitch_delay_1 : entity work.abswitch
@@ -131,7 +130,7 @@ begin
         clk    => clk,
         in_a   => regs(4),
         in_b   => dif_1_shift(0),
-        out_ab => dif_1_shift(C_STAGE_LENGTH/2-1)
+        out_ab => regs(5)
     );
 
 --- twiddle
@@ -145,7 +144,7 @@ begin
         modulus_r   => prime_r,
         modulus_s   => prime_s,
         a           => regs(5),
-        b           => w_table,
+        b           => w_table(table_idx),
         c           => output  
     );
     
