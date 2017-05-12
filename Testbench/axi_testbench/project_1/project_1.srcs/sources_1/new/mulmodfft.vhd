@@ -34,16 +34,22 @@ entity mulmod is
 		clk            : in std_logic := '0';
 		enabled        : in std_logic := '0';
 		value          : in std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0)      := (others => '0');       
-        _fft_tables : in stage_io(0 to (C_MAX_FFT_PRIMES*C_MAX_FFT_LENGTH)-1)       := (others => (others => '0'));
         output         : in std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0)      := (others => '0');
         primes         : in crt_bus(C_MAX_FFT_PRIMES-1 downto 0)                       := (others => (others => '0'));
         primes_red     : in crt_bus(C_MAX_FFT_PRIMES-1 downto 0)                       := (others => (others => '0'));
         primes_folds   : in crt_bus_2(C_MAX_FFT_PRIMES-1 downto 0)                     := (others => (others => (others => '0')));
-        prime_len      : in std_logic_vector(16-1 downto 0)                         := (others => '0');	
-        w_tables       : in stage_io(0 to (C_MAX_FFT_PRIMES*C_MAX_FFT_LENGTH)-1)       := (others => (others => '0'));          
-        wi_tables      : in stage_io(0 to (C_MAX_FFT_PRIMES*C_MAX_FFT_LENGTH)-1)       := (others => (others => '0'));  
-        mul_tables     : in stage_io(0 to (C_MAX_FFT_PRIMES*C_MAX_BLUESTEIN_LENGTH)-1) := (others => (others => '0'));          
-        mul_fft_tables : in stage_io(0 to (C_MAX_FFT_PRIMES*C_MAX_FFT_LENGTH)-1)       := (others => (others => '0'));
+        prime_len      : in std_logic_vector(16-1 downto 0)                         := (others => '0');
+        
+        eta_xi_tables       : in stage_io(0 to C_MAX_FFT_PRIMES-1)                     := (others => (others => '0'));
+        eta_xi_tables_idx   : out stage_io(0 to C_MAX_FFT_PRIMES-1)                    := (others => (others => '0'));	
+        w_tables            : in stage_io(0 to C_MAX_FFT_PRIMES-1)                     := (others => (others => '0'));
+        w_tables_idx        : out := (others => (others => '0'));           
+        wi_tables           : in stage_io(0 to C_MAX_FFT_PRIMES-1)                     := (others => (others => '0'));
+        wi_tables_idx       : out := (others => (others => '0'));  
+        mul_tables          : in stage_io(0 to C_MAX_FFT_PRIMES-1)                     := (others => (others => '0'));
+        wul_tables_idx      : out := (others => (others => '0'));          
+        mul_fft_tables      : in stage_io(0 to C_MAX_FFT_PRIMES-1)                     := (others => (others => '0'));
+        mul_fft_tables_idx  : out := (others => (others => '0'));
 	);  
 end mulmod;
 

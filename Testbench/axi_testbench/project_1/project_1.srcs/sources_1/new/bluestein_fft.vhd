@@ -39,22 +39,20 @@ entity bluestein_fft is
 		C_MAX_FFT_LENGTH        : integer    := 7710 
 	);
 	port (
-		clk           : in std_logic;
-		prime         : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
-		prime_r       : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');  
-        prime_s       : in std_logic_vector(16-1 downto 0)                        := (others => '0');        
-        w_table       : in stage_io(0 to C_MAX_FFT_LENGTH-1)                         := (others => (others => '0'));          
-        wi_table      : in stage_io(0 to C_MAX_FFT_LENGTH-1)                         := (others => (others => '0'));  
-        mul_table     : in stage_io(0 to C_MAX_BLUESTEIN_LENGTH-1)                   := (others => (others => '0'));          
-        mul_fft_table : in stage_io(0 to C_MAX_FFT_LENGTH-1)                         := (others => (others => '0'));  
-        value         : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
-		output        : out std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)    := (others => '0')
+		clk               : in std_logic;
+		prime             : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
+		prime_r           : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');  
+        prime_s           : in std_logic_vector(16-1 downto 0)                        := (others => '0');        
+        w_table_val       : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');          
+        wi_table_val      : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');  
+        mul_table_val     : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');          
+        mul_fft_table_val : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');  
+        value             : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
+		output            : out std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)    := (others => '0')
 	);  
 end bluestein_fft;
 
 architecture Behavioral of bluestein_fft is
-
-signal table_idx : integer := 0;
 
 signal mul_output : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
 signal fft_output : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
@@ -74,7 +72,7 @@ begin
         modulus_r   => prime_r,
         modulus_s   => prime_s,
         a           => value,
-        b           => mul_table(table_idx),
+        b           => mul_table_val,
         c           => mul_output  
     );
 
@@ -105,7 +103,7 @@ begin
         modulus_r   => prime_r,
         modulus_s   => prime_s,
         a           => fft_output,
-        b           => mul_fft_table(table_idx),
+        b           => mul_fft_table_val,
         c           => mul_fft_output  
     );
     
@@ -136,7 +134,7 @@ begin
         modulus_r   => prime_r,
         modulus_s   => prime_s,
         a           => ifft_output,
-        b           => mul_table(table_idx),
+        b           => mul_table_val,
         c           => output  
     ); 
      --< C_M
