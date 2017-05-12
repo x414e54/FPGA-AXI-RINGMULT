@@ -81,7 +81,7 @@ begin
 --- Forward FFT    
     forward_fft : entity work.fft
     generic map (
-        C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_LENGTH,
+        C_MAX_FFT_LENGTH      => C_MAX_FFT_LENGTH,
         C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_PRIME_WIDTH
     )
     port map (
@@ -112,7 +112,7 @@ begin
 --- Reverse FFT    
     inverse_fft : entity work.fft
     generic map (
-        C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_LENGTH,
+        C_MAX_FFT_LENGTH      => C_MAX_FFT_LENGTH,
         C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_PRIME_WIDTH
     )
     port map (
