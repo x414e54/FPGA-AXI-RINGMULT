@@ -36,7 +36,7 @@ entity bluestein_fft is
 	generic (
 		C_MAX_FFT_PRIME_WIDTH   : integer    := 64;
     	C_MAX_BLUESTEIN_LENGTH  : integer    := 7710; 
-		C_MAX_FFT_LENGTH        : integer    := 7710; 
+		C_MAX_FFT_LENGTH        : integer    := 7710 
 	);
 	port (
 		clk           : in std_logic;
@@ -44,9 +44,9 @@ entity bluestein_fft is
 		prime_r       : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');  
         prime_s       : in std_logic_vector(16-1 downto 0)                        := (others => '0');        
         w_table       : in stage_io(0 to C_MAX_FFT_LENGTH-1)                         := (others => (others => '0'));          
-        wi_table      : in stage_io(0 to C_MAX_FFT_LENGTH-1)      　               　:= (others => (others => '0'));  
+        wi_table      : in stage_io(0 to C_MAX_FFT_LENGTH-1)                         := (others => (others => '0'));  
         mul_table     : in stage_io(0 to C_MAX_BLUESTEIN_LENGTH-1)                   := (others => (others => '0'));          
-        mul_fft_table : in stage_io(0 to C_MAX_FFT_LENGTH-1)      　               　:= (others => (others => '0'));  
+        mul_fft_table : in stage_io(0 to C_MAX_FFT_LENGTH-1)                         := (others => (others => '0'));  
         value         : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
 		output        : out std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)    := (others => '0')
 	);  
