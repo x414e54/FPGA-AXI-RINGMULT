@@ -40,7 +40,8 @@ entity fft_stage is
 		clk        : in std_logic;
 		w_table    : in stage_io(0 to C_STAGE_LENGTH-1)                         := (others => (others => '0'));
 		prime      : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
-		prime_r    : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');       
+		prime_r    : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+        prime_s    : in std_logic_vector(16-1 downto 0)                      := (others => '0');        
         input      : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 		output     : out std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0')
 	);  
@@ -68,7 +69,8 @@ begin
             x       => regs(1),
             y       => regs(0),
             prime   => prime,
-            prime_r => prime_r
+            prime_r => prime_r,
+            prime_s => prime_s
         );   
                 
     abswitch_delay_0_0 : entity work.abswitch
@@ -106,7 +108,8 @@ begin
             x       => regs(4),
             y       => regs(3),
             prime   => prime,
-            prime_r => prime_r
+            prime_r => prime_r,
+            prime_s => prime_s
         );   
     
     abswitch_delay_0 : entity work.abswitch
@@ -117,7 +120,7 @@ begin
         clk    => clk,
         in_a   => regs(4),
         in_b   => regs(3),
-        out_ab => output
+        out_ab => regs
     );
     
     abswitch_delay_1 : entity work.abswitch
@@ -131,7 +134,21 @@ begin
         out_ab => dif_1_shift(C_STAGE_LENGTH/2-1)
     );
 
----
+--- twiddle
+    twiddle_mul : entity work.mulred
+    generic map (
+        C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
+    )
+    port map (
+        clk         => clk,
+        modulus     => prime,
+        modulus_r   => prime_r,
+        modulus_s   => prime_s,
+        a           => regs(5),
+        b           => w_table,
+        c           => output  
+    );
+    
     shift_proc : process (clk) is
     begin	
         if rising_edge(clk) then

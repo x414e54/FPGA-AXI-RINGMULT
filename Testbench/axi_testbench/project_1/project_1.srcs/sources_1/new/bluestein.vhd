@@ -55,6 +55,7 @@ begin
 				w_table    => w_table,
 				prime      => primes(i),
                 prime_r    => primes_red(i),
+                prime_s    => prime_len,
 				value	   => values(i),
 				output     => outputs(i)
 			);
