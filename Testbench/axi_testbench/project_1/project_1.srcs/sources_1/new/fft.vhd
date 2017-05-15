@@ -33,21 +33,24 @@ use IEEE.MATH_REAL.ALL;
 
 entity fft is
 	generic (
-		C_MAX_FFT_PRIME_WIDTH   : integer    := 64;
-		C_MAX_FFT_LENGTH        : integer    := 7710;
-		C_PARAM_ADDR_TOP        : integer    := x"0000";
+        C_PARAM_WIDTH           : integer   := 64;
+        C_PARAM_ADDR_WIDTH      : integer   := 32;
+        C_PARAM_ADDR_TOP        : integer   := x"0000";
+        C_LENGTH_WIDTH          : integer   := 16;	
+		C_MAX_FFT_PRIME_WIDTH   : integer   := 64;
+		C_MAX_FFT_LENGTH        : integer   := 16384
 	);
 	port (
 		clk            : in std_logic;  
 		----
-        param          : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
-        param_addr     : in std_logic_vector(32-1 downto 0)                        := (others => '0');
+        param          : in std_logic_vector(C_PARAM_WIDTH-1 downto 0)             := (others => '0');
+        param_addr     : in std_logic_vector(C_PARAM_ADDR_WIDTH-1 downto 0)        := (others => '0');
         param_valid    : in std_logic;
         ----
         prime          : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
         prime_r        : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
-        prime_s        : in std_logic_vector(16-1 downto 0)                        := (others => '0'); 
-        length         : in std_logic_vector(16-1 downto 0)                        := (others => '0'); 
+        prime_s        : in std_logic_vector(C_LENGTH_WIDTH-1 downto 0)            := (others => '0'); 
+        length         : in std_logic_vector(C_LENGTH_WIDTH-1 downto 0)            := (others => '0'); 
         ----
         value          : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
         value_valid    : in std_logic;

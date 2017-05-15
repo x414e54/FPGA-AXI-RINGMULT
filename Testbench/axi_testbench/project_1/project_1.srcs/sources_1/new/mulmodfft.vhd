@@ -24,17 +24,24 @@ use work.crt_pkg.all;
 
 entity mulmod is
 	generic (
-		C_MAX_FFT_PRIME_WIDTH   : integer    := 64;
-        C_MAX_FFT_LENGTH        : integer    := 7710; 
-        C_MAX_POLY_LENGTH       : integer    := 7710; 
-		C_MAX_CRT_PRIME_WIDTH   : integer    := 256; 
-		C_MAX_FFT_PRIMES		: integer    := 9;
-		C_MAX_FFT_PRIMES_FOLDS  : integer    := (256/64)-2--C_MAX_CRT_PRIME_WIDTH / C_MAX_FFT_PRIME_WIDTH - 2
+	    C_PARAM_WIDTH           : integer   := 64;
+        C_PARAM_ADDR_WIDTH      : integer   := 32;
+        C_PARAM_ADDR_TOP        : integer   := x"0000";
+        C_LENGTH_WIDTH          : integer   := 16;	
+		C_MAX_FFT_PRIME_WIDTH   : integer   := 64;
+        C_MAX_FFT_LENGTH        : integer   := 16384; 
+        C_MAX_POLY_LENGTH       : integer   := 7710; 
+		C_MAX_CRT_PRIME_WIDTH   : integer   := 256; 
+		C_MAX_FFT_PRIMES		: integer   := 9;
+		C_MAX_FFT_PRIMES_FOLDS  : integer   := (256/64)-2--C_MAX_CRT_PRIME_WIDTH / C_MAX_FFT_PRIME_WIDTH - 2
 	);
 	port (
 		clk            : in std_logic                                                := '0';
-        param          : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)      := (others => '0');
+		----
+        param          : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
+        param_addr     : in std_logic_vector(C_PARAM_ADDR_WIDTH-1 downto 0)        := (others => '0');
         param_valid    : in std_logic;
+        ----
 		value          : in std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0)      := (others => '0');       
         output         : in std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0)      := (others => '0');
 	);  
@@ -80,7 +87,8 @@ begin
                 C_MAX_FFT_PRIME_WIDTH   => C_MAX_FFT_PRIME_WIDTH,
                 C_MAX_BLUESTEIN_LENGTH  => C_MAX_POLY_LENGTH, 
                 C_MAX_FFT_LENGTH        => C_MAX_FFT_LENGTH, 
-                C_MAX_FFT_PRIMES		=> C_MAX_FFT_PRIMES
+                C_MAX_FFT_PRIMES		=> C_MAX_FFT_PRIMES,
+                C_PARAM_ADDR_TOP        => C_PARAM_ADDR_TOP + 10
             );
             port (
                 clk            => clk,
@@ -114,13 +122,17 @@ begin
                 C_MAX_FFT_PRIME_WIDTH   => C_MAX_FFT_PRIME_WIDTH,
                 C_MAX_BLUESTEIN_LENGTH  => C_MAX_BLUESTEIN_LENGTH, 
                 C_MAX_FFT_LENGTH        => C_MAX_FFT_LENGTH, 
-                C_MAX_FFT_PRIMES		=> C_MAX_FFT_PRIMES
+                C_MAX_FFT_PRIMES		=> C_MAX_FFT_PRIMES,
+                C_PARAM_ADDR_TOP        => C_PARAM_ADDR_TOP + 20
             );
             port (
                 clk            => clk,
                 param          => param_addr,
                 param_addr     => param_addr.
                 param_valid    => param_valid,
+                modulus        => prime,
+                modulus_r      => prime_r,
+                modulus_s      => prime_s,
                 values         : mul_output
                 values_valid   : in std_logic := '0';
                 outputs        => bs_outputs
@@ -143,112 +155,10 @@ begin
                 output_valid   => 
             );  
                 
-param_finished <= '0';
-fft_param_valid <= '0';
-ifft_param_valid <= '0';
-ifft_param <= param;
-fft_param <= param;
-
 state_proc : process (clk) is
     begin	
         if rising_edge(clk) then
-            case state is
-                when IDLE =>
-                    case mode is
-                        when MODE_LOAD_PARAMS =>
-                            state <= LOAD_BLUESTEIN_LENGTH;
-                        when MODE_RUN =>
-                            state <= RUN;
-                        end case;
-                         
-                when LOAD_BLUESTEIN_LENGTH =>
-                    if (param_valid = '1') then
-                        length <= unsigned(param);
-                        state <= IDLE;
-                    end if;     
-                                      
-                when LOAD_FFT_LENGTH =>
-                    fft_mode <= FFT_MODE_FFT_LENGTH;
-                    ifft_mode <= FFT_MODE_FFT_LENGTH;
-                    if (param_valid = '1') then
-                        fft_param_valid <= '1';
-                        ifft_param_valid <= '1';
-                        state <= LOAD_PRIME;
-                    end if;
-                                            
-                when LOAD_PRIME =>
-                    bs_mode <= MODE_LOAD_PRIME;
-                    ibs_mode <= MODE_LOAD_PRIME;
-                    if (param_valid = '1') then
-                        fft_param_valid <= '1';
-                        ifft_param_valid <= '1';
-                        prime <= param;
-                        state <= LOAD_PRIME_R;
-                    end if;
-                    
-                when LOAD_PRIME_R =>
-                    if (param_valid = '1') then
-                        fft_param_valid <= '1';
-                        ifft_param_valid <= '1';
-                        prime_r <= param;
-                        state <= LOAD_PRIME_S;
-                    end if;
-                     
-                when LOAD_PRIME_S =>
-                    if (param_valid = '1') then
-                        fft_param_valid <= '1';
-                        ifft_param_valid <= '1';
-                        prime_s <= param;
-                        param_finished <= '1';
-                        state <= IDLE;
-                    end if;
-                                                                                    
-                when LOAD_FFT_TABLE =>
-                    bs_mode <= BS_MODE_LOAD_FFT_TABLE;
-                    ibs_mode <= BS_MODE_LOAD_FFT_TABLE;
-                    if (fft_param_finished = '1') then
-                        param_finished <= '1';
-                        state <= IDLE;
-                    end if;
-                    if (param_valid = '1') then
-                        fft_param_valid <= '1';
-                    end if;
-                    
-                when LOAD_IFFT_TABLE =>
-                    bs_mode <= BS_MODE_LOAD_IFFT_TABLE;
-                    ibs_mode <= BS_MODE_LOAD_IFFT_TABLE;
-                    if (ifft_param_finished = '1') then
-                        param_finished <= '1';
-                        state <= IDLE;
-                    end if;
-                    if (param_valid = '1') then
-                        ifft_param_valid <= '1';
-                    end if;
-                
-                when LOAD_MUL_TABLE =>
-                    if (param_valid = '1') then
-                        mul_table(mul_table_write_idx) <= param;
-                        if (length = mul_table_in_idx - 1) then
-                            mul_table_write_idx <= 0;
-                            state <= IDLE;
-                        end if;
-                        mul_table_write_idx <= mul_table_write_idx + 1;
-                    end if;
-                
-                when LOAD_MUL_FFT_TABLE =>
-                    if (param_valid = '1') then
-                        mul_fft_table(mul_fft_table_write_idx) <= param;
-                        if (length = mul_fft_table_in_idx - 1) then
-                            mul_fft_table_write_idx <= 0;
-                            state <= IDLE;
-                        end if;
-                        mul_fft_table_write_idx <= mul_fft_table_write_idx + 1;
-                    end if;    
-                                                                                                          
-                when RUN =>
-                    ifft_mode <= FFT_MODE_RUN;
-                    fft_mode <= FFT_MODE_RUN;
-            end case;
+  
         end if;
     end process state_proc;
 end Behavioral;

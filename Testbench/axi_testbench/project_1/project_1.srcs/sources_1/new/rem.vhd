@@ -40,25 +40,28 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity rem_fold is
 	generic (
+	    C_PARAM_WIDTH       : integer    := 64;
+        C_PARAM_ADDR_WIDTH  : integer    := 32;
+        C_PARAM_ADDR_TOP    : integer    := x"0000";
+        C_LENGTH_WIDTH      : integer    := 16;	
 		C_MAX_MODULUS_WIDTH : integer    := 64;
 		C_MAX_INPUT_WIDTH   : integer    := 256;
         C_MAX_INPUT_LEN     : integer    := 256/64;--C_MAX_INPUT_WIDTH / C_MAX_MODULUS_WIDTH;
         C_MAX_MODULUS_FOLDS : integer    := (256/64)-2;--C_MAX_INPUT_LEN - 2
-        C_PARAM_ADDR_TOP    : integer    := x"0000"
 	);
 	port (
-		clk               : in std_logic;
+		clk            : in std_logic;
 		----
-        param          : in std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)     := (others => '0');
-        param_addr     : in std_logic_vector(32-1 downto 0)                      := (others => '0');
+        param          : in std_logic_vector(C_PARAM_WIDTH-1 downto 0)           := (others => '0');
+        param_addr     : in std_logic_vector(C_PARAM_ADDR_WIDTH-1 downto 0)      := (others => '0');
         param_valid    : in std_logic;
         ----
         modulus        : in std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)     := (others => '0');
         modulus_r      : in std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)     := (others => '0');
-        modulus_s      : in std_logic_vector(16-1 downto 0)                      := (others => '0'); 
+        modulus_s      : in std_logic_vector(C_LENGTH_WIDTH-1 downto 0)          := (others => '0'); 
         ----
-        value             : in std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0)    := (others => '0');
-		remainder         : out std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0) := (others => '0')
+        value          : in std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0)    := (others => '0');
+		remainder      : out std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0) := (others => '0')
 	);  
 end rem_fold;
 
