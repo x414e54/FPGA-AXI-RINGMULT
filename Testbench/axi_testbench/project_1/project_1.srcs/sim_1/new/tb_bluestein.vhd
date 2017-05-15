@@ -63,7 +63,7 @@ begin
             param_valid    => bs_param_valid,
             values         => bs_values,
             values_valid   => bs_values_valid,
-            outputs        => bs_outputs
+            outputs        => bs_outputs,
             outputs_valid  => bs_outputs_valid
         );  
 

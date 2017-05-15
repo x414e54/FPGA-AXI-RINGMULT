@@ -4,7 +4,7 @@
 -- 
 -- Create Date: 2017/04/03 13:09:21
 -- Design Name: 
--- Module Name: reduce - Behavioral
+-- Module Name: rem_fold - Behavioral
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
@@ -47,7 +47,7 @@ entity rem_fold is
 		C_MAX_MODULUS_WIDTH : integer    := 64;
 		C_MAX_INPUT_WIDTH   : integer    := 256;
         C_MAX_INPUT_LEN     : integer    := 256/64;--C_MAX_INPUT_WIDTH / C_MAX_MODULUS_WIDTH;
-        C_MAX_MODULUS_FOLDS : integer    := (256/64)-2;--C_MAX_INPUT_LEN - 2
+        C_MAX_MODULUS_FOLDS : integer    := (256/64)-2--C_MAX_INPUT_LEN - 2
 	);
 	port (
 		clk            : in std_logic;
@@ -73,7 +73,10 @@ signal red_reg : std_logic_vector((2*C_MAX_MODULUS_WIDTH)-1 downto 0) := (others
 signal fold_reg : fold_array(0 to C_MAX_MODULUS_FOLDS) := (others => (others => '0'));
 signal fold_carry_reg : std_logic_vector(C_MAX_MODULUS_FOLDS-1 downto 0) := (others => '0');
 
-signal modulus_ms : in REGISTER_TYPE(0 to (C_MAX_MODULUS_FOLDS+3)-1) := (others => '0'): 
+signal modulus_ms : REGISTER_TYPE(0 to C_MAX_MODULUS_FOLDS-1) := (others => '0');
+
+alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
+alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
          
 begin
     fold_reg(0) <= value;
@@ -110,8 +113,8 @@ begin
        state_proc : process (clk) is
        begin	
            if rising_edge(clk) then
-               if (param_valid = '1' and param_addr = C_PARAM_ADDR_TOP) then
-                   modulus_ms(param_addr) <= param;
+               if (param_valid = '1' and param_addr = param_addr_top) then
+                   modulus_ms(param_addr_bottom) <= param;
                end if;
            end if;
        end process state_proc;

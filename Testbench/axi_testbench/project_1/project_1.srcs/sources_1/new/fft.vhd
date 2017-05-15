@@ -80,6 +80,9 @@ signal w_table : REGISTER_TYPE(0 to (C_MAX_FFT_LENGTH + 3) - 1)  := (others => (
 signal w_val   : REGISTER_TYPE(0 to NUM_STAGES)        := (others => (others => '0'));    
 signal regs    : REGISTER_TYPE(0 to NUM_STAGES)        := (others => (others => '0'));
 
+alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
+alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
+
 begin
     
     regs(0) <= value;
@@ -106,22 +109,19 @@ begin
     state_proc : process (clk) is
         begin	
             if rising_edge(clk) then
-                if (param_valid = '1' and param_addr = C_PARAM_ADDR_TOP) then
-                    w_table(param_addr) <= param;
+                if (param_valid = '1' and param_addr_top = C_PARAM_ADDR_TOP) then
+                    w_table(param_addr_bottom) <= param;
                 end if;
-                if (value_valid = '1')
-                if (length = w_table_write_idx - 1) then
-                                w_table_write_idx <= 0;
-                                param_finished <= '1';
-                                state <= IDLE;
-                            end if;
-                            w_table_write_idx <= w_table_write_idx + 1;
-                        end if;  
+                --if (value_valid = '1')
+                --if (length = w_table_write_idx - 1) then
+                  --              w_table_write_idx <= 0;
+     --                       w_table_write_idx <= w_table_write_idx + 1;
+--                        end if;  
                                   
-                        if (counter = length - 1) then
-                            counter <= 0;
-                        end if;
-                        counter <= counter + 1;
+  --                      if (counter = length - 1) then
+    --                        counter <= 0;
+      --                  end if;
+        --                counter <= counter + 1;
             end if;
         end process state_proc;
 end Behavioral;

@@ -4,7 +4,7 @@
 -- 
 -- Create Date: 2017/04/03 13:09:21
 -- Design Name: 
--- Module Name: reduce - Behavioral
+-- Module Name: bluestein_fft - Behavioral
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
@@ -83,6 +83,9 @@ signal ifft_output_valid : std_logic     := '0';
 signal mul_output : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
 signal mul_fft_output : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
 
+alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
+alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
+
 begin
     
 --- Mul yi table
@@ -105,7 +108,7 @@ begin
     generic map (
         C_MAX_FFT_LENGTH      => C_MAX_FFT_LENGTH,
         C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-        C_PARAM_ADDR_TOP      => C_PARAM_ADDR_TOP + 1,
+        C_PARAM_ADDR_TOP      => C_PARAM_ADDR_TOP + 1
     )
     port map (
         clk          => clk,
@@ -183,30 +186,30 @@ begin
     state_proc : process (clk) is
         begin	
             if rising_edge(clk) then
-                    if (param_valid = '1' and param_addr = C_PARAM_ADDR_TOP) then
-                        mul_table(param_addr) = param; 
-                    else if (param_valid = '1' and param_addr = C_PARAM_ADDR_TOP + 1) then
-                        mul_fft_table(param_addr) = param;
+                    if (param_valid = '1' and param_addr_top = C_PARAM_ADDR_TOP) then
+                        mul_table(param_addr_bottom) <= param; 
+                    else if (param_valid = '1' and param_addr_top = C_PARAM_ADDR_TOP + 1) then
+                        mul_fft_table(param_addr_bottom) <= param;
                     end if;                  
                     
-                        if (length = mul_table_in_idx - 1) then
-                            mul_table_in_idx <= 0;
-                        end if;
-                        mul_table_in_idx <= mul_table_in_idx + 1;
+          --              if (length = mul_table_in_idx - 1) then
+            ---                mul_table_in_idx <= 0;
+               --         end if;
+--                        mul_table_in_idx <= mul_table_in_idx + 1;
                         
-                        if (fft_output_valid = '1') then
-                            if (length = mul_fft_table_idx - 1) then
-                                mul_fft_table_idx <= 0;
-                            end if;
-                            mul_fft_table_idx <= mul_fft_table_idxe_idx + 1;
-                        end if;
+  --                      if (fft_output_valid = '1') then
+    --                        if (length = mul_fft_table_idx - 1) then
+      --                          mul_fft_table_idx <= 0;
+        --                    end if;
+          --                  mul_fft_table_idx <= mul_fft_table_idxe_idx + 1;
+            --            end if;
                         
-                        if (ifft_output_valid = '1') then
-                            if (length = mul_table_out_idx - 1) then
-                                mul_table_out_idxe_idx <= 0;
-                            end if;
-                            mul_table_out_idx <= mul_table_out_idx + 1;
-                        end if;
+              --          if (ifft_output_valid = '1') then
+                ---            if (length = mul_table_out_idx - 1) then
+                   --             mul_table_out_idxe_idx <= 0;
+                     --       end if;
+                       --     mul_table_out_idx <= mul_table_out_idx + 1;
+                        --end if;
             end if;
         end process state_proc;
 end Behavioral;

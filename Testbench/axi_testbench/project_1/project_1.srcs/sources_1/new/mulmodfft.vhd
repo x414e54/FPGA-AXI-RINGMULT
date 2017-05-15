@@ -43,7 +43,7 @@ entity mulmod is
         param_valid    : in std_logic;
         ----
 		value          : in std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0)      := (others => '0');       
-        output         : in std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0)      := (others => '0');
+        output         : in std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0)      := (others => '0')
 	);  
 end mulmod;
 
@@ -52,19 +52,22 @@ architecture Behavioral of mulmod is
 type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
 type VALID_TYPE is array(natural range <>) of s
     
-signal length  : unsigned := (others => '0');
+signal length  : integer := 0;
 signal prime   : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 signal prime_r : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 signal prime_s : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 
 signal mul_table_write_idx    : integer := 0;
 
-signal mul_table : REGISTER_TYPE(0 to C_MAX_BLUESTEIN_LENGTH)  := (others => (others => '0'));
+signal mul_table : REGISTER_TYPE(0 to C_MAX_POLY_LENGTH)  := (others => (others => '0'));
 
-signal remainders       : REGISTER_TYPE(0 to C_MAX_BLUESTEIN_LENGTH)  := (others => (others => '0'));
-signal remainders_valid : VALID_TYPE(0 to C_MAX_BLUESTEIN_LENGTH)  := (others => (others => '0'));
-signal bs_outputs       : REGISTER_TYPE(0 to C_MAX_BLUESTEIN_LENGTH)  := (others => (others => '0'));
-signal bs_outputs_valid : VALID_TYPE(0 to C_MAX_BLUESTEIN_LENGTH)  := (others => (others => '0'));
+signal remainders        : REGISTER_TYPE(0 to C_MAX_POLY_LENGTH)  := (others => (others => '0'));
+signal remainders_valid  : VALID_TYPE(0 to C_MAX_POLY_LENGTH)  := (others => (others => '0'));
+signal bs_outputs        : REGISTER_TYPE(0 to C_MAX_POLY_LENGTH)  := (others => (others => '0'));
+signal bs_outputs_valid  : VALID_TYPE(0 to C_MAX_POLY_LENGTH)  := (others => (others => '0'));
+signal mul_outputs       : REGISTER_TYPE(0 to C_MAX_POLY_LENGTH)  := (others => (others => '0'));
+signal ibs_outputs       : REGISTER_TYPE(0 to C_MAX_POLY_LENGTH)  := (others => (others => '0'));
+signal ibs_outputs_valid : VALID_TYPE(0 to C_MAX_POLY_LENGTH)  := (others => (others => '0'));
 
 begin
 		crt : entity work.crt
@@ -76,7 +79,7 @@ begin
 			port map (
 				clk	        => clk,
                 param       => param_addr,
-                param_addr  => param_addr.
+                param_addr  => param_addr,
                 param_valid => param_valid,
 				value	    => value,
 				remainder   => remainders(i)
@@ -113,7 +116,7 @@ begin
                 modulus_s   => prime_s,
                 a           => bs_outputs(i),
                 b           => mul_table(mul_table_idx),
-                c           => mul_output(i)  
+                c           => mul_outputs(i)  
             );
         end generate bs_primes;
 			
@@ -133,27 +136,27 @@ begin
                 modulus        => prime,
                 modulus_r      => prime_r,
                 modulus_s      => prime_s,
-                values         : mul_output
-                values_valid   : in std_logic := '0';
-                outputs        => bs_outputs
-                outputs_valid  : out std_logic := '0'
+                values         => mul_outputs,
+                values_valid   => bs_outputs_valid_delay,
+                outputs        => ibs_outputs,
+                outputs_valid  => ibs_outputs_valid
             );  
 
-        icrt : entity work.icrt
-            generic (
-                C_MAX_MODULUS_WIDTH   => C_MAX_FFT_PRIME_WIDTH,
-                C_MAX_CRT_PRIME_WIDTH => C_MAX_CRT_PRIME_WIDTH
-            );
-            port (
-                clk            => clk,
-                mode           => 	
-                param          => 
-                param_valid    => 
-                values         => 
-                values_valid   => 
-                output         => output
-                output_valid   => 
-            );  
+--        icrt : entity work.icrt
+ --           generic (
+  --              C_MAX_MODULUS_WIDTH   => C_MAX_FFT_PRIME_WIDTH,
+   --             C_MAX_CRT_PRIME_WIDTH => C_MAX_CRT_PRIME_WIDTH
+    --        );
+    --        port (
+     --           clk            => clk,
+      --          mode           => 	
+       --         param          => 
+        --        param_valid    => 
+         --       values         => 
+         --       values_valid   => 
+         --       output         => output
+         --       output_valid   => 
+         ---   );  
                 
 state_proc : process (clk) is
     begin	
