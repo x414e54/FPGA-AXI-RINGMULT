@@ -42,9 +42,11 @@ entity bluestein_fft is
 		mode              : in std_logic_vector(4-1 downto 0)     := (others => '0');	
         param             : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
         param_valid       : in std_logic;
+        param_finished    : out std_logic;
         value             : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
+        value_valid       : in std_logic;
 		output            : out std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)    := (others => '0');
-		output_valid       : out std_logic
+		output_valid      : out std_logic
 	);  
 end bluestein_fft;
 
@@ -56,8 +58,16 @@ type STATE_TYPE is (IDLE, LOAD_BLUESTEIN_LENGTH, LOAD_PRIME, LOAD_PRIME_R, LOAD_
     
 constant NUM_STAGES : integer := integer(ceil(log2(real(C_MAX_FFT_LENGTH)))); 
 
-constant MODE_LOAD_PARAMS : std_logic_vector(4-1 downto 0) := b"0001";
-constant MODE_RUN         : std_logic_vector(4-1 downto 0) := b"0010";
+constant MODE_IDLE                  : std_logic_vector(4-1 downto 0) := b"0000";
+constant MODE_LOAD_BLUESTEIN_LENGTH : std_logic_vector(4-1 downto 0) := b"0001";
+constant MODE_LOAD_FFT_LENGTH       : std_logic_vector(4-1 downto 0) := b"0001";
+constant MODE_LOAD_PRIME            : std_logic_vector(4-1 downto 0) := b"0010";
+constant MODE_LOAD_FFT_TABLE        : std_logic_vector(4-1 downto 0) := b"0101";
+constant MODE_LOAD_IFFT_TABLE       : std_logic_vector(4-1 downto 0) := b"0110";
+constant MODE_LOAD_MUL_TABLE        : std_logic_vector(4-1 downto 0) := b"0111";
+constant MODE_LOAD_MUL_FFT_TABLE    : std_logic_vector(4-1 downto 0) := b"1000";
+---
+constant MODE_RUN                   : std_logic_vector(4-1 downto 0) := b"1111";
 
 signal state                : STATE_TYPE;
     
@@ -66,9 +76,11 @@ signal prime   : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others
 signal prime_r : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 signal prime_s : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 
-signal mul_table_in_idx      : unsigned := (others => '0');
-signal mul_table_out_idx     : unsigned := (others => '0');
-signal mul_fft_table_idx     : unsigned := (others => '0');
+signal mul_table_write_idx    : unsigned := (others => '0');
+signal mul_fft_table_writeidx : unsigned := (others => '0');
+signal mul_table_in_idx       : unsigned := (others => '0');
+signal mul_table_out_idx      : unsigned := (others => '0');
+signal mul_fft_table_idx      : unsigned := (others => '0');
 
 signal mul_table : REGISTER_TYPE(0 to C_MAX_FFT_LENGTH)  := (others => (others => '0'));
 signal mul_fft_table : REGISTER_TYPE(0 to C_MAX_FFT_LENGTH)  := (others => (others => '0'));
@@ -191,6 +203,8 @@ begin
                         end if;     
                                           
                     when LOAD_FFT_LENGTH =>
+                        fft_mode = b'0010';
+                        ifft_mode = b'0010';
                         if (param_valid = '1') then
                             fft_param_valid <= '1';
                             ifft_param_valid <= '1';
@@ -198,6 +212,8 @@ begin
                         end if;
                                                 
                     when LOAD_PRIME =>
+                        fft_mode = b'0010';
+                        ifft_mode = b'0010';
                         if (param_valid = '1') then
                             fft_param_valid <= '1';
                             ifft_param_valid <= '1';
@@ -218,31 +234,48 @@ begin
                             fft_param_valid <= '1';
                             ifft_param_valid <= '1';
                             prime_s <= param;
+                            param_finished = '1';
                             state <= IDLE;
                         end if;
                                                                                         
                     when LOAD_FFT_TABLE =>
+                        fft_mode = b'0010';
+                        if (fft_param_finished = '1') then
+                            param_finished = '1';
+                            state <= IDLE;
+                        end if;
                         if (param_valid = '1') then
                             fft_param_valid <= '1';
-                            state <= IDLE;
                         end if;
                         
                     when LOAD_IFFT_TABLE =>
+                        ifft_mode = b'0010';
+                        if (ifft_param_finished = '1') then
+                            param_finished = '1';
+                            state <= IDLE;
+                        end if;
                         if (param_valid = '1') then
                             ifft_param_valid <= '1';
-                            state <= LOAD_MUL_TABLE;
                         end if;
                     
                     when LOAD_MUL_TABLE =>
                         if (param_valid = '1') then
-                            prime_s <= param;
-                            state <= LOAD_MUL_TABLE;
+                            mul_table(mul_table_write_idx) <= param;
+                            if (length = mul_table_in_idx - 1) then
+                                mul_table_write_idx <= 0;
+                                state <= IDLE;
+                            end if;
+                            mul_table_write_idx <= mul_table_write_idx + 1;
                         end if;
                     
                     when LOAD_MUL_FFT_TABLE =>
                         if (param_valid = '1') then
-                            prime_s <= param;
-                            state <= IDLE;
+                            mul_fft_table(mul_fft_table_write_idx) <= param;
+                            if (length = mul_fft_table_in_idx - 1) then
+                                mul_fft_table_write_idx <= 0;
+                                state <= IDLE;
+                            end if;
+                            mul_fft_table_write_idx <= mul_fft_table_write_idx + 1;
                         end if;    
                                                                                                               
                     when RUN =>

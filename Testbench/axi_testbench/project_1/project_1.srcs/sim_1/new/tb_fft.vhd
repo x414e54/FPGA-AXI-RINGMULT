@@ -20,8 +20,8 @@ architecture behavior of tb_fft is
         -- fft       
         signal fft_mode            :  std_logic_vector(4-1 downto 0) := (others => '0');
         signal fft_value           :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
-        signal fft_value_valid     :  std_logic := '0';
-        signal fft_value_ready     :  std_logic := '0';
+        signal fft_param           :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
+        signal fft_param_valid     :  std_logic := '0';
         signal fft_output          :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
         signal fft_output_valid    :  std_logic := '0';
         
@@ -69,18 +69,18 @@ begin
         wait until rising_edge(clk);
                         
         mode <= b"0001";
-        fft_value_valid <= '1';
-        fft_value <= C_MAX_FFT_LENGTH;
+        fft_param_valid <= '1';
+        fft_param <= C_MAX_FFT_LENGTH;
         wait until rising_edge(clk);
-        fft_value <= PRIME;
+        fft_param <= PRIME;
         wait until rising_edge(clk);
-        fft_value <= PRIME_RED;
+        fft_param <= PRIME_RED;
         wait until rising_edge(clk);
-        fft_value <= std_logic_vector(to_unsigned(PRIME_LEN, fft_prime_len'length));
+        fft_param <= std_logic_vector(to_unsigned(PRIME_LEN, fft_prime_len'length));
         wait until rising_edge(clk);
                      
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop
-            fft_value <= W_TABLE(i);
+            fft_param <= W_TABLE(i);
             wait until rising_edge(clk);
         end loop;
         

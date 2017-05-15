@@ -21,7 +21,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.fft_stage_pkg.all;
+use work.crt_pkg.all;
 
 entity bs is
 	generic (
@@ -33,20 +33,27 @@ entity bs is
 	port (
 		clk            : in std_logic := '0';
 		enabled        : in std_logic := '0';
-        values         : in stage_io(0 to C_MAX_FFT_PRIMES-1)                          := (others => (others => '0'));
-        primes         : in stage_io(0 to C_MAX_FFT_PRIMES-1)                          := (others => (others => '0'));
-        primes_red     : in stage_io(0 to C_MAX_FFT_PRIMES-1)                          := (others => (others => '0'));
-        prime_len      : in std_logic_vector(16-1 downto 0)                         := (others => '0');		
-        w_tables       : in stage_io(0 to C_MAX_FFT_PRIMES-1)                          := (others => (others => '0'));          
-        wi_tables      : in stage_io(0 to C_MAX_FFT_PRIMES-1)                          := (others => (others => '0'));  
-        mul_tables     : in stage_io(0 to C_MAX_FFT_PRIMES-1)                          := (others => (others => '0'));          
-        mul_fft_tables : in stage_io(0 to C_MAX_FFT_PRIMES-1)                          := (others => (others => '0'));
-		outputs        : out stage_io(0 to C_MAX_FFT_PRIMES-1)                         := (others => (others => '0'))
+   		mode           : in std_logic_vector(4-1 downto 0)                         := (others => '0');	
+        param          : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
+        param_valid    : in std_logic := '0';
+        values         : in crt_bus(0 to C_MAX_FFT_PRIMES-1)                          := (others => (others => '0'));
+        values_valid   : in std_logic := '0';
+		outputs        : out crt_bus(0 to C_MAX_FFT_PRIMES-1)                         := (others => (others => '0'))
+		outputs_valid  : in std_logic := '0';
 	);  
 end bs;
 
 architecture Behavioral of bs is
+
+type VALID_TYPE is array(natural range <>) of std_logic;
+    
+signal primes_param_valid : VALID_TYPE(0 to C_MAX_FFT_PRIMES)  := (others => '0');
+signal primes_output_valid : VALID_TYPE(0 to C_MAX_FFT_PRIMES)  := (others => '0');
+
 begin
+
+    outputs_valid <= primes_output_valid(0);
+    
 	bs_primes : for i in 0 to C_MAX_FFT_PRIMES - 1 generate
 		prime_i : entity work.bluestein_fft
 			generic map (
@@ -55,15 +62,12 @@ begin
 			)
 			port map (
 				clk	              => clk,
-				prime             => primes(i),
-                prime_r           => primes_red(i),
-                prime_s           => prime_len,
-                w_table_val       => w_tables(i),          
-                wi_table_val      => wi_tables(i),
-                mul_table_val     => mul_tables(i),
-                mul_fft_table_val => mul_fft_tables(i),
+				param             => param,
+				param_valid       => primes_param_valid(i)
 				value	          => values(i),
+				value_valid       => values_valid,
 				output            => outputs(i)
+				output_valid      => primes_output_valid(i)
 			);
 	end generate bs_primes;
 end Behavioral;

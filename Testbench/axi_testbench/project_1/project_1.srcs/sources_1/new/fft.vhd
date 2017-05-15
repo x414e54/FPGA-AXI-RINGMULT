@@ -37,13 +37,15 @@ entity fft is
 		C_MAX_FFT_LENGTH        : integer    := 7710
 	);
 	port (
-		clk          : in std_logic;  
-        mode         : in std_logic_vector(4-1 downto 0)     := (others => '0');
-        param        : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
-        param_valid  : in std_logic;
-        value        : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
-		output       : out std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)    := (others => '0');
-		output_valid : out std_logic
+		clk            : in std_logic;  
+        mode           : in std_logic_vector(4-1 downto 0)     := (others => '0');
+        param          : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
+        param_valid    : in std_logic;
+        param_finished : out std_logic;
+        value          : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
+        value_valid    : in std_logic;
+		output         : out std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)    := (others => '0');
+		output_valid   : out std_logic
 	);  
 end fft;
 
@@ -62,9 +64,12 @@ end function reg_index;
 
 constant NUM_STAGES : integer := integer(ceil(log2(real(C_MAX_FFT_LENGTH)))); 
 
-constant MODE_RESET       : std_logic_vector(4-1 downto 0) := b"0000";
-constant MODE_LOAD_PARAMS : std_logic_vector(4-1 downto 0) := b"0001";
-constant MODE_RUN         : std_logic_vector(4-1 downto 0) := b"0010";
+constant MODE_IDLE               : std_logic_vector(4-1 downto 0) := b"0000";
+constant MODE_LOAD_FFT_LENGTH    : std_logic_vector(4-1 downto 0) := b"0001";
+constant MODE_LOAD_PRIME         : std_logic_vector(4-1 downto 0) := b"0010";
+constant MODE_LOAD_FFT_TABLE     : std_logic_vector(4-1 downto 0) := b"0101";
+---
+constant MODE_RUN                : std_logic_vector(4-1 downto 0) := b"1111";
 
 signal state                : STATE_TYPE;
     
@@ -74,6 +79,7 @@ signal prime   : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others
 signal prime_r : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 signal prime_s : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 
+signal w_table_write_idx  : unsigned := (others => '0');
 signal w_table : REGISTER_TYPE(0 to C_MAX_FFT_LENGTH)  := (others => (others => '0'));
 
 signal w_val   : REGISTER_TYPE(0 to NUM_STAGES)        := (others => (others => '0'));    
@@ -101,6 +107,8 @@ begin
                 output  => regs(i+1)
             );
     end generate fft_stages;
+        
+    param_finished <= '0';
     
     state_proc : process (clk) is
         begin	
@@ -108,8 +116,12 @@ begin
                 case state is
                     when IDLE =>
                         case mode is
-                            when MODE_LOAD_PARAMS =>
+                            when MODE_LOAD_FFT_LENGTH =>
                                 state <= LOAD_FFT_LENGTH;
+                            when MODE_LOAD_PRIME =>
+                                state <= LOAD_PRIME;
+                            when MODE_LOAD_FFT_TABLE =>
+                                state <= LOAD_FFT_TABLE;                                    
                             when MODE_RUN =>
                                 state <= RUN;
                             end case;
@@ -117,7 +129,8 @@ begin
                     when LOAD_FFT_LENGTH =>
                          if (param_valid = '1') then
                              length <= unsigned(param);
-                             state <= LOAD_PRIME;
+                             param_finished = '0';
+                             state <= IDLE;
                          end if;
                                                 
                     when LOAD_PRIME =>
@@ -135,11 +148,23 @@ begin
                     when LOAD_PRIME_S =>
                         if (param_valid = '1') then
                             prime_s <= param;
+                            param_finished = '0';
                             state <= IDLE;
                         end if;
-                                                                     
+                        
+                    when LOAD_FFT_TABLE =>
+                        if (param_valid = '1') then
+                            w_table(w_table_write_idx) <= param;
+                            if (length = w_table_write_idx - 1) then
+                                w_table_write_idx <= 0;
+                                param_finished = '0';
+                                state <= IDLE;
+                            end if;
+                            w_table_write_idx <= w_table_write_idx + 1;
+                        end if;  
+                                                               
                     when RUN =>
-                        if (mode = MODE_RESET) then
+                        if (mode = MODE_IDLE) then
                             counter <= 0;
                             state <= IDLE;
                         end if;

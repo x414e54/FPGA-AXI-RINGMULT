@@ -58,16 +58,13 @@ begin
             clk => clk,
                     
             -- Ports of bs
-            enabled        => bs_enabled,
+            mode           => bs_mode,
+            param          => bs_param,
+            param_valid    => bs_param_valid,
             values         => bs_values,
-            primes         => bs_primes,
-            primes_red     => bs_primes_red,
-            prime_len      => bs_prime_len,
-            w_tables       => bs_w_tables,
-            wi_tables      => bs_wi_tables,
-            mul_tables     => bs_mul_tables,
-            mul_fft_tables => bs_mul_fft_tables,
+            values_valid   => bs_values_valid,
             outputs        => bs_outputs
+            outputs_valid  => bs_outputs_valid
         );  
 
     clk_process : process
@@ -88,18 +85,27 @@ begin
         bs_prime_len <= std_logic_vector(to_unsigned(PRIME_LEN, bs_prime_len'length));
         
         for i in 0 to C_MAX_FFT_PRIMES - 1 loop
-            bs_primes(i) <= PRIMES(i);
+            param(i) <= PRIMES(i);
             bs_primes_red(i) <= PRIMES_RED(i);
-        end loop;
-                     
+        end loop;        
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop
-            bs_w_tables(i) <= W_TABLE(i);
-            bs_wi_tables(i) <= WI_TABLE(i);
-            bs_mul_fft_tables(i) <= MUL_FFT_TABLE(i);
+            param <= W_TABLE(i);
+            bs_param_valid = '1';
+            wait until rising_edge(clk);
+        end loop;
+        for i in 0 to C_MAX_FFT_LENGTH - 1 loop
+            param <= WI_TABLE(i);
+            bs_param_valid = '1';
+            wait until rising_edge(clk);
+        end loop;
+        for i in 0 to C_MAX_FFT_LENGTH - 1 loop
+            param <= MUL_FFT_TABLE(i);
+            bs_param_valid = '1';
+            wait until rising_edge(clk);
         end loop;
                           
         for i in 0 to C_MAX_BLUESTEIN_LENGTH - 1 loop
-            bs_mul_tables(i) <= MUL_TABLE(i);
+            param <= MUL_TABLE(i);
         end loop;
         
         wait until rising_edge(clk);
