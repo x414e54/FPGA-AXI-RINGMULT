@@ -47,7 +47,7 @@ architecture behavior of tb_bs is
         constant PRIME_LEN : integer := 61; 
 begin
 
-    bs_inst : entity work.bs
+    bs_inst : entity work.bs_crt
         generic map (
             C_MAX_FFT_LENGTH       => C_MAX_FFT_LENGTH,
             C_MAX_BLUESTEIN_LENGTH => C_MAX_BLUESTEIN_LENGTH,
@@ -57,7 +57,7 @@ begin
         port map (
             clk => clk,
                     
-            -- Ports of bs
+            -- Ports of bs_crt
             mode           => bs_mode,
             param          => bs_param,
             param_valid    => bs_param_valid,

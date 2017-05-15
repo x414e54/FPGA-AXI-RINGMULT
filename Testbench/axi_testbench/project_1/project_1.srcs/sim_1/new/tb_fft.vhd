@@ -22,6 +22,7 @@ architecture behavior of tb_fft is
         signal fft_value           :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
         signal fft_param           :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
         signal fft_param_valid     :  std_logic := '0';
+        signal fft_param_finished  :  std_logic := '0';
         signal fft_output          :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
         signal fft_output_valid    :  std_logic := '0';
         
@@ -34,6 +35,13 @@ architecture behavior of tb_fft is
         constant PRIME: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"1000000000000D41");
         constant PRIME_RED: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"0FFFFFFFFFFFF2BF");
         constant PRIME_LEN : integer := 61; 
+        
+        constant MODE_IDLE               : std_logic_vector(4-1 downto 0) := b"0000";
+        constant MODE_LOAD_FFT_LENGTH    : std_logic_vector(4-1 downto 0) := b"0001";
+        constant MODE_LOAD_PRIME         : std_logic_vector(4-1 downto 0) := b"0010";
+        constant MODE_LOAD_FFT_TABLE     : std_logic_vector(4-1 downto 0) := b"0011";
+        ---
+        constant MODE_RUN                : std_logic_vector(4-1 downto 0) := b"1111";
 begin
 
     fft_inst : entity work.fft
@@ -45,12 +53,14 @@ begin
             clk => clk,
                     
             -- Ports of fft
-            mode         => fft_mode,
-            value        => fft_value,
-            value_valid  => fft_value_valid,
-            value_ready  => fft_value_ready,
-            output       => fft_output,
-            output_valid => fft_output_valid
+            mode           => fft_mode,
+            param          => fft_param,
+            param_valid    => fft_param_valid,
+            param_finished => fft_param_finished,
+            value          => fft_value,
+            value_valid    => fft_value_valid,
+            output         => fft_output,
+            output_valid   => fft_output_valid
         );  
 
     clk_process : process
@@ -68,26 +78,37 @@ begin
     begin
         wait until rising_edge(clk);
                         
-        mode <= b"0001";
+        mode <= MODE_LOAD_FFT_LENGTH;
         fft_param_valid <= '1';
         fft_param <= C_MAX_FFT_LENGTH;
         wait until rising_edge(clk);
+        fft_param_valid <= '0';
+        assert fft_param_finished = '1';
+                
+        mode <= MODE_LOAD_PRIME;
+        fft_param_valid <= '1';
         fft_param <= PRIME;
         wait until rising_edge(clk);
         fft_param <= PRIME_RED;
         wait until rising_edge(clk);
         fft_param <= std_logic_vector(to_unsigned(PRIME_LEN, fft_prime_len'length));
         wait until rising_edge(clk);
-                     
+        fft_param_valid <= '0';
+        assert fft_param_finished = '1';
+        
+        mode <= MODE_LOAD_FFT_TABLE;
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop
+            assert fft_param_finished = '0';
+            fft_param_valid <= '1';
             fft_param <= W_TABLE(i);
             wait until rising_edge(clk);
         end loop;
+        assert fft_param_finished = '1';
         
-        fft_value_valid <= '0';
+        fft_param_valid <= '0';
         wait until rising_edge(clk);
         
-        mode <= b"0010";
+        mode <= MODE_RUN;
         fft_value_valid <= '1';
         
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop

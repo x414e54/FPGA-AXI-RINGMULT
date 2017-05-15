@@ -34,14 +34,21 @@ use IEEE.MATH_REAL.ALL;
 entity fft is
 	generic (
 		C_MAX_FFT_PRIME_WIDTH   : integer    := 64;
-		C_MAX_FFT_LENGTH        : integer    := 7710
+		C_MAX_FFT_LENGTH        : integer    := 7710;
+		C_PARAM_ADDR_TOP        : integer    := x"0000";
 	);
 	port (
 		clk            : in std_logic;  
-        mode           : in std_logic_vector(4-1 downto 0)     := (others => '0');
+		----
         param          : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
+        param_addr     : in std_logic_vector(32-1 downto 0)                        := (others => '0');
         param_valid    : in std_logic;
-        param_finished : out std_logic;
+        ----
+        prime          : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
+        prime_r        : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
+        prime_s        : in std_logic_vector(16-1 downto 0)                        := (others => '0'); 
+        length         : in std_logic_vector(16-1 downto 0)                        := (others => '0'); 
+        ----
         value          : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
         value_valid    : in std_logic;
 		output         : out std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)    := (others => '0');
@@ -53,8 +60,6 @@ architecture Behavioral of fft is
 
 type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
     
-type STATE_TYPE is (IDLE, LOAD_FFT_LENGTH, LOAD_PRIME, LOAD_PRIME_R, LOAD_PRIME_S, LOAD_FFT_TABLE, RUN);
-    
 function reg_index(d : integer) return integer is
     variable res : natural;
 begin
@@ -64,23 +69,10 @@ end function reg_index;
 
 constant NUM_STAGES : integer := integer(ceil(log2(real(C_MAX_FFT_LENGTH)))); 
 
-constant MODE_IDLE               : std_logic_vector(4-1 downto 0) := b"0000";
-constant MODE_LOAD_FFT_LENGTH    : std_logic_vector(4-1 downto 0) := b"0001";
-constant MODE_LOAD_PRIME         : std_logic_vector(4-1 downto 0) := b"0010";
-constant MODE_LOAD_FFT_TABLE     : std_logic_vector(4-1 downto 0) := b"0101";
----
-constant MODE_RUN                : std_logic_vector(4-1 downto 0) := b"1111";
+signal counter : integer := 0;
+signal length  : integer := 0;
 
-signal state                : STATE_TYPE;
-    
-signal counter : unsigned := (others => '0');
-signal length  : unsigned := (others => '0');
-signal prime   : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
-signal prime_r : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
-signal prime_s : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
-
-signal w_table_write_idx  : unsigned := (others => '0');
-signal w_table : REGISTER_TYPE(0 to C_MAX_FFT_LENGTH)  := (others => (others => '0'));
+signal w_table : REGISTER_TYPE(0 to (C_MAX_FFT_LENGTH + 3) - 1)  := (others => (others => '0'));
 
 signal w_val   : REGISTER_TYPE(0 to NUM_STAGES)        := (others => (others => '0'));    
 signal regs    : REGISTER_TYPE(0 to NUM_STAGES)        := (others => (others => '0'));
@@ -108,72 +100,25 @@ begin
             );
     end generate fft_stages;
         
-    param_finished <= '0';
-    
     state_proc : process (clk) is
         begin	
             if rising_edge(clk) then
-                case state is
-                    when IDLE =>
-                        case mode is
-                            when MODE_LOAD_FFT_LENGTH =>
-                                state <= LOAD_FFT_LENGTH;
-                            when MODE_LOAD_PRIME =>
-                                state <= LOAD_PRIME;
-                            when MODE_LOAD_FFT_TABLE =>
-                                state <= LOAD_FFT_TABLE;                                    
-                            when MODE_RUN =>
-                                state <= RUN;
-                            end case;
-                        
-                    when LOAD_FFT_LENGTH =>
-                         if (param_valid = '1') then
-                             length <= unsigned(param);
-                             param_finished = '0';
-                             state <= IDLE;
-                         end if;
-                                                
-                    when LOAD_PRIME =>
-                        if (param_valid = '1') then
-                            prime <= param;
-                            state <= LOAD_PRIME_R;
-                        end if;
-                        
-                    when LOAD_PRIME_R =>
-                         if (param_valid = '1') then
-                             prime_r <= param;
-                             state <= LOAD_PRIME_S;
-                         end if;
-                         
-                    when LOAD_PRIME_S =>
-                        if (param_valid = '1') then
-                            prime_s <= param;
-                            param_finished = '0';
-                            state <= IDLE;
-                        end if;
-                        
-                    when LOAD_FFT_TABLE =>
-                        if (param_valid = '1') then
-                            w_table(w_table_write_idx) <= param;
-                            if (length = w_table_write_idx - 1) then
+                if (param_valid = '1' and param_addr = C_PARAM_ADDR_TOP) then
+                    w_table(param_addr) <= param;
+                end if;
+                if (value_valid = '1')
+                if (length = w_table_write_idx - 1) then
                                 w_table_write_idx <= 0;
-                                param_finished = '0';
+                                param_finished <= '1';
                                 state <= IDLE;
                             end if;
                             w_table_write_idx <= w_table_write_idx + 1;
                         end if;  
-                                                               
-                    when RUN =>
-                        if (mode = MODE_IDLE) then
-                            counter <= 0;
-                            state <= IDLE;
-                        end if;
-                        
+                                  
                         if (counter = length - 1) then
                             counter <= 0;
                         end if;
                         counter <= counter + 1;
-                end case;
             end if;
         end process state_proc;
 end Behavioral;

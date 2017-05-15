@@ -43,26 +43,35 @@ entity rem_fold is
 		C_MAX_MODULUS_WIDTH : integer    := 64;
 		C_MAX_INPUT_WIDTH   : integer    := 256;
         C_MAX_INPUT_LEN     : integer    := 256/64;--C_MAX_INPUT_WIDTH / C_MAX_MODULUS_WIDTH;
-        C_MAX_MODULUS_FOLDS : integer    := (256/64)-2--C_MAX_INPUT_LEN - 2
+        C_MAX_MODULUS_FOLDS : integer    := (256/64)-2;--C_MAX_INPUT_LEN - 2
+        C_PARAM_ADDR_TOP    : integer    := x"0000"
 	);
 	port (
-		clk        : in std_logic;
-		modulus    : in std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)       := (others => '0');
-		modulus_r  : in std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)       := (others => '0');
-		modulus_ms : in rem_bus(0 to 1)            := (others => (others => '0')); -- (C_MAX_MODULUS_FOLDS-1 downto 0))            := (others => (others => '0'));
-        modulus_s  : in std_logic_vector(16-1 downto 0)                        := (others => '0');
-        input_len  : in std_logic_vector(16-1 downto 0)                        := (others => '0');        
-        value      : in std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0)         := (others => '0');
-		remainder  : out std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)      := (others => '0')
+		clk               : in std_logic;
+		----
+        param          : in std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)     := (others => '0');
+        param_addr     : in std_logic_vector(32-1 downto 0)                      := (others => '0');
+        param_valid    : in std_logic;
+        ----
+        modulus        : in std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)     := (others => '0');
+        modulus_r      : in std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)     := (others => '0');
+        modulus_s      : in std_logic_vector(16-1 downto 0)                      := (others => '0'); 
+        ----
+        value             : in std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0)    := (others => '0');
+		remainder         : out std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0) := (others => '0')
 	);  
 end rem_fold;
 
 architecture Behavioral of rem_fold is
+type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0);
+
 type fold_array is array(natural range <>) of std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0);
 signal red_reg : std_logic_vector((2*C_MAX_MODULUS_WIDTH)-1 downto 0) := (others => '0');
-signal fold_reg : fold_array(C_MAX_MODULUS_FOLDS downto 0) := (others => (others => '0'));
+signal fold_reg : fold_array(0 to C_MAX_MODULUS_FOLDS) := (others => (others => '0'));
 signal fold_carry_reg : std_logic_vector(C_MAX_MODULUS_FOLDS-1 downto 0) := (others => '0');
 
+signal modulus_ms : in REGISTER_TYPE(0 to (C_MAX_MODULUS_FOLDS+3)-1) := (others => '0'): 
+         
 begin
     fold_reg(0) <= value;
     red_reg <= fold_reg(C_MAX_MODULUS_FOLDS)((2*C_MAX_MODULUS_WIDTH)-1 downto 0);
@@ -94,4 +103,13 @@ begin
           value     => red_reg,
 		  remainder => remainder
 	   );
+	   
+       state_proc : process (clk) is
+       begin	
+           if rising_edge(clk) then
+               if (param_valid = '1' and param_addr = C_PARAM_ADDR_TOP) then
+                   modulus_ms(param_addr) <= param;
+               end if;
+           end if;
+       end process state_proc;
 end Behavioral;
