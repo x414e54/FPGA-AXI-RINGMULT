@@ -1,7 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.fft_stage_pkg.all;
 
 entity tb_fft is
     generic (		
@@ -19,12 +18,12 @@ architecture behavior of tb_fft is
         signal clk                  : std_logic := '0';
 
         -- fft       
+        signal fft_mode            :  std_logic_vector(4-1 downto 0) := (others => '0');
         signal fft_value           :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
-        signal fft_prime           :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
-        signal fft_prime_red       :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
-        signal fft_prime_len       :  std_logic_vector(16-1 downto 0) := (others => '0');
-        signal fft_w_table         :  stage_io(0 to C_MAX_FFT_LENGTH-1) := (others => (others => '0'));
+        signal fft_value_valid     :  std_logic := '0';
+        signal fft_value_ready     :  std_logic := '0';
         signal fft_output          :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
+        signal fft_output_valid    :  std_logic := '0';
         
         type fft_array is array(0 to C_MAX_FFT_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
         type fft_table_array is array(0 to C_MAX_FFT_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
@@ -45,13 +44,13 @@ begin
         port map (
             clk => clk,
                     
-            -- Ports of bs
+            -- Ports of fft
+            mode         => fft_mode,
             value        => fft_value,
-            prime        => fft_prime,
-            prime_r      => fft_prime_red,
-            prime_s      => fft_prime_len,
-            w_table      => fft_w_table,
-            output       => fft_output
+            value_valid  => fft_value_valid,
+            value_ready  => fft_value_ready,
+            output       => fft_output,
+            output_valid => fft_output_valid
         );  
 
     clk_process : process
@@ -69,25 +68,35 @@ begin
     begin
         wait until rising_edge(clk);
                         
-        fft_prime_len <= std_logic_vector(to_unsigned(PRIME_LEN, fft_prime_len'length));
-        
-        fft_prime <= PRIME;
-        fft_prime_red <= PRIME_RED;
+        mode <= b"0001";
+        fft_value_valid <= '1';
+        fft_value <= C_MAX_FFT_LENGTH;
+        wait until rising_edge(clk);
+        fft_value <= PRIME;
+        wait until rising_edge(clk);
+        fft_value <= PRIME_RED;
+        wait until rising_edge(clk);
+        fft_value <= std_logic_vector(to_unsigned(PRIME_LEN, fft_prime_len'length));
+        wait until rising_edge(clk);
                      
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop
-            fft_w_table(i) <= W_TABLE(i);
+            fft_value <= W_TABLE(i);
+            wait until rising_edge(clk);
         end loop;
-                  
+        
+        fft_value_valid <= '0';
         wait until rising_edge(clk);
+        
+        mode <= b"0010";
+        fft_value_valid <= '1';
         
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop
         	fft_value <= INPUT(i);
         	wait until rising_edge(clk);
         end loop;
         
-        wait until rising_edge(clk);
-        wait for 500ns;
-
+        wait until output_valid = '1';
+        
 		for i in 0 to C_MAX_FFT_LENGTH - 1 loop
 			assert fft_output = OUTPUT(i);
             wait until rising_edge(clk);

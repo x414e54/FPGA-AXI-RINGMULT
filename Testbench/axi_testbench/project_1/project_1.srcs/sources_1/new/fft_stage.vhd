@@ -19,7 +19,6 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use work.fft_stage_pkg.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -38,7 +37,7 @@ entity fft_stage is
 	);
 	port (
 		clk        : in std_logic;
-		w_table    : in stage_io(0 to C_STAGE_LENGTH-1)                         := (others => (others => '0'));
+		w          : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 		prime      : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 		prime_r    : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
         prime_s    : in std_logic_vector(16-1 downto 0)                      := (others => '0');        
@@ -48,12 +47,12 @@ entity fft_stage is
 end fft_stage;
 
 architecture Behavioral of fft_stage is
-signal table_idx : integer := 0;
+type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
+    
+signal regs : REGISTER_TYPE(0 to 8-1)  := (others => (others => '0'));
 
-signal regs : stage_io(0 to 8-1)  := (others => (others => '0'));
-
-signal dif_0_shift : stage_io(0 to C_STAGE_LENGTH-1)  := (others => (others => '0'));
-signal dif_1_shift : stage_io(0 to C_STAGE_LENGTH/2-1)  := (others => (others => '0'));
+signal dif_0_shift : REGISTER_TYPE(0 to C_STAGE_LENGTH/2-1)  := (others => (others => '0'));
+signal dif_1_shift : REGISTER_TYPE(0 to C_STAGE_LENGTH/4-1)  := (others => (others => '0'));
 
 begin
   
@@ -144,7 +143,7 @@ begin
         modulus_r   => prime_r,
         modulus_s   => prime_s,
         a           => regs(5),
-        b           => w_table(table_idx),
+        b           => w,
         c           => output  
     );
     
