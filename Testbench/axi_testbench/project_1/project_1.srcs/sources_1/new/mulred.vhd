@@ -55,8 +55,8 @@ begin
     red_x : entity work.red
         generic map (
             C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
-            C_MAX_MODULUS_WIDTH => C_MAX_MODULUS_WIDTH
-            C_MAX_INPUT_WIDTH   => 2*C_MAX_MODULUS_WIDTH,
+            C_MAX_MODULUS_WIDTH => C_MAX_MODULUS_WIDTH,
+            C_MAX_INPUT_WIDTH   => 2*C_MAX_MODULUS_WIDTH
         )
         port map (
             clk       => clk,

@@ -32,7 +32,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity butterfly_dif_22 is
 	generic (
-	    C_LENGTH_WIDTH        : interger    := 16;
+	    C_LENGTH_WIDTH        : integer    := 16;
 		C_MAX_FFT_PRIME_WIDTH : integer    := 64
 	);
 	port (

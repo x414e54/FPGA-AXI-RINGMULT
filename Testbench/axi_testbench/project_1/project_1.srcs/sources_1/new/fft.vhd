@@ -73,7 +73,6 @@ architecture Behavioral of fft is
     constant NUM_STAGES : integer := integer(ceil(log2(real(C_MAX_FFT_LENGTH)))); 
 
     signal counter : integer := 0;
-    signal length  : integer := 0;
 
     signal w_table : REGISTER_TYPE(0 to (C_MAX_FFT_LENGTH + 3) - 1)  := (others => (others => '0'));
 
@@ -110,8 +109,8 @@ begin
     state_proc : process (clk) is
         begin	
             if rising_edge(clk) then
-                if (param_valid = '1' and param_addr_top = C_PARAM_ADDR_FFT_TABLE) then
-                    w_table(param_addr_bottom) <= param;
+                if (param_valid = '1' and to_integer(unsigned(param_addr_top)) = C_PARAM_ADDR_FFT_TABLE) then
+                    w_table(to_integer(unsigned(param_addr_bottom))) <= param;
                 end if;
                 --if (value_valid = '1')
                 --if (length = w_table_write_idx - 1) then
