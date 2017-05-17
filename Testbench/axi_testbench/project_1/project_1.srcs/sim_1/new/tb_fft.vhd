@@ -95,8 +95,8 @@ begin
         fft_prime_s <= std_logic_vector(to_unsigned(PRIME_LEN, fft_prime_len'length));
         fft_length  <= C_MAX_FFT_LENGTH;
         
-        param_addr_top <= C_PARAM_ADDR_FFT_TABLE;
-        param_addr_bottom <= 0;
+        param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_FFT_TABLE, (C_PARAM_ADDR_WIDTH/2)));
+        param_addr_bottom <= x"0000";
         
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop   
             fft_param_valid <= '1';

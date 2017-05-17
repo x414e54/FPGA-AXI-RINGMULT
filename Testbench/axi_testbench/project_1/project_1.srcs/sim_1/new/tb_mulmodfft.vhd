@@ -129,85 +129,85 @@ begin
             --bs_fft_length <= C_FFT_LENGTH;
             --bs_length <= C_BLUESTEIN_LENGTH;
 
-            bs_param_addr_top <= C_PARAM_ADDR_MUL_TABLE + i;
-            bs_param_addr_bottom <= 0;
+            param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_MUL_TABLE + i, (C_PARAM_ADDR_WIDTH/2)));
+            param_addr_bottom <= x"0000";
 
             for j in 0 to C_MAX_POLY_LENGTH - 1 loop
-                param <= MUL_TABLE(j)(i);
+                mm_param <= MUL_TABLE(j)(i);
                 mm_param_valid <= '1';
                 wait until rising_edge(clk);
-                bs_param_addr_bottom <= bs_param_addr_bottom + 1;
+                param_addr_bottom <= std_logic_vector(unsigned(param_addr_bottom) + 1);
             end loop;
     
-            bs_param_addr_top <= C_PARAM_ADDR_BS_MUL_TABLE + i;
-            bs_param_addr_bottom <= 0;
+            param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_BS_MUL_TABLE + i, (C_PARAM_ADDR_WIDTH/2)));
+            param_addr_bottom <= x"0000";
 
             for j in 0 to C_MAX_POLY_LENGTH - 1 loop
-                param <= BS_MUL_TABLE(j)(i);
+                mm_param <= BS_MUL_TABLE(j)(i);
                 mm_param_valid <= '1';
                 wait until rising_edge(clk);
-                bs_param_addr_bottom <= bs_param_addr_bottom + 1;
+                param_addr_bottom <= std_logic_vector(unsigned(param_addr_bottom) + 1);
             end loop;
                         
-            bs_param_addr_top <= C_PARAM_ADDR_BS_MUL_FFT_TABLE + i;
-            bs_param_addr_bottom <= 0;
+            param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_BS_MUL_FFT_TABLE + i, (C_PARAM_ADDR_WIDTH/2)));
+            param_addr_bottom <= x"0000";
 
             for j in 0 to C_MAX_FFT_LENGTH - 1 loop
-                param <= BS_MUL_FFT_TABLE(j)(i);
+                mm_param <= BS_MUL_FFT_TABLE(j)(i);
                 mm_param_valid <= '1';
                 wait until rising_edge(clk);
-                bs_param_addr_bottom <= bs_param_addr_bottom + 1;
+                param_addr_bottom <= std_logic_vector(unsigned(param_addr_bottom) + 1);
             end loop;
 
-            bs_param_addr_top <= C_PARAM_ADDR_IBS_MUL_TABLE + i;
-            bs_param_addr_bottom <= 0;
+            param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_IBS_MUL_TABLE + i, (C_PARAM_ADDR_WIDTH/2)));
+            param_addr_bottom <= x"0000";
 
             for j in 0 to C_MAX_POLY_LENGTH - 1 loop
-                param <= IBS_MUL_TABLE(j)(i);
+                mm_param <= IBS_MUL_TABLE(j)(i);
                 mm_param_valid <= '1';
                 wait until rising_edge(clk);
-                bs_param_addr_bottom <= bs_param_addr_bottom + 1;
+                param_addr_bottom <= std_logic_vector(unsigned(param_addr_bottom) + 1);
             end loop;
                         
-            bs_param_addr_top <= C_PARAM_ADDR_IBS_MUL_FFT_TABLE + i;
-            bs_param_addr_bottom <= 0;
+            param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_IBS_MUL_FFT_TABLE + i, (C_PARAM_ADDR_WIDTH/2)));
+            param_addr_bottom <= x"0000";
 
             for j in 0 to C_MAX_FFT_LENGTH - 1 loop
-                param <= IBS_MUL_FFT_TABLE(j)(i);
+                mm_param <= IBS_MUL_FFT_TABLE(j)(i);
                 mm_param_valid <= '1';
                 wait until rising_edge(clk);
-                bs_param_addr_bottom <= bs_param_addr_bottom + 1;
+                param_addr_bottom <= std_logic_vector(unsigned(param_addr_bottom) + 1);
             end loop;
 
-            bs_param_addr_top <= C_PARAM_ADDR_FFT_TABLE + i;
-            bs_param_addr_bottom <= 0;
+            param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_FFT_TABLE + i, (C_PARAM_ADDR_WIDTH/2)));
+            param_addr_bottom <= x"0000";
  
             for j in 0 to C_MAX_FFT_LENGTH - 1 loop
-                param <= W_TABLE(j)(i);
+                mm_param <= W_TABLE(j)(i);
                 mm_param_valid <= '1';
                 wait until rising_edge(clk);
-                bs_param_addr_bottom <= bs_param_addr_bottom + 1;
+                param_addr_bottom <= std_logic_vector(unsigned(param_addr_bottom) + 1);
             end loop;
  
-            bs_param_addr_top <= C_PARAM_ADDR_IFFT_TABLE + i;
-            bs_param_addr_bottom <= 0;
+            param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_IFFT_TABLE + i, (C_PARAM_ADDR_WIDTH/2)));
+            param_addr_bottom <= x"0000";
  
             for j in 0 to C_MAX_FFT_LENGTH - 1 loop
-                param <= WI_TABLE(j)(i);
+                mm_param <= WI_TABLE(j)(i);
                 mm_param_valid <= '1';
                 wait until rising_edge(clk);
-                bs_param_addr_bottom <= bs_param_addr_bottom + 1;
+                param_addr_bottom <= std_logic_vector(unsigned(param_addr_bottom) + 1);
             end loop;
  
             wait until rising_edge(clk);
 
-            param_addr_top <= C_PARAM_ADDR_FOLDS_START + i;
-            param_addr_bottom <= 0;
+            param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_FOLDS_START + i, (C_PARAM_ADDR_WIDTH/2)));
+            param_addr_bottom <= x"0000";
             
             for j in 0 to C_MAX_FFT_PRIMES_FOLDS - 1 loop
-                param <= PRIMES_FOLD(i)(j);
+                mm_param <= PRIMES_FOLD(i)(j);
                 wait until rising_edge(clk);
-                param_addr_bottom <= param_addr_bottom + 1;
+                param_addr_bottom <= std_logic_vector(unsigned(param_addr_bottom) + 1);
             end loop;                
         end loop;
         

@@ -102,18 +102,18 @@ begin
         		        
         wait until rising_edge(clk);
         
-        param_addr_top <= C_PARAM_ADDR_FOLDS_START;
+        param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_FOLDS_START, (C_PARAM_ADDR_WIDTH/2)));
         
         for i in 0 to C_MAX_FFT_PRIMES - 1 loop
-            param_addr_bottom <= 0;
+            param_addr_bottom <= x"0000";
             for j in 0 to C_MAX_FFT_PRIMES_FOLDS - 1 loop
-                crt_param <= PRIMES_FOLD(i)(j);
+                crt_param <= PRIMES_FOLDS(i)(j);
                 crt_param_valid <= '1';
                 wait until rising_edge(clk);
-                param_addr_bottom <= param_addr_bottom + 1;
+                param_addr_bottom <= std_logic_vector(unsigned(param_addr_bottom) + 1);
                 crt_param_valid <= '0';
             end loop;
-            param_addr_top <= param_addr_top + 1;
+            param_addr_top <= std_logic_vector(unsigned(param_addr_top) + 1);
         end loop;
         
 		crt_value <= INPUT;

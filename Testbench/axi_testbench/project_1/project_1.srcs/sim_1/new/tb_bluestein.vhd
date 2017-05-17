@@ -1,7 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.fft_stage_pkg.all;
 
 entity tb_bs is
     generic (		
@@ -38,9 +37,9 @@ architecture behavior of tb_bs is
     signal bs_output          :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
     signal bs_output_valid    :  std_logic := '0';
             
-    type bs_array is array(0 to C_MAX_BLUESTEIN_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
-    type fft_table_array is array(0 to C_MAX_FFT_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
-    type bs_table_array is array(0 to C_MAX_BLUESTEIN_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
+    type bs_array is array(0 to C_BLUESTEIN_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
+    type fft_table_array is array(0 to C_FFT_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
+    type bs_table_array is array(0 to C_BLUESTEIN_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
 
     constant INPUT: bs_array := (x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000");
     constant OUTPUT: bs_array := (x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000");
@@ -48,8 +47,8 @@ architecture behavior of tb_bs is
     constant WI_TABLE: fft_table_array := (x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000");
     constant MUL_TABLE: bs_table_array := (x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000");
     constant MUL_FFT_TABLE: fft_table_array := (x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000");
-    constant PRIME: stage_io := (x"1000000000000D41");
-    constant PRIME_RED: stage_io := (x"0FFFFFFFFFFFF2BF");
+    constant PRIME: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := x"1000000000000D41";
+    constant PRIME_RED: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := x"0FFFFFFFFFFFF2BF";
     constant PRIME_LEN : integer := 61; 
         
     alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is bs_param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
@@ -110,44 +109,44 @@ begin
         bs_fft_length <= C_FFT_LENGTH;
         bs_length <= C_BLUESTEIN_LENGTH;
         
-        bs_param_addr_top <= C_PARAM_ADDR_MUL_TABLE;
-        bs_param_addr_bottom <= 0;
+        param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_MUL_TABLE, (C_PARAM_ADDR_WIDTH/2)));
+        param_addr_bottom <= x"0000";
         
         for i in 0 to C_MAX_BLUESTEIN_LENGTH - 1 loop
             param <= MUL_TABLE(i);
             bs_param_valid <= '1';
             wait until rising_edge(clk);
-            bs_param_addr_bottom <= bs_param_addr_bottom + 1;
+            param_addr_bottom <= std_logic_vector(unsigned(param_addr_bottom) + 1);
         end loop;
                    
-        bs_param_addr_top <= C_PARAM_ADDR_MUL_FFT_TABLE;
-        bs_param_addr_bottom <= 0;
+        param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_MUL_FFT_TABLE, (C_PARAM_ADDR_WIDTH/2)));
+        param_addr_bottom <= x"0000";
         
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop
             param <= MUL_FFT_TABLE(i);
             bs_param_valid <= '1';
             wait until rising_edge(clk);
-            bs_param_addr_bottom <= bs_param_addr_bottom + 1;
+            param_addr_bottom <= std_logic_vector(unsigned(param_addr_bottom) + 1);
         end loop;
                    
-        bs_param_addr_top <= C_PARAM_ADDR_FFT_TABLE;
-        bs_param_addr_bottom <= 0;
+        param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_FFT_TABLE, (C_PARAM_ADDR_WIDTH/2)));
+        param_addr_bottom <= x"0000";
                 
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop
             param <= W_TABLE(i);
             bs_param_valid <= '1';
             wait until rising_edge(clk);
-            bs_param_addr_bottom <= bs_param_addr_bottom + 1;
+            param_addr_bottom <= std_logic_vector(unsigned(param_addr_bottom) + 1);
         end loop;
                 
-        bs_param_addr_top <= C_PARAM_ADDR_IFFT_TABLE;
-        bs_param_addr_bottom <= 0;
+        param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_IFFT_TABLE, (C_PARAM_ADDR_WIDTH/2)));
+        param_addr_bottom <= x"0000";
                 
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop
             param <= WI_TABLE(i);
             bs_param_valid <= '1';
             wait until rising_edge(clk);
-            bs_param_addr_bottom <= bs_param_addr_bottom + 1;
+            param_addr_bottom <= std_logic_vector(unsigned(param_addr_bottom) + 1);
         end loop;
                 
         wait until rising_edge(clk);
