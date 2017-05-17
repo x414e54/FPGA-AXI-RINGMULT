@@ -4,7 +4,7 @@
 -- 
 -- Create Date: 2017/04/03 13:09:21
 -- Design Name: 
--- Module Name: reduce - Behavioral
+-- Module Name: butterfly_dif_2 - Behavioral
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 

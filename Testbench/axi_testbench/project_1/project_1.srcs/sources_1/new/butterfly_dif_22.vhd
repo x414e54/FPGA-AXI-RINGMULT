@@ -4,7 +4,7 @@
 -- 
 -- Create Date: 2017/04/03 13:09:21
 -- Design Name: 
--- Module Name: reduce - Behavioral
+-- Module Name: butterfly_dif_22 - Behavioral
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
@@ -51,7 +51,7 @@ architecture Behavioral of butterfly_dif_22 is
 
     signal a_reg : unsigned(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
     signal b_reg : unsigned(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
-    signal x_reg : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
+    signal x_reg : std_logic_vector((2*C_MAX_FFT_PRIME_WIDTH)-1 downto 0) := (others => '0');
     signal y_reg : std_logic_vector((2*C_MAX_FFT_PRIME_WIDTH)-1 downto 0) := (others => '0');
 
 begin
