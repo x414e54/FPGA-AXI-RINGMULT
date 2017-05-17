@@ -63,7 +63,7 @@ begin
                     
             -- Ports of fft
             param          => fft_param,
-            param_addr     => fft_param,
+            param_addr     => fft_param_addr,
             param_valid    => fft_param_valid,
             prime          => fft_prime,
             prime_r        => fft_prime_r,
