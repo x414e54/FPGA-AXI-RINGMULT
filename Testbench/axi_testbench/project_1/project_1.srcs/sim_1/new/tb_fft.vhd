@@ -43,7 +43,10 @@ architecture behavior of tb_fft is
     constant PRIME: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"1000000000000D41");
     constant PRIME_RED: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"0FFFFFFFFFFFF2BF");
     constant PRIME_LEN : integer := 61; 
-        
+            
+    alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is fft_param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
+    alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is fft_param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
+    
 begin
 
     fft_inst : entity work.fft
@@ -92,13 +95,14 @@ begin
         fft_prime_s <= std_logic_vector(to_unsigned(PRIME_LEN, fft_prime_len'length));
         fft_length  <= C_MAX_FFT_LENGTH;
         
-        fft_param_addr <= x"00000000";
+        param_addr_top <= C_PARAM_ADDR_FFT_TABLE;
+        param_addr_bottom <= x"0000";
         
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop   
             fft_param_valid <= '1';
             fft_param <= W_TABLE(i);
             wait until rising_edge(clk);
-            fft_param_addr <= fft_param_addr + 1;
+            param_addr_bottom <= param_addr_bottom + 1;
         end loop;
         
         fft_param_valid <= '0';
