@@ -9,7 +9,7 @@ entity tb_fft is
         C_PARAM_ADDR_FFT_TABLE   : integer   := 0;
         C_LENGTH_WIDTH           : integer   := 16;
         C_MAX_FFT_PRIME_WIDTH    : integer   := 64;	
-        C_MAX_FFT_LENGTH         : integer   := 16	
+        C_FFT_LENGTH             : integer   := 16	
     );
     --port ();
 end tb_fft;
@@ -34,8 +34,8 @@ architecture behavior of tb_fft is
     signal fft_output          :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
     signal fft_output_valid    :  std_logic := '0';
                     
-    type fft_array is array(0 to C_MAX_FFT_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
-    type fft_table_array is array(0 to C_MAX_FFT_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
+    type fft_array is array(0 to C_FFT_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
+    type fft_table_array is array(0 to C_FFT_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
 
     constant INPUT: fft_array := (x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000");
     constant OUTPUT: fft_array := (x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000");
@@ -56,7 +56,7 @@ begin
             C_PARAM_ADDR_FFT_TABLE => C_PARAM_ADDR_FFT_TABLE,
             C_LENGTH_WIDTH         => C_LENGTH_WIDTH,
             C_MAX_FFT_PRIME_WIDTH  => C_MAX_FFT_PRIME_WIDTH,
-            C_MAX_FFT_LENGTH       => C_MAX_FFT_LENGTH
+            C_MAX_FFT_LENGTH       => C_FFT_LENGTH
         )
         port map (
             clk => clk,
@@ -92,24 +92,23 @@ begin
         
         fft_prime   <= PRIME;
         fft_prime_r <= PRIME_RED;
-        fft_prime_s <= std_logic_vector(to_unsigned(PRIME_LEN, fft_prime_len'length));
-        fft_length  <= C_MAX_FFT_LENGTH;
+        fft_prime_s <= std_logic_vector(to_unsigned(PRIME_LEN, C_LENGTH_WIDTH));
+        fft_length  <= std_logic_vector(to_unsigned(C_FFT_LENGTH, C_LENGTH_WIDTH));
         
         param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_FFT_TABLE, (C_PARAM_ADDR_WIDTH/2)));
         param_addr_bottom <= x"0000";
         
-        for i in 0 to C_MAX_FFT_LENGTH - 1 loop   
+        for i in 0 to C_FFT_LENGTH - 1 loop   
             fft_param_valid <= '1';
             fft_param <= W_TABLE(i);
             wait until rising_edge(clk);
-            param_addr_bottom <= param_addr_bottom + 1;
+            param_addr_bottom <= std_logic_vector(unsigned(param_addr_bottom) + 1);
         end loop;
         
         fft_param_valid <= '0';
         wait until rising_edge(clk);
         
-       
-        for i in 0 to C_MAX_FFT_LENGTH - 1 loop
+        for i in 0 to C_FFT_LENGTH - 1 loop
             fft_value_valid <= '1';
         	fft_value <= INPUT(i);
         	wait until rising_edge(clk);
@@ -117,9 +116,9 @@ begin
         
         fft_value_valid <= '0';
         
-        wait until output_valid = '1';
+        wait until fft_output_valid = '1';
         
-		for i in 0 to C_MAX_FFT_LENGTH - 1 loop
+		for i in 0 to C_FFT_LENGTH - 1 loop
 			assert fft_output = OUTPUT(i);
             wait until rising_edge(clk);
 		end loop;

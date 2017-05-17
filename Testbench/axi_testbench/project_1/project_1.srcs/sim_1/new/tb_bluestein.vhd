@@ -25,13 +25,15 @@ architecture behavior of tb_bs is
 
     signal clk                  : std_logic := '0';
 
-    --bs       ');
+    --bs      
     signal bs_param           :  std_logic_vector(C_PARAM_WIDTH-1 downto 0) := (others => '0');
     signal bs_param_addr      :  std_logic_vector(C_PARAM_ADDR_WIDTH-1 downto 0) := (others => '0');
     signal bs_param_valid     :  std_logic := '0';
     signal bs_prime           :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
     signal bs_prime_red       :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
     signal bs_prime_len       :  std_logic_vector(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
+    signal bs_fft_length      :  std_logic_vector(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
+    signal bs_length          :  std_logic_vector(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
     signal bs_value           :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
     signal bs_value_valid     :  std_logic := '0';
     signal bs_output          :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
@@ -65,20 +67,19 @@ begin
             C_PARAM_ADDR_FFT_TABLE     => C_PARAM_ADDR_FFT_TABLE,
             C_PARAM_ADDR_IFFT_TABLE    => C_PARAM_ADDR_IFFT_TABLE,
             C_LENGTH_WIDTH             => C_LENGTH_WIDTH, 
-            C_MAX_FFT_LENGTH           => C_MAX_FFT_LENGTH, 
-            C_MAX_BLUESTEIN_LENGTH     => C_MAX_BLUESTEIN_LENGTH,
+            C_MAX_FFT_LENGTH           => C_FFT_LENGTH, 
+            C_MAX_BLUESTEIN_LENGTH     => C_BLUESTEIN_LENGTH,
             C_MAX_FFT_PRIME_WIDTH      => C_MAX_FFT_PRIME_WIDTH
         )
         port map (
             clk => clk,
                     
             -- Ports of bluestein_fft
-            mode           => bs_mode,
             param          => bs_param,
             param_addr     => bs_param_addr,
             param_valid    => bs_param_valid,
             prime          => bs_prime,
-            prime_r        => bs_prime_r,
+            prime_r        => bs_prime_red,
             prime_s        => bs_prime_len,
             fft_length     => bs_fft_length,
             length         => bs_length,
@@ -105,15 +106,15 @@ begin
                         
         bs_prime_len <= std_logic_vector(to_unsigned(PRIME_LEN, bs_prime_len'length));
         bs_prime <= PRIME;
-        bs_prime_red <= PRIMES_RED;
-        bs_fft_length <= C_FFT_LENGTH;
-        bs_length <= C_BLUESTEIN_LENGTH;
+        bs_prime_red <= PRIME_RED;
+        bs_fft_length <= std_logic_vector(to_unsigned(C_FFT_LENGTH, C_LENGTH_WIDTH));
+        bs_length <= std_logic_vector(to_unsigned(C_BLUESTEIN_LENGTH, C_LENGTH_WIDTH));
         
         param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_MUL_TABLE, (C_PARAM_ADDR_WIDTH/2)));
         param_addr_bottom <= x"0000";
         
-        for i in 0 to C_MAX_BLUESTEIN_LENGTH - 1 loop
-            param <= MUL_TABLE(i);
+        for i in 0 to C_BLUESTEIN_LENGTH - 1 loop
+            bs_param <= MUL_TABLE(i);
             bs_param_valid <= '1';
             wait until rising_edge(clk);
             param_addr_bottom <= std_logic_vector(unsigned(param_addr_bottom) + 1);
@@ -122,8 +123,8 @@ begin
         param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_MUL_FFT_TABLE, (C_PARAM_ADDR_WIDTH/2)));
         param_addr_bottom <= x"0000";
         
-        for i in 0 to C_MAX_FFT_LENGTH - 1 loop
-            param <= MUL_FFT_TABLE(i);
+        for i in 0 to C_FFT_LENGTH - 1 loop
+            bs_param <= MUL_FFT_TABLE(i);
             bs_param_valid <= '1';
             wait until rising_edge(clk);
             param_addr_bottom <= std_logic_vector(unsigned(param_addr_bottom) + 1);
@@ -132,8 +133,8 @@ begin
         param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_FFT_TABLE, (C_PARAM_ADDR_WIDTH/2)));
         param_addr_bottom <= x"0000";
                 
-        for i in 0 to C_MAX_FFT_LENGTH - 1 loop
-            param <= W_TABLE(i);
+        for i in 0 to C_FFT_LENGTH - 1 loop
+            bs_param <= W_TABLE(i);
             bs_param_valid <= '1';
             wait until rising_edge(clk);
             param_addr_bottom <= std_logic_vector(unsigned(param_addr_bottom) + 1);
@@ -142,8 +143,8 @@ begin
         param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_IFFT_TABLE, (C_PARAM_ADDR_WIDTH/2)));
         param_addr_bottom <= x"0000";
                 
-        for i in 0 to C_MAX_FFT_LENGTH - 1 loop
-            param <= WI_TABLE(i);
+        for i in 0 to C_FFT_LENGTH - 1 loop
+            bs_param <= WI_TABLE(i);
             bs_param_valid <= '1';
             wait until rising_edge(clk);
             param_addr_bottom <= std_logic_vector(unsigned(param_addr_bottom) + 1);
@@ -151,7 +152,7 @@ begin
                 
         wait until rising_edge(clk);
         
-        for i in 0 to C_MAX_BLUESTEIN_LENGTH - 1 loop
+        for i in 0 to C_BLUESTEIN_LENGTH - 1 loop
         	bs_value <= INPUT(i);
         	bs_value_valid <= '1';
         	wait until rising_edge(clk);
@@ -160,7 +161,7 @@ begin
         
         wait until bs_output_valid = '1';
 
-		for i in 0 to C_MAX_BLUESTEIN_LENGTH - 1 loop
+		for i in 0 to C_BLUESTEIN_LENGTH - 1 loop
 			assert bs_output = OUTPUT(i);
             wait until rising_edge(clk);
 		end loop;

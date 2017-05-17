@@ -26,7 +26,7 @@ entity tb_mulmodfft is
         ---
     );
     --port ();
-end tb_fft;
+end tb_mulmodfft;
 
 architecture behavior of tb_mulmodfft is
                         
