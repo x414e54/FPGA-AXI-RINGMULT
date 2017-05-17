@@ -97,8 +97,7 @@ begin
     mulyi : entity work.mulred
     generic map (
         C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
-        C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-        C_MAX_INPUT_WIDTH   => 2*C_MAX_FFT_PRIME_WIDTH
+        C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH
     )
     port map (
         clk         => clk,
@@ -142,8 +141,7 @@ begin
     muly : entity work.mulred
     generic map (
         C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
-        C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-        C_MAX_INPUT_WIDTH   => 2*C_MAX_FFT_PRIME_WIDTH
+        C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH
     )
     port map (
         clk         => clk,
@@ -187,8 +185,7 @@ begin
     mulyi2 : entity work.mulred
     generic map (
         C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
-        C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-        C_MAX_INPUT_WIDTH   => 2*C_MAX_FFT_PRIME_WIDTH
+        C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH
     )
     port map (
         clk         => clk,

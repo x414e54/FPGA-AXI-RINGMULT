@@ -53,8 +53,8 @@ architecture Behavioral of fft_stage is
     
     signal regs : REGISTER_TYPE(0 to 8-1)  := (others => (others => '0'));
 
-    signal dif_0_shift : REGISTER_TYPE(0 to C_STAGE_LENGTH/2-1)  := (others => (others => '0'));
-    signal dif_1_shift : REGISTER_TYPE(0 to C_STAGE_LENGTH/4-1)  := (others => (others => '0'));
+    signal dif_0_shift : REGISTER_TYPE(0 to (C_STAGE_LENGTH/2)-1)  := (others => (others => '0'));
+    signal dif_1_shift : REGISTER_TYPE(0 to (C_STAGE_LENGTH/4)-1)  := (others => (others => '0'));
 
 begin
   
@@ -83,7 +83,7 @@ begin
             clk    => clk,
             in_a   => input,
             in_b   => regs(0),
-            out_ab => dif_0_shift(C_STAGE_LENGTH-1)
+            out_ab => dif_0_shift((C_STAGE_LENGTH/2)-1)
         );
                 
     abswitch_delay_0_1 : entity work.abswitch
@@ -122,7 +122,7 @@ begin
         clk    => clk,
         in_a   => regs(4),
         in_b   => regs(3),
-        out_ab => dif_1_shift(C_STAGE_LENGTH/2-1)
+        out_ab => dif_1_shift((C_STAGE_LENGTH/4)-1)
     );
     
     abswitch_delay_1 : entity work.abswitch
@@ -140,8 +140,7 @@ begin
     twiddle_mul : entity work.mulred
     generic map (
         C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
-        C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-        C_MAX_INPUT_WIDTH   => 2*C_MAX_FFT_PRIME_WIDTH
+        C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH
     )
     port map (
         clk         => clk,
@@ -156,10 +155,10 @@ begin
     shift_proc : process (clk) is
     begin	
         if rising_edge(clk) then
-            for i in 0 to C_STAGE_LENGTH-2 loop
+            for i in 0 to (C_STAGE_LENGTH/2)-2 loop
                 dif_0_shift(i) <= dif_0_shift(i+1);
             end loop;
-            for i in 0 to C_STAGE_LENGTH/2-2 loop
+            for i in 0 to (C_STAGE_LENGTH/4)-2 loop
                 dif_1_shift(i) <= dif_1_shift(i+1);
             end loop; 
         end if;
