@@ -63,28 +63,28 @@ end bluestein_fft;
 
 architecture Behavioral of bluestein_fft is
 
-type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
+    type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
     
-constant NUM_STAGES : integer := integer(ceil(log2(real(C_MAX_FFT_LENGTH)))); 
+    constant NUM_STAGES : integer := integer(ceil(log2(real(C_MAX_FFT_LENGTH)))); 
 
-signal mul_table_in_idx        : integer := 0;
-signal mul_table_out_idx       : integer := 0;
-signal mul_fft_table_idx       : integer := 0;
+    signal mul_table_in_idx        : integer := 0;
+    signal mul_table_out_idx       : integer := 0;
+    signal mul_fft_table_idx       : integer := 0;
 
-signal mul_table : REGISTER_TYPE(0 to C_MAX_FFT_LENGTH)  := (others => (others => '0'));
-signal mul_fft_table : REGISTER_TYPE(0 to C_MAX_FFT_LENGTH)  := (others => (others => '0'));
+    signal mul_table : REGISTER_TYPE(0 to C_MAX_FFT_LENGTH)  := (others => (others => '0'));
+    signal mul_fft_table : REGISTER_TYPE(0 to C_MAX_FFT_LENGTH)  := (others => (others => '0'));
  
-signal fft_output : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
-signal fft_output_valid : std_logic     := '0';
+    signal fft_output : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
+    signal fft_output_valid : std_logic     := '0';
 
-signal ifft_output : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)    := (others => '0');
-signal ifft_output_valid : std_logic     := '0';
+    signal ifft_output : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)    := (others => '0');
+    signal ifft_output_valid : std_logic     := '0';
 
-signal mul_output : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
-signal mul_fft_output : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
+    signal mul_output : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
+    signal mul_fft_output : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
 
-alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
-alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
+    alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
+    alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
 
 begin
     
@@ -186,11 +186,11 @@ begin
     state_proc : process (clk) is
         begin	
             if rising_edge(clk) then
-                    if (param_valid = '1' and param_addr_top = C_PARAM_ADDR_TOP) then
-                        mul_table(param_addr_bottom) <= param; 
-                    else if (param_valid = '1' and param_addr_top = C_PARAM_ADDR_TOP + 1) then
-                        mul_fft_table(param_addr_bottom) <= param;
-                    end if;                  
+          --          if (param_valid = '1' and param_addr_top = C_PARAM_ADDR_TOP) then
+          --              mul_table(param_addr_bottom) <= param; 
+          --          else if (param_valid = '1' and param_addr_top = C_PARAM_ADDR_TOP + 1) then
+          --              mul_fft_table(param_addr_bottom) <= param;
+          --          end if;                  
                     
           --              if (length = mul_table_in_idx - 1) then
             ---                mul_table_in_idx <= 0;

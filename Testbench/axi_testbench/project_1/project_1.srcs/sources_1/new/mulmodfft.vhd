@@ -49,98 +49,123 @@ end mulmod;
 
 architecture Behavioral of mulmod is
 
-type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
-type VALID_TYPE is array(natural range <>) of s
+    type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
+    type VALID_TYPE is array(natural range <>) of std_logic;
     
-signal length  : integer := 0;
-signal prime   : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
-signal prime_r : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
-signal prime_s : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+    signal length      : integer := 0;
+    signal fft_length  : integer := 0;
 
-signal mul_table_write_idx    : integer := 0;
+    signal mul_table   : REGISTER_TYPE(0 to (C_MAX_POLY_LENGTH*C_MAX_FFT_PRIMES)-1)  := (others => (others => '0'));
 
-signal mul_table : REGISTER_TYPE(0 to C_MAX_POLY_LENGTH)  := (others => (others => '0'));
+    signal primes      : REGISTER_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
+    signal primes_r    : REGISTER_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
+    signal prime_s     : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 
-signal remainders        : REGISTER_TYPE(0 to C_MAX_POLY_LENGTH)  := (others => (others => '0'));
-signal remainders_valid  : VALID_TYPE(0 to C_MAX_POLY_LENGTH)  := (others => (others => '0'));
-signal bs_outputs        : REGISTER_TYPE(0 to C_MAX_POLY_LENGTH)  := (others => (others => '0'));
-signal bs_outputs_valid  : VALID_TYPE(0 to C_MAX_POLY_LENGTH)  := (others => (others => '0'));
-signal mul_outputs       : REGISTER_TYPE(0 to C_MAX_POLY_LENGTH)  := (others => (others => '0'));
-signal ibs_outputs       : REGISTER_TYPE(0 to C_MAX_POLY_LENGTH)  := (others => (others => '0'));
-signal ibs_outputs_valid : VALID_TYPE(0 to C_MAX_POLY_LENGTH)  := (others => (others => '0'));
+    signal remainders        : REGISTER_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
+    signal remainders_valid  : VALID_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
+    signal bs_outputs        : REGISTER_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
+    signal bs_outputs_valid  : VALID_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
+    signal mul_outputs       : REGISTER_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
+    signal ibs_outputs       : REGISTER_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
+    signal ibs_outputs_valid : VALID_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
 
 begin
-		crt : entity work.crt
-			generic map (
-				C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-				C_MAX_INPUT_WIDTH   => C_MAX_CRT_PRIME_WIDTH,
-				C_MAX_MODULUS_FOLDS => C_MAX_FFT_PRIMES_FOLDS
-			)
-			port map (
-				clk	        => clk,
-                param       => param_addr,
-                param_addr  => param_addr,
-                param_valid => param_valid,
-				value	    => value,
-				remainder   => remainders(i)
-			);
-			
-		bs_crt : entity work.bs_crt
-            generic (
-                C_MAX_FFT_PRIME_WIDTH   => C_MAX_FFT_PRIME_WIDTH,
-                C_MAX_BLUESTEIN_LENGTH  => C_MAX_POLY_LENGTH, 
-                C_MAX_FFT_LENGTH        => C_MAX_FFT_LENGTH, 
-                C_MAX_FFT_PRIMES		=> C_MAX_FFT_PRIMES,
-                C_PARAM_ADDR_TOP        => C_PARAM_ADDR_TOP + 10
-            );
-            port (
-                clk            => clk,
-                param          => param_addr,
-                param_addr     => param_addr.
-                param_valid    => param_valid,
-                values         => remainders,
-                values_valid   => remainders_valid,
-                outputs        => bs_outputs,
-                outputs_valid  => bs_outputs_valid
-            );  
+        crt : for i in 0 to C_MAX_FFT_PRIMES - 1 generate
+            prime_i : entity work.rem_fold
+                generic map (
+                    C_PARAM_WIDTH       => C_PARAM_WIDTH,
+                    C_PARAM_ADDR_WIDTH  => C_PARAM_ADDR_WITH,
+                    C_PARAM_ADDR_TOP    => C_PARAM_ADDR_TOP + 100 + i,
+                    C_LENGTH_WIDTH      => C_LENGTH_WIDTH,	
+                    C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH
+                    --C_MAX_INPUT_WIDTH => ,
+                    --C_MAX_INPUT_LEN => ,
+                    --C_MAX_MODULUS_FOLDS => 
+                    )
+                port map (
+                    clk	         => clk,
+                    param        => param,
+        	        param_addr   => param_addr,
+                    param_valid  => param_valid,
+                    modulus      => primes(i),
+                    modulus_r    => primes_r(i),
+                    modulus_s    => prime_s,
+                    value	     => value,
+                    remainder    => remainders(i)
+                );
+        end generate crt;
+
+        bs : for i in 0 to C_MAX_FFT_PRIMES - 1 generate	
+            bs_i : entity work.bluestein_fft
+                generic map (
+            	    C_PARAM_WIDTH          => C_PARAM_WIDTH,
+                    C_PARAM_ADDR_WIDTH     => C_PARAM_ADDR_WIDTH,
+                    C_PARAM_ADDR_TOP       => C_PARAM_ADDR_TOP + 200,
+                    C_LENGTH_WIDTH         => C_LENGTH_WIDTH,	
+            		C_MAX_FFT_PRIME_WIDTH  => C_MAX_FFT_PRIME_WIDTH,
+                	C_MAX_BLUESTEIN_LENGTH => C_MAX_POLY_LENGTH, 
+            		C_MAX_FFT_LENGTH       => C_MAX_FFT_LENGTH 
+                )
+                port map (
+                    clk            => clk,
+                    param          => param_addr,
+                    param_addr     => param_addr,
+                    param_valid    => param_valid,
+                    prime          => primes(i),
+                    prime_r        => primes_r(i),
+                    prime_s        => prime_s,
+                    fft_length     => fft_length,
+                    length         => length,
+                    values         => remainders,
+                    values_valid   => remainders_valid,
+                    outputs        => bs_outputs,
+                    outputs_valid  => bs_outputs_valid
+                );  
+        end generate bs;
             	
-        primes_mul : for i in 0 to C_MAX_FFT_PRIMES - 1 generate
-            mulxieta : entity work.mulred
-            generic map (
-                C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
-            )
-            port map (
-                clk         => clk,
-                modulus     => prime,
-                modulus_r   => prime_r,
-                modulus_s   => prime_s,
-                a           => bs_outputs(i),
-                b           => mul_table(mul_table_idx),
-                c           => mul_outputs(i)  
-            );
-        end generate bs_primes;
-			
-		ibs_crt : entity work.bs_crt
-            generic (
-                C_MAX_FFT_PRIME_WIDTH   => C_MAX_FFT_PRIME_WIDTH,
-                C_MAX_BLUESTEIN_LENGTH  => C_MAX_BLUESTEIN_LENGTH, 
-                C_MAX_FFT_LENGTH        => C_MAX_FFT_LENGTH, 
-                C_MAX_FFT_PRIMES		=> C_MAX_FFT_PRIMES,
-                C_PARAM_ADDR_TOP        => C_PARAM_ADDR_TOP + 20
-            );
-            port (
-                clk            => clk,
-                param          => param_addr,
-                param_addr     => param_addr.
-                param_valid    => param_valid,
-                modulus        => prime,
-                modulus_r      => prime_r,
-                modulus_s      => prime_s,
-                values         => mul_outputs,
-                values_valid   => bs_outputs_valid_delay,
-                outputs        => ibs_outputs,
-                outputs_valid  => ibs_outputs_valid
-            );  
+        mul : for i in 0 to C_MAX_FFT_PRIMES - 1 generate
+            mul_i : entity work.mulred
+                generic map (
+                    C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
+                )
+                port map (
+                    clk         => clk,
+                    modulus     => primes(i),
+                    modulus_r   => primes_r(i),
+                    modulus_s   => prime_s,
+                    a           => bs_outputs(i),
+                    b           => mul_table(mul_table_idx),
+                    c           => mul_outputs(i)  
+                );
+        end generate mul;
+        
+        ibs : for i in 0 to C_MAX_FFT_PRIMES - 1 generate	
+            ibs_i : entity work.bluestein_fft
+                generic map (
+                    C_PARAM_WIDTH          => C_PARAM_WIDTH,
+                    C_PARAM_ADDR_WIDTH     => C_PARAM_ADDR_WIDTH,
+                    C_PARAM_ADDR_TOP       => C_PARAM_ADDR_TOP + 300,
+                    C_LENGTH_WIDTH         => C_LENGTH_WIDTH,	
+                    C_MAX_FFT_PRIME_WIDTH  => C_MAX_FFT_PRIME_WIDTH,
+                    C_MAX_BLUESTEIN_LENGTH => C_MAX_POLY_LENGTH, 
+                    C_MAX_FFT_LENGTH       => C_MAX_FFT_LENGTH
+                ) 
+                port map (
+                    clk            => clk,
+                    param          => param_addr,
+                    param_addr     => param_addr,
+                    param_valid    => param_valid,
+                    prime          => primes(i),
+                    prime_r        => primes_r(i),
+                    prime_s        => prime_s,
+                    fft_length     => fft_length,
+                    length         => length,
+                    values         => mul_outputs,
+                    values_valid   => bs_outputs_valid_delay,
+                    outputs        => ibs_outputs,
+                    outputs_valid  => ibs_outputs_valid
+                );  
+        end generate ibs;
 
 --        icrt : entity work.icrt
  --           generic (

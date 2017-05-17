@@ -17,17 +17,9 @@
 -- Additional Comments:
 -- 
 ----------------------------------------------------------------------------------
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
-
-package rem_pkg is
-	type rem_bus is array(natural range <>) of std_logic_vector(64-1 downto 0);
-end package;
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use work.rem_pkg.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
