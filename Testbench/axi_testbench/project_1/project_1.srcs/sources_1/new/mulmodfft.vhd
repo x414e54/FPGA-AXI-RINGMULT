@@ -35,7 +35,7 @@ entity mulmodfft is
 		C_MAX_FFT_PRIMES		             : integer   := 9;
 		C_MAX_FFT_PRIMES_FOLDS               : integer   := (256/64)-2;--C_MAX_CRT_PRIME_WIDTH / C_MAX_FFT_PRIME_WIDTH - 2
 		---
-		C_PARAM_ADDR_MUL_TABLE_START         : integer := x"0000";
+		C_PARAM_ADDR_MUL_TABLE_START         : integer := 0;
         C_PARAM_ADDR_FFT_TABLE_START         : integer := C_PARAM_ADDR_MUL_TABLE_START + C_MAX_FFT_PRIMES;
         C_PARAM_ADDR_IFFT_TABLE_START        : integer := C_PARAM_ADDR_FFT_TABLE_START + C_MAX_FFT_PRIMES;
         C_PARAM_ADDR_BS_MUL_TABLE_START      : integer := C_PARAM_ADDR_IFFT_TABLE_START + C_MAX_FFT_PRIMES;
@@ -144,7 +144,9 @@ begin
         mul : for i in 0 to C_MAX_FFT_PRIMES - 1 generate
             mul_i : entity work.mulred
                 generic map (
-                    C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
+                    C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
+                    C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH
+                    C_MAX_INPUT_WIDTH   => 2*C_MAX_FFT_PRIME_WIDTH,
                 )
                 port map (
                     clk         => clk,

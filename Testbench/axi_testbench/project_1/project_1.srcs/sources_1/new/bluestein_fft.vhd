@@ -35,10 +35,10 @@ entity bluestein_fft is
 	generic (
 	    C_PARAM_WIDTH              : integer   := 64;
         C_PARAM_ADDR_WIDTH         : integer   := 32;
-        C_PARAM_ADDR_MUL_TABLE     : integer   := x"0000";
-        C_PARAM_ADDR_MUL_FFT_TABLE : integer   := x"0001";
-        C_PARAM_ADDR_FFT_TABLE     : integer   := x"0002";
-        C_PARAM_ADDR_IFFT_TABLE    : integer   := x"0003";
+        C_PARAM_ADDR_MUL_TABLE     : integer   := 0;
+        C_PARAM_ADDR_MUL_FFT_TABLE : integer   := 1;
+        C_PARAM_ADDR_FFT_TABLE     : integer   := 2;
+        C_PARAM_ADDR_IFFT_TABLE    : integer   := 3;
         C_LENGTH_WIDTH             : integer   := 16;	
 		C_MAX_FFT_PRIME_WIDTH      : integer   := 64;
     	C_MAX_BLUESTEIN_LENGTH     : integer   := 7710; 
@@ -94,7 +94,9 @@ begin
 --- Mul yi table
     mulyi : entity work.mulred
     generic map (
-        C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
+        C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
+        C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
+        C_MAX_INPUT_WIDTH   => 2*C_MAX_FFT_PRIME_WIDTH
     )
     port map (
         clk         => clk,
@@ -137,7 +139,9 @@ begin
 --- Mul y table FFT
     muly : entity work.mulred
     generic map (
-        C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
+        C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
+        C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
+        C_MAX_INPUT_WIDTH   => 2*C_MAX_FFT_PRIME_WIDTH
     )
     port map (
         clk         => clk,
@@ -180,7 +184,9 @@ begin
 --- Mul yi table
     mulyi2 : entity work.mulred
     generic map (
-        C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
+        C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
+        C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
+        C_MAX_INPUT_WIDTH   => 2*C_MAX_FFT_PRIME_WIDTH
     )
     port map (
         clk         => clk,

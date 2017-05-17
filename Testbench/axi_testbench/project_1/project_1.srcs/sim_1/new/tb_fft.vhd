@@ -6,7 +6,7 @@ entity tb_fft is
     generic (	
         C_PARAM_WIDTH            : integer   := 64;
         C_PARAM_ADDR_WIDTH       : integer   := 32;
-        C_PARAM_ADDR_FFT_TABLE   : integer   := x"0000";
+        C_PARAM_ADDR_FFT_TABLE   : integer   := 0;
         C_LENGTH_WIDTH           : integer   := 16;
         C_MAX_FFT_PRIME_WIDTH    : integer   := 64;	
         C_MAX_FFT_LENGTH         : integer   := 16	
@@ -96,7 +96,7 @@ begin
         fft_length  <= C_MAX_FFT_LENGTH;
         
         param_addr_top <= C_PARAM_ADDR_FFT_TABLE;
-        param_addr_bottom <= x"0000";
+        param_addr_bottom <= 0;
         
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop   
             fft_param_valid <= '1';

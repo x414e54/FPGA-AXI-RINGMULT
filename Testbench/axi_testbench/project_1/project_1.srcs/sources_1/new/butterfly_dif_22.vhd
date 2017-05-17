@@ -32,6 +32,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity butterfly_dif_22 is
 	generic (
+	    C_LENGTH_WIDTH        : interger    := 16;
 		C_MAX_FFT_PRIME_WIDTH : integer    := 64
 	);
 	port (
@@ -42,7 +43,7 @@ entity butterfly_dif_22 is
 		y       : out std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)    := (others => '0');
 		prime   : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
         prime_r : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
-        prime_s : in std_logic_vector(16-1 downto 0)                        := (others => '0')
+        prime_s : in std_logic_vector(C_LENGTH_WIDTH-1 downto 0)            := (others => '0')
 	);  
 end butterfly_dif_22;
 
@@ -57,8 +58,9 @@ begin
        
     red_x : entity work.red
         generic map (
-       	    C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-       		C_MAX_INPUT_WIDTH   => 2 * C_MAX_FFT_PRIME_WIDTH
+            C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
+            C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
+            C_MAX_INPUT_WIDTH   => 2*C_MAX_FFT_PRIME_WIDTH
         )
        	port map (
             clk       => clk,
@@ -71,8 +73,9 @@ begin
         
     red_y : entity work.red
         generic map (
+            C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
             C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-            C_MAX_INPUT_WIDTH   => 2 * C_MAX_FFT_PRIME_WIDTH
+            C_MAX_INPUT_WIDTH   => 2*C_MAX_FFT_PRIME_WIDTH
          )
         port map (
             clk       => clk,

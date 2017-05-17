@@ -34,7 +34,7 @@ entity rem_fold is
 	generic (
 	    C_PARAM_WIDTH       : integer    := 64;
         C_PARAM_ADDR_WIDTH  : integer    := 32;
-        C_PARAM_ADDR_FOLDS  : integer    := x"0000";
+        C_PARAM_ADDR_FOLDS  : integer    := 0;
         C_LENGTH_WIDTH      : integer    := 16;	
 		C_MAX_MODULUS_WIDTH : integer    := 64;
 		C_MAX_INPUT_WIDTH   : integer    := 256;
@@ -66,7 +66,7 @@ architecture Behavioral of rem_fold is
     signal fold_reg : fold_array(0 to C_MAX_MODULUS_FOLDS) := (others => (others => '0'));
     signal fold_carry_reg : std_logic_vector(C_MAX_MODULUS_FOLDS-1 downto 0) := (others => '0');
 
-    signal modulus_ms : REGISTER_TYPE(0 to C_MAX_MODULUS_FOLDS-1) := (others => '0');
+    signal modulus_ms : REGISTER_TYPE(0 to C_MAX_MODULUS_FOLDS-1) := (others => (others => '0'));
 
     alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
     alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
@@ -91,6 +91,7 @@ begin
 	
     red : entity work.red
 	   generic map (
+	      C_LENGTH_WIDTH      => C_LENGTH_WIDTH, 
 		  C_MAX_MODULUS_WIDTH => C_MAX_MODULUS_WIDTH,
 		  C_MAX_INPUT_WIDTH   => 2 * C_MAX_MODULUS_WIDTH
 	   )
@@ -106,8 +107,8 @@ begin
        state_proc : process (clk) is
        begin	
            if rising_edge(clk) then
-               if (param_valid = '1' and param_addr_top = C_PARAM_ADDR_FOLDS) then
-                   modulus_ms(param_addr_bottom) <= param;
+               if (param_valid = '1' and to_integer(unsigned(param_addr_top)) = C_PARAM_ADDR_FOLDS) then
+                   modulus_ms(to_integer(unsigned(param_addr_bottom))) <= param;
                end if;
            end if;
        end process state_proc;

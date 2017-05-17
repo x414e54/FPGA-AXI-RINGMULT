@@ -31,6 +31,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity fft_stage is
 	generic (
+	    C_LENGTH_WIDTH          : integer    := 16;
 		C_MAX_FFT_PRIME_WIDTH   : integer    := 64;
 		C_STAGE_LENGTH          : integer    := 7710;
         C_STAGE_INDEX           : integer    := 1
@@ -40,7 +41,7 @@ entity fft_stage is
 		w          : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 		prime      : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 		prime_r    : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
-        prime_s    : in std_logic_vector(16-1 downto 0)                      := (others => '0');        
+        prime_s    : in std_logic_vector(C_LENGTH_WIDTH-1 downto 0)          := (others => '0');        
         input      : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 		output     : out std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0')
 	);  
@@ -60,6 +61,7 @@ begin
 --- 0    
     butterfly_dif_2_0 : entity work.butterfly_dif_22
         generic map (
+            C_LENGTH_WIDTH        => C_LENGTH_WIDTH,
             C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_PRIME_WIDTH
         )
         port map (
@@ -98,6 +100,7 @@ begin
 --- 1
     butterfly_dif_2_1_0 : entity work.butterfly_dif_22
         generic map (
+            C_LENGTH_WIDTH        => C_LENGTH_WIDTH,
             C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_PRIME_WIDTH
         )
         port map (
@@ -136,7 +139,9 @@ begin
 --- twiddle
     twiddle_mul : entity work.mulred
     generic map (
-        C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
+        C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
+        C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
+        C_MAX_INPUT_WIDTH   => 2*C_MAX_FFT_PRIME_WIDTH
     )
     port map (
         clk         => clk,

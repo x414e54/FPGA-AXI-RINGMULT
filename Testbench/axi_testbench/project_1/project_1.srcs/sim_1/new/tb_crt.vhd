@@ -6,7 +6,7 @@ entity tb_crt is
     generic (		
         C_PARAM_WIDTH                : integer   := 64;
         C_PARAM_ADDR_WIDTH           : integer   := 32;
-        C_PARAM_ADDR_FOLDS_START     : integer   := x"0000";
+        C_PARAM_ADDR_FOLDS_START     : integer   := 0;
         C_LENGTH_WIDTH               : integer   := 16;	
         C_MAX_FFT_PRIME_WIDTH        : integer   := 64;		
         C_MAX_CRT_PRIME_WIDTH        : integer   := 192; -- 256;	
@@ -105,7 +105,7 @@ begin
         param_addr_top <= C_PARAM_ADDR_FOLDS_START;
         
         for i in 0 to C_MAX_FFT_PRIMES - 1 loop
-            param_addr_bottom <= x"0000";
+            param_addr_bottom <= 0;
             for j in 0 to C_MAX_FFT_PRIMES_FOLDS - 1 loop
                 param <= PRIMES_FOLD(i)(j);
                 wait until rising_edge(clk);

@@ -32,6 +32,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity red is
 	generic (
+	    C_LENGTH_WIDTH      : integer    := 16;
 		C_MAX_MODULUS_WIDTH : integer    := 64;
 		C_MAX_INPUT_WIDTH   : integer    := 128
 	);
@@ -39,7 +40,7 @@ entity red is
 		clk       : in std_logic;
 		modulus   : in std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)       := (others => '0');
 		modulus_r : in std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)       := (others => '0');
-        modulus_s : in std_logic_vector(16-1 downto 0)                        := (others => '0');
+        modulus_s : in std_logic_vector(C_LENGTH_WIDTH-1 downto 0)            := (others => '0');
         value     : in std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0)         := (others => '0');
 		remainder : out std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)      := (others => '0')
 	);  

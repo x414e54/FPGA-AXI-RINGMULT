@@ -35,7 +35,7 @@ entity fft is
 	generic (
         C_PARAM_WIDTH           : integer   := 64;
         C_PARAM_ADDR_WIDTH      : integer   := 32;
-        C_PARAM_ADDR_FFT_TABLE  : integer   := x"0000";
+        C_PARAM_ADDR_FFT_TABLE  : integer   := 0;
         C_LENGTH_WIDTH          : integer   := 16;	
 		C_MAX_FFT_PRIME_WIDTH   : integer   := 64;
 		C_MAX_FFT_LENGTH        : integer   := 16384
@@ -91,6 +91,7 @@ begin
     fft_stages : for i in 0 to NUM_STAGES - 1 generate
         stage_i : entity work.fft_stage
             generic map (
+                C_LENGTH_WIDTH => C_LENGTH_WIDTH,
                 C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_PRIME_WIDTH,
                 C_STAGE_LENGTH => 2**(NUM_STAGES-1-i),
                 C_STAGE_INDEX => i
