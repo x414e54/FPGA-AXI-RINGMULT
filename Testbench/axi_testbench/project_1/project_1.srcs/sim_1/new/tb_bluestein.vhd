@@ -51,7 +51,10 @@ architecture behavior of tb_bs is
     constant PRIME: stage_io := (x"1000000000000D41");
     constant PRIME_RED: stage_io := (x"0FFFFFFFFFFFF2BF");
     constant PRIME_LEN : integer := 61; 
-    
+        
+    alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is bs_param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
+    alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is bs_param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
+
 begin
 
     bs_inst : entity work.bluestein_fft
@@ -107,31 +110,46 @@ begin
         bs_fft_length <= C_FFT_LENGTH;
         bs_length <= C_BLUESTEIN_LENGTH;
         
-        bs_param_addr
-        for i in 0 to C_MAX_FFT_LENGTH - 1 loop
-            param <= W_TABLE(i);
-            bs_param_valid <= '1';
-            wait until rising_edge(clk);
-        end loop;
+        bs_param_addr_top <= C_PARAM_ADDR_MUL_TABLE;
+        bs_param_addr_bottom <= 0;
         
-        for i in 0 to C_MAX_FFT_LENGTH - 1 loop
-            param <= WI_TABLE(i);
+        for i in 0 to C_MAX_BLUESTEIN_LENGTH - 1 loop
+            param <= MUL_TABLE(i);
             bs_param_valid <= '1';
             wait until rising_edge(clk);
+            bs_param_addr_bottom <= bs_param_addr_bottom + 1;
         end loop;
+                   
+        bs_param_addr_top <= C_PARAM_ADDR_MUL_FFT_TABLE;
+        bs_param_addr_bottom <= 0;
         
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop
             param <= MUL_FFT_TABLE(i);
             bs_param_valid <= '1';
             wait until rising_edge(clk);
+            bs_param_addr_bottom <= bs_param_addr_bottom + 1;
         end loop;
-                          
-        for i in 0 to C_MAX_BLUESTEIN_LENGTH - 1 loop
-            param <= MUL_TABLE(i);
+                   
+        bs_param_addr_top <= C_PARAM_ADDR_FFT_TABLE;
+        bs_param_addr_bottom <= 0;
+                
+        for i in 0 to C_MAX_FFT_LENGTH - 1 loop
+            param <= W_TABLE(i);
             bs_param_valid <= '1';
             wait until rising_edge(clk);
+            bs_param_addr_bottom <= bs_param_addr_bottom + 1;
         end loop;
-        
+                
+        bs_param_addr_top <= C_PARAM_ADDR_IFFT_TABLE;
+        bs_param_addr_bottom <= 0;
+                
+        for i in 0 to C_MAX_FFT_LENGTH - 1 loop
+            param <= WI_TABLE(i);
+            bs_param_valid <= '1';
+            wait until rising_edge(clk);
+            bs_param_addr_bottom <= bs_param_addr_bottom + 1;
+        end loop;
+                
         wait until rising_edge(clk);
         
         for i in 0 to C_MAX_BLUESTEIN_LENGTH - 1 loop

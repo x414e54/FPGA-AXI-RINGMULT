@@ -58,19 +58,38 @@ begin
 
     mulmodfft_inst : entity work.mulmodfft
         generic map (
-
+            C_PARAM_WIDTH                        => C_PARAM_WIDTH,
+            C_PARAM_ADDR_WIDTH                   => C_PARAM_ADDR_WIDTH,
+            ---
+            C_LENGTH_WIDTH                       => C_LENGTH_WIDTH,	
+            C_MAX_FFT_PRIME_WIDTH                => C_MAX_FFT_PRIME_WIDTH,
+            C_MAX_FFT_LENGTH                     => C_MAX_FFT_LENGTH, 
+            C_MAX_POLY_LENGTH                    => C_MAX_POLY_LENGTH, 
+            C_MAX_CRT_PRIME_WIDTH                => C_MAX_CRT_PRIME_WIDTH, 
+            C_MAX_FFT_PRIMES		             => C_MAX_FFT_PRIMES,
+            C_MAX_FFT_PRIMES_FOLDS               => C_MAX_FFT_PRIMES_FOLDS,
+            ---
+            C_PARAM_ADDR_MUL_TABLE_START         => C_PARAM_ADDR_MUL_TABLE_START,
+            C_PARAM_ADDR_FFT_TABLE_START         => C_PARAM_ADDR_FFT_TABLE_START,
+            C_PARAM_ADDR_IFFT_TABLE_START        => C_PARAM_ADDR_IFFT_TABLE_START,
+            C_PARAM_ADDR_BS_MUL_TABLE_START      => C_PARAM_ADDR_BS_MUL_TABLE_START,
+            C_PARAM_ADDR_BS_MUL_FFT_TABLE_START  => C_PARAM_ADDR_BS_MUL_FFT_TABLE_START,
+            C_PARAM_ADDR_IBS_MUL_TABLE_START     => C_PARAM_ADDR_IBS_MUL_TABLE_START,
+            C_PARAM_ADDR_IBS_MUL_FFT_TABLE_START => C_PARAM_ADDR_IBS_MUL_FFT_TABLE_START,
+            C_PARAM_ADDR_FOLDS_START             => C_PARAM_ADDR_FOLDS_START
+            ---
         )
         port map (
             clk => clk,
                     
             -- Ports of fft
-            param          => fft_param,
-            param_addr     => fft_param,
-            param_valid    => fft_param_valid,
-            value          => fft_value,
-            value_valid    => fft_value_valid,
-            output         => fft_output,
-            output_valid   => fft_output_valid
+            param          => mm_param,
+            param_addr     => mm_param,
+            param_valid    => mm_param_valid,
+            value          => mm_value,
+            value_valid    => mm_value_valid,
+            output         => mm_output,
+            output_valid   => mm_output_valid
         );  
 
     clk_process : process
@@ -87,12 +106,7 @@ begin
     stimulus : process
     begin
         wait until rising_edge(clk);
-        
-        fft_prime   <= PRIME;
-        fft_prime_r <= PRIME_RED;
-        fft_prime_s <= std_logic_vector(to_unsigned(PRIME_LEN, fft_prime_len'length));
-        fft_length  <= C_MAX_FFT_LENGTH;
-        
+                
         fft_param_addr <= x"00000000";
         
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop   
@@ -102,22 +116,21 @@ begin
             fft_param_addr <= fft_param_addr + 1;
         end loop;
         
-        fft_param_valid <= '0';
+        mm_param_valid <= '0';
         wait until rising_edge(clk);
-        
-       
-        for i in 0 to C_MAX_FFT_LENGTH - 1 loop
-            fft_value_valid <= '1';
-        	fft_value <= INPUT(i);
+               
+        for i in 0 to C_MAX_POLY_LENGTH - 1 loop
+            mm_value_valid <= '1';
+        	mm_value <= INPUT(i);
         	wait until rising_edge(clk);
         end loop;
         
-        fft_value_valid <= '0';
+        mm_value_valid <= '0';
         
-        wait until output_valid = '1';
+        wait until mm_output_valid = '1';
         
-		for i in 0 to C_MAX_FFT_LENGTH - 1 loop
-			assert fft_output = OUTPUT(i);
+		for i in 0 to C_MAX_POLY_LENGTH - 1 loop
+			assert mm_output = OUTPUT(i);
             wait until rising_edge(clk);
 		end loop;
 

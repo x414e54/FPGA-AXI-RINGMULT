@@ -26,12 +26,17 @@ architecture behavior of tb_crt is
 
     signal clk                  : std_logic := '0';
 
-    --crt       
-    signal crt_value           :  std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0) := (others => '0');
-    signal crt_primes          :  REGISTER_TYPE(C_MAX_FFT_PRIMES-1 downto 0) := (others => (others => '0'));
-    signal crt_primes_red      :  REGISTER_TYPE(C_MAX_FFT_PRIMES-1 downto 0) := (others => (others => '0'));
-    signal crt_prime_len       :  std_logic_vector(16-1 downto 0) := (others => '0');
-    signal crt_remainders      :  REGISTER_TYPE(C_MAX_FFT_PRIMES-1 downto 0) := (others => (others => '0'));
+    --crt
+    signal crt_param            :  std_logic_vector(C_PARAM_WIDTH-1 downto 0) := (others => '0');
+    signal crt_param_addr       :  std_logic_vector(C_PARAM_ADDR_WIDTH-1 downto 0) := (others => '0');
+    signal crt_param_valid      :  std_logic := '0';  
+    signal crt_primes           :  REGISTER_TYPE(C_MAX_FFT_PRIMES-1 downto 0) := (others => (others => '0'));
+    signal crt_primes_red       :  REGISTER_TYPE(C_MAX_FFT_PRIMES-1 downto 0) := (others => (others => '0'));
+    signal crt_prime_len        :  std_logic_vector(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
+    signal crt_value            :  std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0) := (others => '0');
+    signal crt_value_valid      :  std_logic := '0';  
+    signal crt_remainders       :  REGISTER_TYPE(C_MAX_FFT_PRIMES-1 downto 0) := (others => (others => '0'));
+    signal crt_remainders_valid :  std_logic := '0';  
 
     type FOLD_REGISTER_TYPE is array(natural range <>) of REGISTER_TYPE(C_MAX_FFT_PRIMES_FOLDS to 0);
 
@@ -43,6 +48,9 @@ architecture behavior of tb_crt is
                                             --((x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), 
                                             -- (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF")); (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"));
     constant PRIME_LEN : integer := 61; 
+        
+    alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is bs_param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
+    alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is bs_param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
     
 begin
     crt_inst : for i in 0 to C_MAX_FFT_PRIMES - 1 generate
@@ -94,21 +102,25 @@ begin
         		        
         wait until rising_edge(clk);
         
-        param_addr <= C_PARAM_ADDR_FOLDS_START;
+        param_addr_top <= C_PARAM_ADDR_FOLDS_START;
         
         for i in 0 to C_MAX_FFT_PRIMES - 1 loop
+            param_addr_bottom <= x"0000";
             for j in 0 to C_MAX_FFT_PRIMES_FOLDS - 1 loop
                 param <= PRIMES_FOLD(i)(j);
                 wait until rising_edge(clk);
-                param_addr <= param_addr + 1;
+                param_addr_bottom <= param_addr_bottom + 1;
             end loop;
+            param_addr_top <= param_addr_top + 1;
         end loop;
         
 		crt_value <= INPUT;
+		crt_value_valid <= '1';
+		wait until rising_edge(clk);
+        crt_value_valid <= '0';
         
-        wait until rising_edge(clk);
-        wait for 500ns;
-
+        wait until crt_remainders_valid = '1';
+        
 		for i in 0 to C_MAX_FFT_PRIMES - 1 loop
 			assert crt_remainders(i) = OUTPUT(i);
 		end loop;
