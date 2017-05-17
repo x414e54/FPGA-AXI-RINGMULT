@@ -46,10 +46,12 @@ entity rem_fold_reg is
 end rem_fold_reg;
 
 architecture Behavioral of rem_fold_reg is
-signal a_reg : unsigned(C_INPUT_WIDTH-1 downto 0) := (others => '0');
-alias a_reg_top : unsigned(C_MAX_MODULUS_WIDTH-1 downto 0) is a_reg(C_INPUT_WIDTH-1 downto C_INPUT_WIDTH-C_MAX_MODULUS_WIDTH);
-signal b_reg : unsigned((2*C_MAX_MODULUS_WIDTH)-1 downto 0) := (others => '0');
-signal c_reg : unsigned(C_INPUT_WIDTH-C_MAX_MODULUS_WIDTH-1 downto 0) := (others => '0');
+
+    signal a_reg : unsigned(C_INPUT_WIDTH-1 downto 0) := (others => '0');
+    alias a_reg_top : unsigned(C_MAX_MODULUS_WIDTH-1 downto 0) is a_reg(C_INPUT_WIDTH-1 downto C_INPUT_WIDTH-C_MAX_MODULUS_WIDTH);
+    signal b_reg : unsigned((2*C_MAX_MODULUS_WIDTH)-1 downto 0) := (others => '0');
+    signal c_reg : unsigned(C_INPUT_WIDTH-C_MAX_MODULUS_WIDTH-1 downto 0) := (others => '0');
+    
 begin
     
     state_proc : process (clk) is

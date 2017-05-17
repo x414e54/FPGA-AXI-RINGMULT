@@ -58,17 +58,18 @@ entity rem_fold is
 end rem_fold;
 
 architecture Behavioral of rem_fold is
-type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0);
 
-type fold_array is array(natural range <>) of std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0);
-signal red_reg : std_logic_vector((2*C_MAX_MODULUS_WIDTH)-1 downto 0) := (others => '0');
-signal fold_reg : fold_array(0 to C_MAX_MODULUS_FOLDS) := (others => (others => '0'));
-signal fold_carry_reg : std_logic_vector(C_MAX_MODULUS_FOLDS-1 downto 0) := (others => '0');
+    type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0);
 
-signal modulus_ms : REGISTER_TYPE(0 to C_MAX_MODULUS_FOLDS-1) := (others => '0');
+    type fold_array is array(natural range <>) of std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0);
+    signal red_reg : std_logic_vector((2*C_MAX_MODULUS_WIDTH)-1 downto 0) := (others => '0');
+    signal fold_reg : fold_array(0 to C_MAX_MODULUS_FOLDS) := (others => (others => '0'));
+    signal fold_carry_reg : std_logic_vector(C_MAX_MODULUS_FOLDS-1 downto 0) := (others => '0');
 
-alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
-alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
+    signal modulus_ms : REGISTER_TYPE(0 to C_MAX_MODULUS_FOLDS-1) := (others => '0');
+
+    alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
+    alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
          
 begin
     fold_reg(0) <= value;

@@ -47,12 +47,13 @@ entity fft_stage is
 end fft_stage;
 
 architecture Behavioral of fft_stage is
-type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
-    
-signal regs : REGISTER_TYPE(0 to 8-1)  := (others => (others => '0'));
 
-signal dif_0_shift : REGISTER_TYPE(0 to C_STAGE_LENGTH/2-1)  := (others => (others => '0'));
-signal dif_1_shift : REGISTER_TYPE(0 to C_STAGE_LENGTH/4-1)  := (others => (others => '0'));
+    type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
+    
+    signal regs : REGISTER_TYPE(0 to 8-1)  := (others => (others => '0'));
+
+    signal dif_0_shift : REGISTER_TYPE(0 to C_STAGE_LENGTH/2-1)  := (others => (others => '0'));
+    signal dif_1_shift : REGISTER_TYPE(0 to C_STAGE_LENGTH/4-1)  := (others => (others => '0'));
 
 begin
   

@@ -47,7 +47,8 @@ entity mulred is
 end mulred;
 
 architecture Behavioral of mulred is
-signal c_reg : std_logic_vector(2*C_MAX_MODULUS_WIDTH-1 downto 0) := (others => '0');
+
+    signal c_reg : std_logic_vector(2*C_MAX_MODULUS_WIDTH-1 downto 0) := (others => '0');
 
 begin
     red_x : entity work.red

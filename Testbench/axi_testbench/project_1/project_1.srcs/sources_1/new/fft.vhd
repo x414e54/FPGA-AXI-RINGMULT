@@ -61,27 +61,27 @@ end fft;
 
 architecture Behavioral of fft is
 
-type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
+    type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
     
-function reg_index(d : integer) return integer is
-    variable res : natural;
-begin
-    res := (2**d) - 1;
-return res;
-end function reg_index;
+    function reg_index(d : integer) return integer is
+        variable res : natural;
+        begin
+            res := (2**d) - 1;
+        return res;
+    end function reg_index;
 
-constant NUM_STAGES : integer := integer(ceil(log2(real(C_MAX_FFT_LENGTH)))); 
+    constant NUM_STAGES : integer := integer(ceil(log2(real(C_MAX_FFT_LENGTH)))); 
 
-signal counter : integer := 0;
-signal length  : integer := 0;
+    signal counter : integer := 0;
+    signal length  : integer := 0;
 
-signal w_table : REGISTER_TYPE(0 to (C_MAX_FFT_LENGTH + 3) - 1)  := (others => (others => '0'));
+    signal w_table : REGISTER_TYPE(0 to (C_MAX_FFT_LENGTH + 3) - 1)  := (others => (others => '0'));
 
-signal w_val   : REGISTER_TYPE(0 to NUM_STAGES)        := (others => (others => '0'));    
-signal regs    : REGISTER_TYPE(0 to NUM_STAGES)        := (others => (others => '0'));
+    signal w_val   : REGISTER_TYPE(0 to NUM_STAGES)        := (others => (others => '0'));    
+    signal regs    : REGISTER_TYPE(0 to NUM_STAGES)        := (others => (others => '0'));
 
-alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
-alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
+    alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
+    alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
 
 begin
     

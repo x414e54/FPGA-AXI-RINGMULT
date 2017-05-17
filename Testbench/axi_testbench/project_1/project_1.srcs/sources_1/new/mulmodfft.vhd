@@ -78,7 +78,10 @@ architecture Behavioral of mulmod is
     signal mul_outputs       : REGISTER_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
     signal ibs_outputs       : REGISTER_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
     signal ibs_outputs_valid : VALID_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
-
+    
+    alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
+    alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
+        
 begin
         crt : for i in 0 to C_MAX_FFT_PRIMES - 1 generate
             prime_i : entity work.rem_fold
