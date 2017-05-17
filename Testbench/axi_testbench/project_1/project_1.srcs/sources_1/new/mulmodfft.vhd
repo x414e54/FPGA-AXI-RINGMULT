@@ -22,7 +22,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.crt_pkg.all;
 
-entity mulmod is
+entity mulmodfft is
 	generic (
 	    C_PARAM_WIDTH                        : integer   := 64;
         C_PARAM_ADDR_WIDTH                   : integer   := 32;
@@ -55,9 +55,9 @@ entity mulmod is
 		value          : in std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0)      := (others => '0');       
         output         : in std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0)      := (others => '0')
 	);  
-end mulmod;
+end mulmodfft;
 
-architecture Behavioral of mulmod is
+architecture Behavioral of mulmodfft is
 
     type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
     type VALID_TYPE is array(natural range <>) of std_logic;
