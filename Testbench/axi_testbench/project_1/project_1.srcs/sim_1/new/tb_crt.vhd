@@ -49,20 +49,20 @@ architecture behavior of tb_crt is
                                             -- (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF")); (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"));
     constant PRIME_LEN : integer := 61; 
         
-    alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is bs_param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
-    alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is bs_param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
+    alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is crt_param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
+    alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is crt_param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
     
 begin
     crt_inst : for i in 0 to C_MAX_FFT_PRIMES - 1 generate
         prime_i : entity work.rem_fold
             generic map (
                 C_PARAM_WIDTH       => C_PARAM_WIDTH,
-                C_PARAM_ADDR_WIDTH  => C_PARAM_ADDR_WITH,
+                C_PARAM_ADDR_WIDTH  => C_PARAM_ADDR_WIDTH,
                 C_PARAM_ADDR_FOLDS  => C_PARAM_ADDR_FOLDS_START + i,
                 C_LENGTH_WIDTH      => C_LENGTH_WIDTH,	
                 C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
                 C_MAX_INPUT_WIDTH   => C_MAX_CRT_PRIME_WIDTH,
-                C_MAX_INPUT_LEN     => C_MAX_CRT_PRIME_WIDTH/C_MAX_MODULUS_WIDTH,
+                C_MAX_INPUT_LEN     => C_MAX_CRT_PRIME_WIDTH/C_MAX_FFT_PRIME_WIDTH,
                 C_MAX_MODULUS_FOLDS => C_MAX_FFT_PRIMES_FOLDS
             )
             port map (
@@ -76,7 +76,7 @@ begin
                 value	     => crt_value,
                 remainder    => crt_remainders(i)
          );
-    end generate crt;
+    end generate crt_inst;
  
     clk_process : process
     begin
@@ -107,9 +107,11 @@ begin
         for i in 0 to C_MAX_FFT_PRIMES - 1 loop
             param_addr_bottom <= 0;
             for j in 0 to C_MAX_FFT_PRIMES_FOLDS - 1 loop
-                param <= PRIMES_FOLD(i)(j);
+                crt_param <= PRIMES_FOLD(i)(j);
+                crt_param_valid <= '1';
                 wait until rising_edge(clk);
                 param_addr_bottom <= param_addr_bottom + 1;
+                crt_param_valid <= '0';
             end loop;
             param_addr_top <= param_addr_top + 1;
         end loop;

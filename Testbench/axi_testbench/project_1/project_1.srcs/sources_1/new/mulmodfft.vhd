@@ -63,8 +63,10 @@ architecture Behavioral of mulmodfft is
     type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
     type VALID_TYPE is array(natural range <>) of std_logic;
     
-    signal length      : integer := 0;
-    signal fft_length  : integer := 0;
+    signal mul_table_idx : integer := 0;
+     
+    signal length      : std_logic_vector(C_LENGTH_WIDTH-1 downto 0)   := (others => '0');
+    signal fft_length  : std_logic_vector(C_LENGTH_WIDTH-1 downto 0)   := (others => '0');
 
     signal mul_table   : REGISTER_TYPE(0 to (C_MAX_POLY_LENGTH*C_MAX_FFT_PRIMES)-1)  := (others => (others => '0'));
 
@@ -73,12 +75,13 @@ architecture Behavioral of mulmodfft is
     signal prime_s     : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 
     signal remainders        : REGISTER_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
-    signal remainders_valid  : VALID_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
+    signal remainders_valid  : VALID_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => '0');
     signal bs_outputs        : REGISTER_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
-    signal bs_outputs_valid  : VALID_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
+    signal bs_outputs_valid  : VALID_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => '0');
     signal mul_outputs       : REGISTER_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
+    signal mul_outputs_valid : VALID_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => '0');
     signal ibs_outputs       : REGISTER_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
-    signal ibs_outputs_valid : VALID_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
+    signal ibs_outputs_valid : VALID_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => '0');
     
     alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
     alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
@@ -88,12 +91,12 @@ begin
             prime_i : entity work.rem_fold
                 generic map (
                     C_PARAM_WIDTH       => C_PARAM_WIDTH,
-                    C_PARAM_ADDR_WIDTH  => C_PARAM_ADDR_WITH,
+                    C_PARAM_ADDR_WIDTH  => C_PARAM_ADDR_WIDTH,
                     C_PARAM_ADDR_FOLDS  => C_PARAM_ADDR_FOLDS_START + i,
                     C_LENGTH_WIDTH      => C_LENGTH_WIDTH,	
                     C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
                     C_MAX_INPUT_WIDTH   => C_MAX_CRT_PRIME_WIDTH,
-                    C_MAX_INPUT_LEN     => C_MAX_INPUT_WIDTH/C_MAX_MODULUS_WIDTH,
+                    C_MAX_INPUT_LEN     => C_MAX_CRT_PRIME_WIDTH/C_MAX_FFT_PRIME_WIDTH,
                     C_MAX_MODULUS_FOLDS => C_MAX_FFT_PRIMES_FOLDS
                     )
                 port map (
@@ -133,10 +136,10 @@ begin
                     prime_s        => prime_s,
                     fft_length     => fft_length,
                     length         => length,
-                    values         => remainders,
-                    values_valid   => remainders_valid,
-                    outputs        => bs_outputs,
-                    outputs_valid  => bs_outputs_valid
+                    value          => remainders(i),
+                    value_valid    => remainders_valid(i),
+                    output         => bs_outputs(i),
+                    output_valid   => bs_outputs_valid(i)
                 );  
         end generate bs;
             	
@@ -182,10 +185,10 @@ begin
                     prime_s        => prime_s,
                     fft_length     => fft_length,
                     length         => length,
-                    values         => mul_outputs,
-                    values_valid   => bs_outputs_valid_delay,
-                    outputs        => ibs_outputs,
-                    outputs_valid  => ibs_outputs_valid
+                    value          => mul_outputs(i),
+                    value_valid    => mul_outputs_valid(i),
+                    output         => ibs_outputs(i),
+                    output_valid   => ibs_outputs_valid(i)
                 );  
         end generate ibs;
 
