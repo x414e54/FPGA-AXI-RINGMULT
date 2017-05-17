@@ -34,7 +34,7 @@ entity rem_fold is
 	generic (
 	    C_PARAM_WIDTH       : integer    := 64;
         C_PARAM_ADDR_WIDTH  : integer    := 32;
-        C_PARAM_ADDR_TOP    : integer    := x"0000";
+        C_PARAM_ADDR_FOLDS  : integer    := x"0000";
         C_LENGTH_WIDTH      : integer    := 16;	
 		C_MAX_MODULUS_WIDTH : integer    := 64;
 		C_MAX_INPUT_WIDTH   : integer    := 256;
@@ -105,7 +105,7 @@ begin
        state_proc : process (clk) is
        begin	
            if rising_edge(clk) then
-               if (param_valid = '1' and param_addr = param_addr_top) then
+               if (param_valid = '1' and param_addr_top = C_PARAM_ADDR_FOLDS) then
                    modulus_ms(param_addr_bottom) <= param;
                end if;
            end if;

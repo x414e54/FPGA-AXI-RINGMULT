@@ -6,9 +6,10 @@ entity tb_fft is
     generic (	
         C_PARAM_WIDTH            : integer   := 64;
         C_PARAM_ADDR_WIDTH       : integer   := 32;
-        C_LENGTH_WIDTH           : integer   := 16;		
-        C_MAX_FFT_LENGTH         : integer   := 16;	
-        C_MAX_FFT_PRIME_WIDTH    : integer   := 64
+        C_PARAM_ADDR_FFT_TABLE   : integer   := x"0000";
+        C_LENGTH_WIDTH           : integer   := 16;
+        C_MAX_FFT_PRIME_WIDTH    : integer   := 64;	
+        C_MAX_FFT_LENGTH         : integer   := 16	
     );
     --port ();
 end tb_fft;
@@ -47,9 +48,12 @@ begin
 
     fft_inst : entity work.fft
         generic map (
-            C_MAX_FFT_LENGTH       => C_MAX_FFT_LENGTH,
+            C_PARAM_WIDTH          => C_PARAM_WIDTH,
+            C_PARAM_ADDR_WIDTH     => C_PARAM_ADDR_WIDTH,
+            C_PARAM_ADDR_FFT_TABLE => C_PARAM_ADDR_FFT_TABLE,
+            C_LENGTH_WIDTH         => C_LENGTH_WIDTH,
             C_MAX_FFT_PRIME_WIDTH  => C_MAX_FFT_PRIME_WIDTH,
-            C_PARAM_ADDR_TOP       => x"0000"
+            C_MAX_FFT_LENGTH       => C_MAX_FFT_LENGTH
         )
         port map (
             clk => clk,

@@ -35,7 +35,7 @@ entity fft is
 	generic (
         C_PARAM_WIDTH           : integer   := 64;
         C_PARAM_ADDR_WIDTH      : integer   := 32;
-        C_PARAM_ADDR_TOP        : integer   := x"0000";
+        C_PARAM_ADDR_FFT_TABLE  : integer   := x"0000";
         C_LENGTH_WIDTH          : integer   := 16;	
 		C_MAX_FFT_PRIME_WIDTH   : integer   := 64;
 		C_MAX_FFT_LENGTH        : integer   := 16384
@@ -109,7 +109,7 @@ begin
     state_proc : process (clk) is
         begin	
             if rising_edge(clk) then
-                if (param_valid = '1' and param_addr_top = C_PARAM_ADDR_TOP) then
+                if (param_valid = '1' and param_addr_top = C_PARAM_ADDR_FFT_TABLE) then
                     w_table(param_addr_bottom) <= param;
                 end if;
                 --if (value_valid = '1')

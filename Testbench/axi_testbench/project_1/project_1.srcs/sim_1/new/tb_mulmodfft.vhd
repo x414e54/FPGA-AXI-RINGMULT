@@ -4,11 +4,26 @@ use ieee.numeric_std.all;
 
 entity tb_mulmodfft is
     generic (	
-        C_PARAM_WIDTH            : integer   := 64;
-        C_PARAM_ADDR_WIDTH       : integer   := 32;
-        C_LENGTH_WIDTH           : integer   := 16;		
-        C_MAX_FFT_LENGTH         : integer   := 16;	
-        C_MAX_FFT_PRIME_WIDTH    : integer   := 64
+	    C_PARAM_WIDTH                        : integer   := 64;
+        C_PARAM_ADDR_WIDTH                   : integer   := 32;
+        ---
+        C_LENGTH_WIDTH                       : integer   := 16;	
+		C_MAX_FFT_PRIME_WIDTH                : integer   := 64;
+        C_MAX_FFT_LENGTH                     : integer   := 16384; 
+        C_MAX_POLY_LENGTH                    : integer   := 7710; 
+		C_MAX_CRT_PRIME_WIDTH                : integer   := 256; 
+		C_MAX_FFT_PRIMES		             : integer   := 9;
+		C_MAX_FFT_PRIMES_FOLDS               : integer   := (256/64)-2;--C_MAX_CRT_PRIME_WIDTH / C_MAX_FFT_PRIME_WIDTH - 2
+		---
+		C_PARAM_ADDR_MUL_TABLE_START         : integer := x"0000";
+        C_PARAM_ADDR_FFT_TABLE_START         : integer := C_PARAM_ADDR_MUL_TABLE_START + C_MAX_FFT_PRIMES;
+        C_PARAM_ADDR_IFFT_TABLE_START        : integer := C_PARAM_ADDR_FFT_TABLE_START + C_MAX_FFT_PRIMES;
+        C_PARAM_ADDR_BS_MUL_TABLE_START      : integer := C_PARAM_ADDR_IFFT_TABLE_START + C_MAX_FFT_PRIMES;
+        C_PARAM_ADDR_BS_MUL_FFT_TABLE_START  : integer := C_PARAM_ADDR_BS_MUL_TABLE_START + C_MAX_FFT_PRIMES;
+        C_PARAM_ADDR_IBS_MUL_TABLE_START     : integer := C_PARAM_ADDR_BS_MUL_FFT_TABLE_START + C_MAX_FFT_PRIMES;
+        C_PARAM_ADDR_IBS_MUL_FFT_TABLE_START : integer := C_PARAM_ADDR_IBS_MUL_TABLE_START + C_MAX_FFT_PRIMES;
+        C_PARAM_ADDR_FOLDS_START             : integer := C_PARAM_ADDR_IBS_MUL_FFT_TABLE_START + C_MAX_FFT_PRIMES
+        ---
     );
     --port ();
 end tb_fft;
@@ -20,18 +35,14 @@ architecture behavior of tb_mulmodfft is
 
     signal clk                  : std_logic := '0';
 
-    -- fft
-    signal fft_param           :  std_logic_vector(C_PARAM_WIDTH-1 downto 0) := (others => '0');
-    signal fft_param_addr      :  std_logic_vector(C_PARAM_ADDR_WIDTH-1 downto 0) := (others => '0');
-    signal fft_param_valid     :  std_logic := '0';
-    signal fft_prime           :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
-    signal fft_prime_r         :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
-    signal fft_prime_s         :  std_logic_vector(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
-    signal fft_length          :  std_logic_vector(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
-    signal fft_value           :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
-    signal fft_value_valid     :  std_logic := '0';
-    signal fft_output          :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
-    signal fft_output_valid    :  std_logic := '0';
+    -- mm
+    signal mm_param           :  std_logic_vector(C_PARAM_WIDTH-1 downto 0) := (others => '0');
+    signal mm_param_addr      :  std_logic_vector(C_PARAM_ADDR_WIDTH-1 downto 0) := (others => '0');
+    signal mm_param_valid     :  std_logic := '0';
+    signal mm_value           :  std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0) := (others => '0');
+    signal mm_value_valid     :  std_logic := '0';
+    signal mm_output          :  std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0) := (others => '0');
+    signal mm_output_valid    :  std_logic := '0';
                     
     type fft_array is array(0 to C_MAX_FFT_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
     type fft_table_array is array(0 to C_MAX_FFT_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
@@ -47,9 +58,7 @@ begin
 
     mulmodfft_inst : entity work.mulmodfft
         generic map (
-            C_MAX_FFT_LENGTH       => C_MAX_FFT_LENGTH,
-            C_MAX_FFT_PRIME_WIDTH  => C_MAX_FFT_PRIME_WIDTH,
-            C_PARAM_ADDR_TOP       => x"0000"
+
         )
         port map (
             clk => clk,
@@ -58,10 +67,6 @@ begin
             param          => fft_param,
             param_addr     => fft_param,
             param_valid    => fft_param_valid,
-            prime          => fft_prime,
-            prime_r        => fft_prime_r,
-            prime_s        => fft_prime_s,
-            length         => fft_length,
             value          => fft_value,
             value_valid    => fft_value_valid,
             output         => fft_output,

@@ -33,7 +33,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity mulred is
 	generic (
 		C_MAX_MODULUS_WIDTH : integer    := 64;
-		C_MAX_INPUT_WIDTH   : integer    := 128
+		C_MAX_INPUT_WIDTH   : integer    := 2*C_MAX_MODULUS_WIDTH
 	);
 	port (
 		clk       : in std_logic;

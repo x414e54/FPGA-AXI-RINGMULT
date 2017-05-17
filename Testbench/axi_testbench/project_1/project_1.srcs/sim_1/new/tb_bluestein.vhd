@@ -5,13 +5,16 @@ use work.fft_stage_pkg.all;
 
 entity tb_bs is
     generic (		
-        C_PARAM_WIDTH                : integer   := 64;
-        C_PARAM_ADDR_WIDTH           : integer   := 32;
-        C_PARAM_ADDR_TOP             : integer   := b"0000";
-        C_LENGTH_WIDTH               : integer   := 16;	
-        C_FFT_LENGTH                 : integer   := 64;
-        C_BLUESTEIN_LENGTH           : integer   := 18;	
-        C_MAX_FFT_PRIME_WIDTH        : integer   := 64	
+        C_PARAM_WIDTH              : integer   := 64;
+        C_PARAM_ADDR_WIDTH         : integer   := 32;
+        C_PARAM_ADDR_MUL_TABLE     : integer   := x"0000";
+        C_PARAM_ADDR_MUL_FFT_TABLE : integer   := x"0001";
+        C_PARAM_ADDR_FFT_TABLE     : integer   := x"0002";
+        C_PARAM_ADDR_IFFT_TABLE    : integer   := x"0003";
+        C_LENGTH_WIDTH             : integer   := 16;	
+        C_FFT_LENGTH               : integer   := 64;
+        C_BLUESTEIN_LENGTH         : integer   := 18;	
+        C_MAX_FFT_PRIME_WIDTH      : integer   := 64	
     );
     --port ();
 end tb_bs;
@@ -53,13 +56,16 @@ begin
 
     bs_inst : entity work.bluestein_fft
         generic map (
-            C_PARAM_WIDTH          => C_PARAM_WIDTH,
-            C_PARAM_ADDR_WIDTH     => C_PARAM_ADDR_WIDTH,
-            C_PARAM_ADDR_TOP       => C_PARAM_ADDR_TOP,
-            C_LENGTH_WIDTH         => C_LENGTH_WIDTH, 
-            C_MAX_FFT_LENGTH       => C_MAX_FFT_LENGTH, 
-            C_MAX_BLUESTEIN_LENGTH => C_MAX_BLUESTEIN_LENGTH,
-            C_MAX_FFT_PRIME_WIDTH  => C_MAX_FFT_PRIME_WIDTH
+            C_PARAM_WIDTH              => C_PARAM_WIDTH,
+            C_PARAM_ADDR_WIDTH         => C_PARAM_ADDR_WIDTH,
+            C_PARAM_ADDR_MUL_TABLE     => C_PARAM_ADDR_MUL_TABLE,
+            C_PARAM_ADDR_MUL_FFT_TABLE => C_PARAM_ADDR_MUL_FFT_TABLE,
+            C_PARAM_ADDR_FFT_TABLE     => C_PARAM_ADDR_FFT_TABLE,
+            C_PARAM_ADDR_IFFT_TABLE    => C_PARAM_ADDR_IFFT_TABLE,
+            C_LENGTH_WIDTH             => C_LENGTH_WIDTH, 
+            C_MAX_FFT_LENGTH           => C_MAX_FFT_LENGTH, 
+            C_MAX_BLUESTEIN_LENGTH     => C_MAX_BLUESTEIN_LENGTH,
+            C_MAX_FFT_PRIME_WIDTH      => C_MAX_FFT_PRIME_WIDTH
         )
         port map (
             clk => clk,
@@ -101,27 +107,28 @@ begin
         bs_fft_length <= C_FFT_LENGTH;
         bs_length <= C_BLUESTEIN_LENGTH;
         
+        bs_param_addr
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop
             param <= W_TABLE(i);
-            bs_param_valid = '1';
+            bs_param_valid <= '1';
             wait until rising_edge(clk);
         end loop;
         
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop
             param <= WI_TABLE(i);
-            bs_param_valid = '1';
+            bs_param_valid <= '1';
             wait until rising_edge(clk);
         end loop;
         
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop
             param <= MUL_FFT_TABLE(i);
-            bs_param_valid = '1';
+            bs_param_valid <= '1';
             wait until rising_edge(clk);
         end loop;
                           
         for i in 0 to C_MAX_BLUESTEIN_LENGTH - 1 loop
             param <= MUL_TABLE(i);
-            bs_param_valid = '1';
+            bs_param_valid <= '1';
             wait until rising_edge(clk);
         end loop;
         

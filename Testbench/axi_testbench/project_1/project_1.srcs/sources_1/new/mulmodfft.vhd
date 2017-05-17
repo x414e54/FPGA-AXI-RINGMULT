@@ -24,16 +24,26 @@ use work.crt_pkg.all;
 
 entity mulmod is
 	generic (
-	    C_PARAM_WIDTH           : integer   := 64;
-        C_PARAM_ADDR_WIDTH      : integer   := 32;
-        C_PARAM_ADDR_TOP        : integer   := x"0000";
-        C_LENGTH_WIDTH          : integer   := 16;	
-		C_MAX_FFT_PRIME_WIDTH   : integer   := 64;
-        C_MAX_FFT_LENGTH        : integer   := 16384; 
-        C_MAX_POLY_LENGTH       : integer   := 7710; 
-		C_MAX_CRT_PRIME_WIDTH   : integer   := 256; 
-		C_MAX_FFT_PRIMES		: integer   := 9;
-		C_MAX_FFT_PRIMES_FOLDS  : integer   := (256/64)-2--C_MAX_CRT_PRIME_WIDTH / C_MAX_FFT_PRIME_WIDTH - 2
+	    C_PARAM_WIDTH                        : integer   := 64;
+        C_PARAM_ADDR_WIDTH                   : integer   := 32;
+        ---
+        C_LENGTH_WIDTH                       : integer   := 16;	
+		C_MAX_FFT_PRIME_WIDTH                : integer   := 64;
+        C_MAX_FFT_LENGTH                     : integer   := 16384; 
+        C_MAX_POLY_LENGTH                    : integer   := 7710; 
+		C_MAX_CRT_PRIME_WIDTH                : integer   := 256; 
+		C_MAX_FFT_PRIMES		             : integer   := 9;
+		C_MAX_FFT_PRIMES_FOLDS               : integer   := (256/64)-2;--C_MAX_CRT_PRIME_WIDTH / C_MAX_FFT_PRIME_WIDTH - 2
+		---
+		C_PARAM_ADDR_MUL_TABLE_START         : integer := x"0000";
+        C_PARAM_ADDR_FFT_TABLE_START         : integer := C_PARAM_ADDR_MUL_TABLE_START + C_MAX_FFT_PRIMES;
+        C_PARAM_ADDR_IFFT_TABLE_START        : integer := C_PARAM_ADDR_FFT_TABLE_START + C_MAX_FFT_PRIMES;
+        C_PARAM_ADDR_BS_MUL_TABLE_START      : integer := C_PARAM_ADDR_IFFT_TABLE_START + C_MAX_FFT_PRIMES;
+        C_PARAM_ADDR_BS_MUL_FFT_TABLE_START  : integer := C_PARAM_ADDR_BS_MUL_TABLE_START + C_MAX_FFT_PRIMES;
+        C_PARAM_ADDR_IBS_MUL_TABLE_START     : integer := C_PARAM_ADDR_BS_MUL_FFT_TABLE_START + C_MAX_FFT_PRIMES;
+        C_PARAM_ADDR_IBS_MUL_FFT_TABLE_START : integer := C_PARAM_ADDR_IBS_MUL_TABLE_START + C_MAX_FFT_PRIMES;
+        C_PARAM_ADDR_FOLDS_START             : integer := C_PARAM_ADDR_IBS_MUL_FFT_TABLE_START + C_MAX_FFT_PRIMES
+        ---
 	);
 	port (
 		clk            : in std_logic                                                := '0';
@@ -75,7 +85,7 @@ begin
                 generic map (
                     C_PARAM_WIDTH       => C_PARAM_WIDTH,
                     C_PARAM_ADDR_WIDTH  => C_PARAM_ADDR_WITH,
-                    C_PARAM_ADDR_TOP    => C_PARAM_ADDR_TOP + 100 + i,
+                    C_PARAM_ADDR_FOLDS  => C_PARAM_ADDR_FOLDS_START + i,
                     C_LENGTH_WIDTH      => C_LENGTH_WIDTH,	
                     C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
                     C_MAX_INPUT_WIDTH   => C_MAX_CRT_PRIME_WIDTH,
@@ -98,13 +108,16 @@ begin
         bs : for i in 0 to C_MAX_FFT_PRIMES - 1 generate	
             bs_i : entity work.bluestein_fft
                 generic map (
-            	    C_PARAM_WIDTH          => C_PARAM_WIDTH,
-                    C_PARAM_ADDR_WIDTH     => C_PARAM_ADDR_WIDTH,
-                    C_PARAM_ADDR_TOP       => C_PARAM_ADDR_TOP + 200,
-                    C_LENGTH_WIDTH         => C_LENGTH_WIDTH,	
-            		C_MAX_FFT_PRIME_WIDTH  => C_MAX_FFT_PRIME_WIDTH,
-                	C_MAX_BLUESTEIN_LENGTH => C_MAX_POLY_LENGTH, 
-            		C_MAX_FFT_LENGTH       => C_MAX_FFT_LENGTH 
+            	    C_PARAM_WIDTH              => C_PARAM_WIDTH,
+                    C_PARAM_ADDR_WIDTH         => C_PARAM_ADDR_WIDTH,
+                    C_PARAM_ADDR_MUL_TABLE     => C_PARAM_ADDR_BS_MUL_TABLE_START + i,
+                    C_PARAM_ADDR_MUL_FFT_TABLE => C_PARAM_ADDR_BS_MUL_FFT_TABLE_START + i, 
+                    C_PARAM_ADDR_FFT_TABLE     => C_PARAM_ADDR_FFT_TABLE_START + i,
+                    C_PARAM_ADDR_IFFT_TABLE    => C_PARAM_ADDR_IFFT_TABLE_START + i,
+                    C_LENGTH_WIDTH             => C_LENGTH_WIDTH,	
+            		C_MAX_FFT_PRIME_WIDTH      => C_MAX_FFT_PRIME_WIDTH,
+                	C_MAX_BLUESTEIN_LENGTH     => C_MAX_POLY_LENGTH, 
+            		C_MAX_FFT_LENGTH           => C_MAX_FFT_LENGTH 
                 )
                 port map (
                     clk            => clk,
@@ -142,13 +155,16 @@ begin
         ibs : for i in 0 to C_MAX_FFT_PRIMES - 1 generate	
             ibs_i : entity work.bluestein_fft
                 generic map (
-                    C_PARAM_WIDTH          => C_PARAM_WIDTH,
-                    C_PARAM_ADDR_WIDTH     => C_PARAM_ADDR_WIDTH,
-                    C_PARAM_ADDR_TOP       => C_PARAM_ADDR_TOP + 300,
-                    C_LENGTH_WIDTH         => C_LENGTH_WIDTH,	
-                    C_MAX_FFT_PRIME_WIDTH  => C_MAX_FFT_PRIME_WIDTH,
-                    C_MAX_BLUESTEIN_LENGTH => C_MAX_POLY_LENGTH, 
-                    C_MAX_FFT_LENGTH       => C_MAX_FFT_LENGTH
+                    C_PARAM_WIDTH              => C_PARAM_WIDTH,
+                    C_PARAM_ADDR_WIDTH         => C_PARAM_ADDR_WIDTH,
+                    C_PARAM_ADDR_MUL_TABLE     => C_PARAM_ADDR_IBS_MUL_TABLE_START + i,
+                    C_PARAM_ADDR_MUL_FFT_TABLE => C_PARAM_ADDR_IBS_MUL_FFT_TABLE_START + i, 
+                    C_PARAM_ADDR_FFT_TABLE     => C_PARAM_ADDR_FFT_TABLE_START + i,
+                    C_PARAM_ADDR_IFFT_TABLE    => C_PARAM_ADDR_IFFT_TABLE_START + i,
+                    C_LENGTH_WIDTH             => C_LENGTH_WIDTH,	
+                    C_MAX_FFT_PRIME_WIDTH      => C_MAX_FFT_PRIME_WIDTH,
+                    C_MAX_BLUESTEIN_LENGTH     => C_MAX_POLY_LENGTH, 
+                    C_MAX_FFT_LENGTH           => C_MAX_FFT_LENGTH 
                 ) 
                 port map (
                     clk            => clk,
