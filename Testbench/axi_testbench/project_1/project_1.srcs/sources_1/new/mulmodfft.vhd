@@ -77,10 +77,10 @@ begin
                     C_PARAM_ADDR_WIDTH  => C_PARAM_ADDR_WITH,
                     C_PARAM_ADDR_TOP    => C_PARAM_ADDR_TOP + 100 + i,
                     C_LENGTH_WIDTH      => C_LENGTH_WIDTH,	
-                    C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH
-                    --C_MAX_INPUT_WIDTH => ,
-                    --C_MAX_INPUT_LEN => ,
-                    --C_MAX_MODULUS_FOLDS => 
+                    C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
+                    C_MAX_INPUT_WIDTH   => C_MAX_CRT_PRIME_WIDTH,
+                    C_MAX_INPUT_LEN     => C_MAX_INPUT_WIDTH/C_MAX_MODULUS_WIDTH,
+                    C_MAX_MODULUS_FOLDS => C_MAX_FFT_PRIMES_FOLDS
                     )
                 port map (
                     clk	         => clk,

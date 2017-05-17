@@ -5,9 +5,13 @@ use work.fft_stage_pkg.all;
 
 entity tb_bs is
     generic (		
-        C_MAX_FFT_LENGTH             : integer   := 64;
-        C_MAX_BLUESTEIN_LENGTH       : integer   := 18;	
-        C_MAX_FFT_PRIME_WIDTH        : integer   := 64;	
+        C_PARAM_WIDTH                : integer   := 64;
+        C_PARAM_ADDR_WIDTH           : integer   := 32;
+        C_PARAM_ADDR_TOP             : integer   := b"0000";
+        C_LENGTH_WIDTH               : integer   := 16;	
+        C_FFT_LENGTH                 : integer   := 64;
+        C_BLUESTEIN_LENGTH           : integer   := 18;	
+        C_MAX_FFT_PRIME_WIDTH        : integer   := 64	
     );
     --port ();
 end tb_bs;
@@ -19,13 +23,18 @@ architecture behavior of tb_bs is
 
     signal clk                  : std_logic := '0';
 
-    --bs       
-    signal bs_values          :  stage_io(0 to C_MAX_FFT_PRIMES-1) := (others => (others => '0'));
-    signal bs_prime           :  stage_io(0 to C_MAX_FFT_PRIMES-1) := (others => (others => '0'));
-    signal bs_prime_red       :  stage_io(0 to C_MAX_FFT_PRIMES-1) := (others => (others => '0'));
-    signal bs_prime_len       :  std_logic_vector(16-1 downto 0) := (others => '0');
-    signal bs_output         :  stage_io(0 to C_MAX_FFT_PRIMES-1) := (others => (others => '0'));
-        
+    --bs       ');
+    signal bs_param           :  std_logic_vector(C_PARAM_WIDTH-1 downto 0) := (others => '0');
+    signal bs_param_addr      :  std_logic_vector(C_PARAM_ADDR_WIDTH-1 downto 0) := (others => '0');
+    signal bs_param_valid     :  std_logic := '0';
+    signal bs_prime           :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
+    signal bs_prime_red       :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
+    signal bs_prime_len       :  std_logic_vector(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
+    signal bs_value           :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
+    signal bs_value_valid     :  std_logic := '0';
+    signal bs_output          :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
+    signal bs_output_valid    :  std_logic := '0';
+            
     type bs_array is array(0 to C_MAX_BLUESTEIN_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
     type fft_table_array is array(0 to C_MAX_FFT_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
     type bs_table_array is array(0 to C_MAX_BLUESTEIN_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
@@ -46,15 +55,11 @@ begin
         generic map (
             C_PARAM_WIDTH          => C_PARAM_WIDTH,
             C_PARAM_ADDR_WIDTH     => C_PARAM_ADDR_WIDTH,
-            C_PARAM_ADDR_TOP       => C_PARAM_ADDR_TOP + 300,
-            C_LENGTH_WIDTH         => C_LENGTH_WIDTH,	
-            C_MAX_FFT_PRIME_WIDTH  => C_MAX_FFT_PRIME_WIDTH,
-            C_MAX_BLUESTEIN_LENGTH => C_MAX_POLY_LENGTH, 
-            C_MAX_FFT_LENGTH       => C_MAX_FFT_LENGTH 
-            C_MAX_FFT_LENGTH       => C_MAX_FFT_LENGTH,
+            C_PARAM_ADDR_TOP       => C_PARAM_ADDR_TOP,
+            C_LENGTH_WIDTH         => C_LENGTH_WIDTH, 
+            C_MAX_FFT_LENGTH       => C_MAX_FFT_LENGTH, 
             C_MAX_BLUESTEIN_LENGTH => C_MAX_BLUESTEIN_LENGTH,
-            C_MAX_FFT_PRIME_WIDTH  => C_MAX_FFT_PRIME_WIDTH,
-            C_MAX_FFT_PRIMES       => C_MAX_FFT_PRIMES
+            C_MAX_FFT_PRIME_WIDTH  => C_MAX_FFT_PRIME_WIDTH
         )
         port map (
             clk => clk,
@@ -62,16 +67,17 @@ begin
             -- Ports of bluestein_fft
             mode           => bs_mode,
             param          => bs_param,
+            param_addr     => bs_param_addr,
             param_valid    => bs_param_valid,
-            prime          => bs_primes(i),
-            prime_r        => bs_primes_r(i),
+            prime          => bs_prime,
+            prime_r        => bs_prime_r,
             prime_s        => bs_prime_len,
             fft_length     => bs_fft_length,
             length         => bs_length,
-            values         => bs_values,
-            values_valid   => bs_values_valid,
-            outputs        => bs_outputs,
-            outputs_valid  => bs_outputs_valid
+            value          => bs_value,
+            value_valid    => bs_value_valid,
+            output         => bs_output,
+            output_valid   => bs_output_valid
         );  
         
     clk_process : process
@@ -90,21 +96,23 @@ begin
         wait until rising_edge(clk);
                         
         bs_prime_len <= std_logic_vector(to_unsigned(PRIME_LEN, bs_prime_len'length));
+        bs_prime <= PRIME;
+        bs_prime_red <= PRIMES_RED;
+        bs_fft_length <= C_FFT_LENGTH;
+        bs_length <= C_BLUESTEIN_LENGTH;
         
-        for i in 0 to C_MAX_FFT_PRIMES - 1 loop
-            param(i) <= PRIMES(i);
-            bs_primes_red(i) <= PRIMES_RED(i);
-        end loop;        
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop
             param <= W_TABLE(i);
             bs_param_valid = '1';
             wait until rising_edge(clk);
         end loop;
+        
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop
             param <= WI_TABLE(i);
             bs_param_valid = '1';
             wait until rising_edge(clk);
         end loop;
+        
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop
             param <= MUL_FFT_TABLE(i);
             bs_param_valid = '1';
@@ -113,21 +121,23 @@ begin
                           
         for i in 0 to C_MAX_BLUESTEIN_LENGTH - 1 loop
             param <= MUL_TABLE(i);
+            bs_param_valid = '1';
+            wait until rising_edge(clk);
         end loop;
         
         wait until rising_edge(clk);
         
-        bs_enabled <= '1';
         for i in 0 to C_MAX_BLUESTEIN_LENGTH - 1 loop
-        	bs_values(0) <= INPUT(i);
+        	bs_value <= INPUT(i);
+        	bs_value_valid <= '1';
         	wait until rising_edge(clk);
+        	bs_value_valid <= '0';
         end loop;
         
-        wait until rising_edge(clk);
-        wait for 500ns;
+        wait until bs_output_valid = '1';
 
 		for i in 0 to C_MAX_BLUESTEIN_LENGTH - 1 loop
-			assert bs_outputs(0) = OUTPUT(i);
+			assert bs_output = OUTPUT(i);
             wait until rising_edge(clk);
 		end loop;
 
