@@ -210,7 +210,7 @@ begin
 state_proc : process (clk) is
     begin	
         if rising_edge(clk) then
-  
+        
         end if;
     end process state_proc;
 end Behavioral;

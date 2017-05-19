@@ -200,11 +200,12 @@ begin
     state_proc : process (clk) is
         begin	
             if rising_edge(clk) then
-          --          if (param_valid = '1' and param_addr_top = C_PARAM_ADDR_TOP) then
-          --              mul_table(param_addr_bottom) <= param; 
-          --          else if (param_valid = '1' and param_addr_top = C_PARAM_ADDR_TOP + 1) then
-          --              mul_fft_table(param_addr_bottom) <= param;
-          --          end if;                  
+                if (param_valid = '1' and to_integer(unsigned(param_addr_top)) = C_PARAM_ADDR_MUL_TABLE) then
+                    mul_table(to_integer(unsigned(param_addr_bottom))) <= param;
+                end if;
+                if (param_valid = '1' and to_integer(unsigned(param_addr_top)) = C_PARAM_ADDR_MUL_FFT_TABLE) then
+                    mul_fft_table(to_integer(unsigned(param_addr_bottom))) <= param;
+                end if;             
                     
           --              if (length = mul_table_in_idx - 1) then
             ---                mul_table_in_idx <= 0;
