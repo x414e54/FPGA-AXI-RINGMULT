@@ -123,7 +123,7 @@ begin
         clk          => clk,
         ---
         param        => param,
-        param_addr   => param,
+        param_addr   => param_addr,
         param_valid  => param_valid,
         ----
         prime        => prime,
@@ -167,7 +167,7 @@ begin
         clk          => clk,
         ---
         param        => param,
-        param_addr   => param,
+        param_addr   => param_addr,
         param_valid  => param_valid,
         ----
         prime        => prime,

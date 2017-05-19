@@ -9,7 +9,7 @@ entity tb_fft is
         C_PARAM_ADDR_FFT_TABLE   : integer   := 0;
         C_LENGTH_WIDTH           : integer   := 16;
         C_MAX_FFT_PRIME_WIDTH    : integer   := 64;	
-        C_FFT_LENGTH             : integer   := 16	
+        C_FFT_LENGTH             : integer   := 64	
     );
     --port ();
 end tb_fft;
