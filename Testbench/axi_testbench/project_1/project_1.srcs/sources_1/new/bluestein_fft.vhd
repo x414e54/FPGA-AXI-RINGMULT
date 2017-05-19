@@ -207,7 +207,7 @@ begin
                 end if;             
                 
                 if (value_valid = '1') then
-                    if (mul_table_in_idx - 1 = length) then
+                    if (mul_table_in_idx - 1 = to_integer(unsigned(length))) then
                         mul_table_in_idx <= 0;
                     else
                         mul_table_in_idx <= mul_table_in_idx + 1;
@@ -215,7 +215,7 @@ begin
                 end if;
                         
                 if (fft_output_valid = '1') then
-                    if (mul_fft_table_idx - 1 = fft_length) then
+                    if (mul_fft_table_idx - 1 = to_integer(unsigned(fft_length))) then
                         mul_fft_table_idx <= 0;
                     else
                         mul_fft_table_idx <= mul_fft_table_idx + 1;
@@ -223,8 +223,8 @@ begin
                 end if;
                 
                 if (ifft_output_valid = '1') then
-                    if (mul_table_out_id - 1 = length) then
-                        mul_table_out_idxe_idx <= 0;
+                    if (mul_table_out_idx - 1 = to_integer(unsigned(length))) then
+                        mul_table_out_idx <= 0;
                     else
                         mul_table_out_idx <= mul_table_out_idx + 1;
                     end if;

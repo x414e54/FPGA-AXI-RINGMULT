@@ -215,7 +215,7 @@ state_proc : process (clk) is
             --end if;     
             
             if (bs_outputs_valid(0) = '1') then
-                if (mul_table_idx - 1 = length) then
+                if (mul_table_idx - 1 = to_integer(unsigned(length))) then
                     mul_table_idx <= 0;
                 else
                     mul_table_idx <= mul_table_idx + 1;
