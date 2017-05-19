@@ -202,29 +202,33 @@ begin
             if rising_edge(clk) then
                 if (param_valid = '1' and to_integer(unsigned(param_addr_top)) = C_PARAM_ADDR_MUL_TABLE) then
                     mul_table(to_integer(unsigned(param_addr_bottom))) <= param;
-                end if;
-                if (param_valid = '1' and to_integer(unsigned(param_addr_top)) = C_PARAM_ADDR_MUL_FFT_TABLE) then
+                elsif (param_valid = '1' and to_integer(unsigned(param_addr_top)) = C_PARAM_ADDR_MUL_FFT_TABLE) then
                     mul_fft_table(to_integer(unsigned(param_addr_bottom))) <= param;
                 end if;             
-                    
-          --              if (length = mul_table_in_idx - 1) then
-            ---                mul_table_in_idx <= 0;
-               --         end if;
---                        mul_table_in_idx <= mul_table_in_idx + 1;
+                
+                if (value_valid = '1') then
+                    if (mul_table_in_idx - 1 = length) then
+                        mul_table_in_idx <= 0;
+                    else
+                        mul_table_in_idx <= mul_table_in_idx + 1;
+                    end if;
+                end if;
                         
-  --                      if (fft_output_valid = '1') then
-    --                        if (length = mul_fft_table_idx - 1) then
-      --                          mul_fft_table_idx <= 0;
-        --                    end if;
-          --                  mul_fft_table_idx <= mul_fft_table_idxe_idx + 1;
-            --            end if;
-                        
-              --          if (ifft_output_valid = '1') then
-                ---            if (length = mul_table_out_idx - 1) then
-                   --             mul_table_out_idxe_idx <= 0;
-                     --       end if;
-                       --     mul_table_out_idx <= mul_table_out_idx + 1;
-                        --end if;
+                if (fft_output_valid = '1') then
+                    if (mul_fft_table_idx - 1 = fft_length) then
+                        mul_fft_table_idx <= 0;
+                    else
+                        mul_fft_table_idx <= mul_fft_table_idx + 1;
+                    end if;
+                end if;
+                
+                if (ifft_output_valid = '1') then
+                    if (mul_table_out_id - 1 = length) then
+                        mul_table_out_idxe_idx <= 0;
+                    else
+                        mul_table_out_idx <= mul_table_out_idx + 1;
+                    end if;
+                end if;
             end if;
         end process state_proc;
 end Behavioral;

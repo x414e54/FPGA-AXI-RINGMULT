@@ -210,7 +210,17 @@ begin
 state_proc : process (clk) is
     begin	
         if rising_edge(clk) then
-        
+            --if (param_valid = '1' and to_integer(unsigned(param_addr_top)) = C_PARAM_ADDR_MUL_TABLE) then
+            --    mul_table(to_integer(unsigned(param_addr_bottom))) <= param;
+            --end if;     
+            
+            if (bs_outputs_valid(0) = '1') then
+                if (mul_table_idx - 1 = length) then
+                    mul_table_idx <= 0;
+                else
+                    mul_table_idx <= mul_table_idx + 1;
+                end if;
+            end if;
         end if;
     end process state_proc;
 end Behavioral;
