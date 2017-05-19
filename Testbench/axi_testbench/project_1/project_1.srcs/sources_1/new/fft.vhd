@@ -62,15 +62,8 @@ end fft;
 architecture Behavioral of fft is
 
     type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
-    
-    function reg_index(d : integer) return integer is
-        variable res : natural;
-        begin
-            res := (2**d) - 1;
-        return res;
-    end function reg_index;
 
-    constant NUM_STAGES : integer := integer(ceil(log2(real(C_MAX_FFT_LENGTH)))); 
+    constant NUM_STAGES : integer := integer(ceil(log2(real(C_MAX_FFT_LENGTH))))/2; 
 
     signal counter : integer := 0;
 
@@ -92,7 +85,7 @@ begin
             generic map (
                 C_LENGTH_WIDTH => C_LENGTH_WIDTH,
                 C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-                C_STAGE_LENGTH => 2**(NUM_STAGES-1-i),
+                C_STAGE_LENGTH => 2**(2*(NUM_STAGES-i)),
                 C_STAGE_INDEX => i
             )
             port map (
