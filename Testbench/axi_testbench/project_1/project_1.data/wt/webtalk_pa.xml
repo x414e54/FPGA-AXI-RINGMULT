@@ -3,7 +3,7 @@
 <!--The data in this file is primarily intended for consumption by Xilinx tools.
 The structure and the elements are likely to change over the next few releases.
 This means code written to parse this file will need to be revisited each subsequent release.-->
-<application name="pa" timeStamp="Fri May 19 14:55:31 2017">
+<application name="pa" timeStamp="Fri May 19 15:24:49 2017">
 <section name="Project Information" visible="false">
 <property name="ProjectID" value="a4f6b4ef9b41455c95727935f4144d80" type="ProjectID"/>
 <property name="ProjectIteration" value="4" type="ProjectIteration"/>
@@ -30,22 +30,22 @@ This means code written to parse this file will need to be revisited each subseq
 <property name="IPPackagerWizardHandler" value="1" type="JavaHandler"/>
 <property name="NewProject" value="1" type="JavaHandler"/>
 <property name="OpenProject" value="2" type="JavaHandler"/>
-<property name="ProjectSettings" value="7" type="JavaHandler"/>
+<property name="ProjectSettings" value="9" type="JavaHandler"/>
 <property name="RunImplementation" value="7" type="JavaHandler"/>
 <property name="RunSchematic" value="4" type="JavaHandler"/>
-<property name="RunSynthesis" value="10" type="JavaHandler"/>
+<property name="RunSynthesis" value="12" type="JavaHandler"/>
 <property name="SaveProjectAs" value="1" type="JavaHandler"/>
-<property name="SetTopNode" value="1" type="JavaHandler"/>
+<property name="SetTopNode" value="2" type="JavaHandler"/>
 <property name="ShowConnectivity" value="1" type="JavaHandler"/>
 <property name="ShowSource" value="1" type="JavaHandler"/>
-<property name="ShowView" value="3" type="JavaHandler"/>
+<property name="ShowView" value="5" type="JavaHandler"/>
 <property name="SimulationClose" value="2" type="JavaHandler"/>
 <property name="SimulationRestart" value="11" type="JavaHandler"/>
-<property name="SimulationRun" value="211" type="JavaHandler"/>
+<property name="SimulationRun" value="213" type="JavaHandler"/>
 <property name="SimulationRunForTime" value="11" type="JavaHandler"/>
-<property name="ViewTaskProjectManager" value="6" type="JavaHandler"/>
+<property name="ViewTaskProjectManager" value="9" type="JavaHandler"/>
 <property name="ViewTaskRTLAnalysis" value="4" type="JavaHandler"/>
-<property name="ViewTaskSimulation" value="3" type="JavaHandler"/>
+<property name="ViewTaskSimulation" value="4" type="JavaHandler"/>
 <property name="ViewTaskSynthesis" value="1" type="JavaHandler"/>
 <property name="ZoomIn" value="25" type="JavaHandler"/>
 <property name="ZoomOut" value="2" type="JavaHandler"/>

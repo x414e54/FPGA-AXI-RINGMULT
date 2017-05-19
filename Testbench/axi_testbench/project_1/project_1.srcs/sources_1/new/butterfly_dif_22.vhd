@@ -92,8 +92,8 @@ begin
             a_reg <= unsigned(a);
             b_reg <= unsigned(b);
             
-            x_reg <= std_logic_vector(a_reg + b_reg);
-            y_reg <= std_logic_vector(a_reg - b_reg);
+            x_reg <= std_logic_vector(resize(a_reg + b_reg, 2*C_MAX_FFT_PRIME_WIDTH));
+            y_reg <= std_logic_vector(resize(a_reg - b_reg, 2*C_MAX_FFT_PRIME_WIDTH));
         end if;
     end process state_proc;
 
