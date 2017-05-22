@@ -31,6 +31,7 @@ architecture behavior of tb_bs is
     signal bs_param_valid     :  std_logic := '0';
     signal bs_prime           :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
     signal bs_prime_red       :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
+    signal bs_prime_i         :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
     signal bs_prime_len       :  std_logic_vector(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
     signal bs_fft_length      :  std_logic_vector(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
     signal bs_length          :  std_logic_vector(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
@@ -51,6 +52,7 @@ architecture behavior of tb_bs is
     constant MUL_FFT_TABLE: fft_table_array := (x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000");
     constant PRIME: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := x"1000000000000D41";
     constant PRIME_RED: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := x"0FFFFFFFFFFFF2BF";
+    constant PRIME_I: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := x"0FFFFFFFFFFFF2BF";
     constant PRIME_LEN : integer := 61; 
         
     alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is bs_param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
@@ -80,6 +82,7 @@ begin
             param_valid    => bs_param_valid,
             prime          => bs_prime,
             prime_r        => bs_prime_red,
+            prime_i        => bs_prime_i,
             prime_s        => bs_prime_len,
             fft_length     => bs_fft_length,
             length         => bs_length,
@@ -107,6 +110,7 @@ begin
         bs_prime_len <= std_logic_vector(to_unsigned(PRIME_LEN, bs_prime_len'length));
         bs_prime <= PRIME;
         bs_prime_red <= PRIME_RED;
+        bs_prime_i <= PRIME_I;
         bs_fft_length <= std_logic_vector(to_unsigned(C_FFT_LENGTH, C_LENGTH_WIDTH));
         bs_length <= std_logic_vector(to_unsigned(C_BLUESTEIN_LENGTH, C_LENGTH_WIDTH));
         

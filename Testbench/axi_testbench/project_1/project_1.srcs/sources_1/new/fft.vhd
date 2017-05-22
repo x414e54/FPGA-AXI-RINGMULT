@@ -49,6 +49,7 @@ entity fft is
         ----
         prime          : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
         prime_r        : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
+        prime_i        : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
         prime_s        : in std_logic_vector(C_LENGTH_WIDTH-1 downto 0)            := (others => '0'); 
         length         : in std_logic_vector(C_LENGTH_WIDTH-1 downto 0)            := (others => '0'); 
         ----
@@ -93,6 +94,7 @@ begin
                 w       => w_val(i),
                 prime   => prime,
                 prime_r => prime_r,
+                prime_i => prime_i,
                 prime_s => prime_s,
                 input   => regs(i),
                 output  => regs(i+1)

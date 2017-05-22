@@ -72,6 +72,7 @@ architecture Behavioral of mulmodfft is
 
     signal primes      : REGISTER_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
     signal primes_r    : REGISTER_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
+    signal primes_i    : REGISTER_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
     signal prime_s     : std_logic_vector(C_LENGTH_WIDTH-1 downto 0)   := (others => '0');
 
     signal remainders        : REGISTER_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
@@ -133,6 +134,7 @@ begin
                     param_valid    => param_valid,
                     prime          => primes(i),
                     prime_r        => primes_r(i),
+                    prime_i        => primes_i(i),
                     prime_s        => prime_s,
                     fft_length     => fft_length,
                     length         => length,
@@ -181,6 +183,7 @@ begin
                     param_valid    => param_valid,
                     prime          => primes(i),
                     prime_r        => primes_r(i),
+                    prime_i        => primes_i(i),
                     prime_s        => prime_s,
                     fft_length     => fft_length,
                     length         => length,

@@ -43,6 +43,7 @@ entity butterfly_dif_22 is
 		y       : out std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)    := (others => '0');
 		prime   : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
         prime_r : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
+        prime_i : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
         prime_s : in std_logic_vector(C_LENGTH_WIDTH-1 downto 0)            := (others => '0')
 	);  
 end butterfly_dif_22;
@@ -89,10 +90,10 @@ begin
     state_proc : process (clk) is
     begin	
         if rising_edge(clk) then
-            a_reg <= unsigned(a);
+            a_reg <= unsigned(a) * unsigned(prime_i);
             b_reg <= unsigned(b);
             
-            x_reg <= std_logic_vector(resize(a_reg + b_reg, 2*C_MAX_FFT_PRIME_WIDTH));
+            x_reg <= std_logic_vector(resize(a_reg + b_reg , 2*C_MAX_FFT_PRIME_WIDTH));
             y_reg <= std_logic_vector(resize(a_reg - b_reg, 2*C_MAX_FFT_PRIME_WIDTH));
         end if;
     end process state_proc;

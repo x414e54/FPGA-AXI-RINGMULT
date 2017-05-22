@@ -41,6 +41,7 @@ entity fft_stage is
 		w          : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 		prime      : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 		prime_r    : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+        prime_i    : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
         prime_s    : in std_logic_vector(C_LENGTH_WIDTH-1 downto 0)          := (others => '0');        
         input      : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 		output     : out std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0')
@@ -59,7 +60,7 @@ architecture Behavioral of fft_stage is
 begin
   
 --- 0    
-    butterfly_dif_2_0 : entity work.butterfly_dif_22
+    butterfly_dif_2_0 : entity work.butterfly_dif_2
         generic map (
             C_LENGTH_WIDTH        => C_LENGTH_WIDTH,
             C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_PRIME_WIDTH
@@ -111,6 +112,7 @@ begin
             y       => regs(3),
             prime   => prime,
             prime_r => prime_r,
+            prime_i => prime_i,
             prime_s => prime_s
         );   
     

@@ -50,9 +50,10 @@
     <File Path="$PSRCDIR/sources_1/new/butterfly_dif_2.vhd">
       <FileInfo>
         <Attr Name="UsedInSynthesis" Val="1"/>
-        <Attr Name="UsedInSimulation" Val="0"/>
+        <Attr Name="UsedInSimulation" Val="1"/>
         <Attr Name="UsedIn" Val="synthesis"/>
         <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
       </FileInfo>
     </File>
     <File Path="$PSRCDIR/sources_1/new/mulred.vhd">

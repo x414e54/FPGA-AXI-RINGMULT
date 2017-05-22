@@ -27,6 +27,7 @@ architecture behavior of tb_fft is
     signal fft_param_valid     :  std_logic := '0';
     signal fft_prime           :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
     signal fft_prime_r         :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
+    signal fft_prime_i         :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
     signal fft_prime_s         :  std_logic_vector(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
     signal fft_length          :  std_logic_vector(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
     signal fft_value           :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
@@ -42,6 +43,7 @@ architecture behavior of tb_fft is
     constant W_TABLE: fft_table_array := (x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000");
     constant PRIME: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"1000000000000D41");
     constant PRIME_RED: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"0FFFFFFFFFFFF2BF");
+    constant PRIME_I: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"0FFFFFFFFFFFF2BF");
     constant PRIME_LEN : integer := 61; 
             
     alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is fft_param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
@@ -67,6 +69,7 @@ begin
             param_valid    => fft_param_valid,
             prime          => fft_prime,
             prime_r        => fft_prime_r,
+            prime_i        => fft_prime_i,
             prime_s        => fft_prime_s,
             length         => fft_length,
             value          => fft_value,
@@ -92,6 +95,7 @@ begin
         
         fft_prime   <= PRIME;
         fft_prime_r <= PRIME_RED;
+        fft_prime_i <= PRIME_I;
         fft_prime_s <= std_logic_vector(to_unsigned(PRIME_LEN, C_LENGTH_WIDTH));
         fft_length  <= std_logic_vector(to_unsigned(C_FFT_LENGTH, C_LENGTH_WIDTH));
         
