@@ -36,6 +36,7 @@ entity abswitch is
 	);
 	port (
 		clk      : in std_logic;
+		switch   : in std_logic;
     	in_a     : in std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0)     := (others => '0');
 		in_b     : in std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0)     := (others => '0');
 		out_ab   : out std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0)    := (others => '0')
@@ -43,9 +44,8 @@ entity abswitch is
 end abswitch;
 
 architecture Behavioral of abswitch is
-signal tmp_regs : std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0) := (others => '0');
 
-signal switch : std_logic := '0';
+signal tmp_regs : std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0) := (others => '0');
 
 begin
        	   
@@ -55,10 +55,8 @@ begin
 			out_ab <= tmp_regs;
 
 		    if (switch = '0') then
-				switch <= '1';
 				tmp_regs <= in_a;
 			else 
-				switch <= '0';
 				tmp_regs <= in_b;
 			end if;
         end if;

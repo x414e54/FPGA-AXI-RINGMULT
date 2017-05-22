@@ -51,8 +51,10 @@ end fft_stage;
 architecture Behavioral of fft_stage is
 
     type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
+    type AB_SWITCHES_TYPE is array(natural range <>) of std_logic;
     
     signal regs : REGISTER_TYPE(0 to 8-1)  := (others => (others => '0'));
+    signal ab_switches : AB_SWITCHES_TYPE(0 to 5-1) := (others => '0');
 
     signal dif_0_shift : REGISTER_TYPE(0 to (C_STAGE_LENGTH/2)-1)  := (others => (others => '0'));
     signal dif_1_shift : REGISTER_TYPE(0 to (C_STAGE_LENGTH/4)-1)  := (others => (others => '0'));
@@ -60,7 +62,7 @@ architecture Behavioral of fft_stage is
 begin
   
 --- 0    
-    butterfly_dif_2_0 : entity work.butterfly_dif_2
+    butterfly_dif_2_0 : entity work.butterfly_dif_22
         generic map (
             C_LENGTH_WIDTH        => C_LENGTH_WIDTH,
             C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_PRIME_WIDTH
@@ -82,6 +84,7 @@ begin
         )
         port map (
             clk    => clk,
+            switch => ab_switches(0),
             in_a   => input,
             in_b   => regs(0),
             out_ab => dif_0_shift((C_STAGE_LENGTH/2)-1)
@@ -93,11 +96,39 @@ begin
         )
         port map (
             clk    => clk,
+            switch => ab_switches(1),
             in_a   => dif_0_shift(0),
             in_b   => regs(1),
             out_ab => regs(2)
         );
     
+ --- twiddle i
+    i_mul : entity work.mulred
+        generic map (
+            C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
+            C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH
+        )
+        port map (
+            clk         => clk,
+            modulus     => prime,
+            modulus_r   => prime_r,
+            modulus_s   => prime_s,
+            a           => regs(2),
+            b           => prime_i,
+            c           => regs(3)  
+        );
+      
+    abswitch_delay_0_2 : entity work.abswitch
+        generic map (
+            C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
+        )
+        port map (
+            clk    => clk,
+            switch => ab_switches(2),
+            in_a   => regs(3),
+            in_b   => regs(2),
+            out_ab => regs(4)
+        );
 --- 1
     butterfly_dif_2_1_0 : entity work.butterfly_dif_22
         generic map (
@@ -106,13 +137,12 @@ begin
         )
         port map (
             clk     => clk,
-            a       => regs(2),
+            a       => regs(4),
             b       => dif_1_shift(0),
-            x       => regs(4),
-            y       => regs(3),
+            x       => regs(6),
+            y       => regs(5),
             prime   => prime,
             prime_r => prime_r,
-            prime_i => prime_i,
             prime_s => prime_s
         );   
     
@@ -122,8 +152,9 @@ begin
     )
     port map (
         clk    => clk,
-        in_a   => regs(4),
-        in_b   => regs(3),
+        switch => ab_switches(3),
+        in_a   => regs(6),
+        in_b   => regs(5),
         out_ab => dif_1_shift((C_STAGE_LENGTH/4)-1)
     );
     
@@ -133,9 +164,10 @@ begin
     )
     port map (
         clk    => clk,
-        in_a   => regs(4),
+        switch => ab_switches(4),
+        in_a   => regs(6),
         in_b   => dif_1_shift(0),
-        out_ab => regs(5)
+        out_ab => regs(7)
     );
 
 --- twiddle
@@ -149,7 +181,7 @@ begin
         modulus     => prime,
         modulus_r   => prime_r,
         modulus_s   => prime_s,
-        a           => regs(5),
+        a           => regs(7),
         b           => w,
         c           => output  
     );

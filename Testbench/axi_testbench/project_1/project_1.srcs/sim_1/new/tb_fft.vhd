@@ -35,8 +35,9 @@ architecture behavior of tb_fft is
     signal fft_output          :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
     signal fft_output_valid    :  std_logic := '0';
                     
+    constant FFT_TABLE_LENGTH: integer := (3*((C_FFT_LENGTH/4)-1)) + 1;
     type fft_array is array(0 to C_FFT_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
-    type fft_table_array is array(0 to (3*((C_FFT_LENGTH/4)-1))) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
+    type fft_table_array is array(0 to FFT_TABLE_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
 
     constant INPUT: fft_array :=  (x"0fd868c34e228cb8", x"08446ea1bafa97ea", x"0277227c62203448", x"0d88dd839ddfd359", x"07bb915e45056fb7", x"0027973cb1dd7ae9", x"0000000000000001", x"0027973cb1dd7ae9", x"07bb915e45056fb7", x"0d88dd839ddfd359", x"0277227c62203448", x"08446ea1bafa97ea", x"0fd868c34e228cb8", x"0000000000000000", x"0000000000000000", x"0000000000000000");
     constant OUTPUT: fft_array := (x"0000000000000001", x"082c7277d5209517", x"0a39af4a620f810b", x"0a39af4a620f810b", x"0f8ff74817c53dce", x"0c59a0eddd9d8881", x"03a65f1222627f20", x"007008b7e83ac9d3", x"04fc1b20c8b5ab29", x"0d03f2f2d7f24cf1", x"067cc0d5b3e3b6be", x"08a1276b944bfa4e", x"06ff53e8f49c3fe3", x"00108288607f0462", x"024ac820d2f7b12b", x"066e264137fe41d1");
@@ -102,7 +103,7 @@ begin
         param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_FFT_TABLE, (C_PARAM_ADDR_WIDTH/2)));
         param_addr_bottom <= x"0000";
         
-        for i in 0 to C_FFT_LENGTH - 1 loop   
+        for i in 0 to FFT_TABLE_LENGTH - 1 loop   
             fft_param_valid <= '1';
             fft_param <= W_TABLE(i);
             wait until rising_edge(clk);
