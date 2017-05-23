@@ -9,7 +9,7 @@
 -- Target Devices: 
 -- Tool Versions: 
 -- Description: 
--- 
+--  NTT Implementation of "A New Approach to Pipeline FFT Processor" by Shousheng He and Mats Torkelson
 -- Dependencies: 
 -- 
 -- Revision:
@@ -63,10 +63,11 @@ end fft;
 architecture Behavioral of fft is
 
     type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
+    type ADDR_TYPE is array(natural range <>) of std_logic_vector(C_LENGTH_WIDTH-1 downto 0);
 
     constant NUM_STAGES : integer := integer(ceil(log2(real(C_MAX_FFT_LENGTH))))/2; 
 
-    signal counter : integer := 0;
+    signal counter : unsigned(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
 
     signal w_table : REGISTER_TYPE(0 to (C_MAX_FFT_LENGTH + 3) - 1)  := (others => (others => '0'));
 
@@ -90,14 +91,15 @@ begin
                 C_STAGE_INDEX => i
             )
             port map (
-                clk     => clk,
-                w       => w_val(i),
-                prime   => prime,
-                prime_r => prime_r,
-                prime_i => prime_i,
-                prime_s => prime_s,
-                input   => regs(i),
-                output  => regs(i+1)
+                clk      => clk,
+                w        => w_val(i),
+                switches => std_logic_vector(counter((2*NUM_STAGES-1-i) downto (2*NUM_STAGES-2-i))),
+                prime    => prime,
+                prime_r  => prime_r,
+                prime_i  => prime_i,
+                prime_s  => prime_s,
+                input    => regs(i),
+                output   => regs(i+1)
             );
     end generate fft_stages;
         
@@ -107,16 +109,13 @@ begin
                 if (param_valid = '1' and to_integer(unsigned(param_addr_top)) = C_PARAM_ADDR_FFT_TABLE) then
                     w_table(to_integer(unsigned(param_addr_bottom))) <= param;
                 end if;
-                --if (value_valid = '1')
-                --if (length = w_table_write_idx - 1) then
-                  --              w_table_write_idx <= 0;
-     --                       w_table_write_idx <= w_table_write_idx + 1;
---                        end if;  
-                                  
-  --                      if (counter = length - 1) then
-    --                        counter <= 0;
-      --                  end if;
-        --                counter <= counter + 1;
+                if (value_valid = '1') then
+                    if (counter = unsigned(length) - 1) then
+                        counter <= (others => '0');
+                    else
+                        counter <= counter + 1;
+                    end if;
+                end if;
             end if;
         end process state_proc;
 end Behavioral;

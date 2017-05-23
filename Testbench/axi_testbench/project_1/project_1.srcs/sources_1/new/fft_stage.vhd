@@ -9,7 +9,7 @@
 -- Target Devices: 
 -- Tool Versions: 
 -- Description: 
--- 
+--  NTT Implementation of "A New Approach to Pipeline FFT Processor" by Shousheng He and Mats Torkelson
 -- Dependencies: 
 -- 
 -- Revision:
@@ -39,6 +39,7 @@ entity fft_stage is
 	port (
 		clk        : in std_logic;
 		w          : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+		switches   : in std_logic_vector(2-1 downto 0)                       := (others => '0');
 		prime      : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
 		prime_r    : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
         prime_i    : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
@@ -51,16 +52,22 @@ end fft_stage;
 architecture Behavioral of fft_stage is
 
     type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
-    type AB_SWITCHES_TYPE is array(natural range <>) of std_logic;
     
     signal regs : REGISTER_TYPE(0 to 8-1)  := (others => (others => '0'));
-    signal ab_switches : AB_SWITCHES_TYPE(0 to 5-1) := (others => '0');
 
+    signal switch_1 : std_logic := '0';
+    signal switch_2 : std_logic := '0';
+    signal switch_3 : std_logic := '0';
+    
     signal dif_0_shift : REGISTER_TYPE(0 to (C_STAGE_LENGTH/2)-1)  := (others => (others => '0'));
     signal dif_1_shift : REGISTER_TYPE(0 to (C_STAGE_LENGTH/4)-1)  := (others => (others => '0'));
 
 begin
-  
+    
+    switch_1 <= switches(0);
+    switch_2 <= switches(1);
+    switch_3 <= (not switches(0)) and switches(1);
+     
 --- 0    
     butterfly_dif_2_0 : entity work.butterfly_dif_22
         generic map (
@@ -84,7 +91,7 @@ begin
         )
         port map (
             clk    => clk,
-            switch => ab_switches(0),
+            switch => switch_1,
             in_a   => input,
             in_b   => regs(0),
             out_ab => dif_0_shift((C_STAGE_LENGTH/2)-1)
@@ -96,7 +103,7 @@ begin
         )
         port map (
             clk    => clk,
-            switch => ab_switches(1),
+            switch => switch_1,
             in_a   => dif_0_shift(0),
             in_b   => regs(1),
             out_ab => regs(2)
@@ -124,7 +131,7 @@ begin
         )
         port map (
             clk    => clk,
-            switch => ab_switches(2),
+            switch => switch_3,
             in_a   => regs(3),
             in_b   => regs(2),
             out_ab => regs(4)
@@ -152,7 +159,7 @@ begin
     )
     port map (
         clk    => clk,
-        switch => ab_switches(3),
+        switch => switch_2,
         in_a   => regs(6),
         in_b   => regs(5),
         out_ab => dif_1_shift((C_STAGE_LENGTH/4)-1)
@@ -164,7 +171,7 @@ begin
     )
     port map (
         clk    => clk,
-        switch => ab_switches(4),
+        switch => switch_2,
         in_a   => regs(6),
         in_b   => dif_1_shift(0),
         out_ab => regs(7)
