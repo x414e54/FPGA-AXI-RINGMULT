@@ -45,7 +45,7 @@ entity fft is
 		----
         param          : in std_logic_vector(C_PARAM_WIDTH-1 downto 0)             := (others => '0');
         param_addr     : in std_logic_vector(C_PARAM_ADDR_WIDTH-1 downto 0)        := (others => '0');
-        param_valid    : in std_logic;
+        param_valid    : in std_logic                                               := '0';
         ----
         prime          : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
         prime_r        : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
@@ -54,9 +54,9 @@ entity fft is
         length         : in std_logic_vector(C_LENGTH_WIDTH-1 downto 0)            := (others => '0'); 
         ----
         value          : in std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
-        value_valid    : in std_logic;
+        value_valid    : in std_logic                                               := '0';
 		output         : out std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)    := (others => '0');
-		output_valid   : out std_logic
+		output_valid   : out std_logic                                              := '0'
 	);  
 end fft;
 

@@ -59,8 +59,10 @@ architecture Behavioral of fft_stage is
     signal switch_2 : std_logic := '0';
     signal switch_3 : std_logic := '0';
     
-    signal dif_0_shift : REGISTER_TYPE(0 to (C_STAGE_LENGTH/2)-1)  := (others => (others => '0'));
-    signal dif_1_shift : REGISTER_TYPE(0 to (C_STAGE_LENGTH/4)-1)  := (others => (others => '0'));
+    signal dif_0_shift_in  : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
+    signal dif_0_shift_out : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
+    signal dif_1_shift_in  : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
+    signal dif_1_shift_out : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
 
 begin
     
@@ -69,6 +71,17 @@ begin
     switch_3 <= (not switches(0)) and switches(1);
      
 --- 0    
+    dif_0_shift : entity work.delay
+        generic map (
+    		C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH,
+    		C_DELAY		      => C_STAGE_LENGTH/2
+        )
+        port map (
+            clk       => clk,
+            i         => dif_0_shift_in,
+            o         => dif_0_shift_out
+        );
+        
     butterfly_dif_2_0 : entity work.butterfly_dif_22
         generic map (
             C_LENGTH_WIDTH        => C_LENGTH_WIDTH,
@@ -77,7 +90,7 @@ begin
         port map (
             clk     => clk,
             a       => input,
-            b       => dif_0_shift(0),
+            b       => dif_0_shift_out,
             x       => regs(1),
             y       => regs(0),
             prime   => prime,
@@ -94,7 +107,7 @@ begin
             switch => switch_1,
             in_a   => input,
             in_b   => regs(0),
-            out_ab => dif_0_shift((C_STAGE_LENGTH/2)-1)
+            out_ab => dif_0_shift_in
         );
                 
     abswitch_delay_0_1 : entity work.abswitch
@@ -104,7 +117,7 @@ begin
         port map (
             clk    => clk,
             switch => switch_1,
-            in_a   => dif_0_shift(0),
+            in_a   => dif_0_shift_out,
             in_b   => regs(1),
             out_ab => regs(2)
         );
@@ -137,6 +150,17 @@ begin
             out_ab => regs(4)
         );
 --- 1
+    dif_1_shift : entity work.delay
+        generic map (
+		    C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH,
+		    C_DELAY		      => C_STAGE_LENGTH/4
+        )
+        port map (
+            clk       => clk,
+            i         => dif_1_shift_in,
+            o         => dif_1_shift_out
+        );
+    
     butterfly_dif_2_1_0 : entity work.butterfly_dif_22
         generic map (
             C_LENGTH_WIDTH        => C_LENGTH_WIDTH,
@@ -145,7 +169,7 @@ begin
         port map (
             clk     => clk,
             a       => regs(4),
-            b       => dif_1_shift(0),
+            b       => dif_1_shift_out,
             x       => regs(6),
             y       => regs(5),
             prime   => prime,
@@ -162,7 +186,7 @@ begin
         switch => switch_2,
         in_a   => regs(6),
         in_b   => regs(5),
-        out_ab => dif_1_shift((C_STAGE_LENGTH/4)-1)
+        out_ab => dif_1_shift_in
     );
     
     abswitch_delay_1 : entity work.abswitch
@@ -173,7 +197,7 @@ begin
         clk    => clk,
         switch => switch_2,
         in_a   => regs(6),
-        in_b   => dif_1_shift(0),
+        in_b   => dif_1_shift_out,
         out_ab => regs(7)
     );
 
@@ -192,16 +216,4 @@ begin
         b           => w,
         c           => output  
     );
-    
-    shift_proc : process (clk) is
-    begin	
-        if rising_edge(clk) then
-            for i in 0 to (C_STAGE_LENGTH/2)-2 loop
-                dif_0_shift(i) <= dif_0_shift(i+1);
-            end loop;
-            for i in 0 to (C_STAGE_LENGTH/4)-2 loop
-                dif_1_shift(i) <= dif_1_shift(i+1);
-            end loop; 
-        end if;
-    end process shift_proc;
 end Behavioral;
