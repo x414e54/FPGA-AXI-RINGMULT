@@ -2,15 +2,18 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity tb_mulmodfft is
+entity tb_mulmodcrtfft is
     generic (	
 	    C_PARAM_WIDTH                        : integer   := 64;
         C_PARAM_ADDR_WIDTH                   : integer   := 32;
         ---
         C_LENGTH_WIDTH                       : integer   := 16;	
-		C_MAX_FFT_PRIME_WIDTH                : integer   := 256;
+		C_MAX_FFT_PRIME_WIDTH                : integer   := 64;
         C_MAX_FFT_LENGTH                     : integer   := 64; 
         C_MAX_POLY_LENGTH                    : integer   := 18; 
+		C_MAX_CRT_PRIME_WIDTH                : integer   := 256; 
+		C_MAX_FFT_PRIMES		             : integer   := 3;
+		C_MAX_FFT_PRIMES_FOLDS               : integer   := 2;--(256/64)-2;--C_MAX_CRT_PRIME_WIDTH / C_MAX_FFT_PRIME_WIDTH - 2
 		---
 		C_PARAM_ADDR_MUL_TABLE_START         : integer := 0;
         C_PARAM_ADDR_FFT_TABLE_START         : integer := 9; --C_PARAM_ADDR_MUL_TABLE_START + C_MAX_FFT_PRIMES;
@@ -18,13 +21,14 @@ entity tb_mulmodfft is
         C_PARAM_ADDR_BS_MUL_TABLE_START      : integer := 27; --C_PARAM_ADDR_IFFT_TABLE_START + C_MAX_FFT_PRIMES;
         C_PARAM_ADDR_BS_MUL_FFT_TABLE_START  : integer := 36; --C_PARAM_ADDR_BS_MUL_TABLE_START + C_MAX_FFT_PRIMES;
         C_PARAM_ADDR_IBS_MUL_TABLE_START     : integer := 45; --C_PARAM_ADDR_BS_MUL_FFT_TABLE_START + C_MAX_FFT_PRIMES;
-        C_PARAM_ADDR_IBS_MUL_FFT_TABLE_START : integer := 54  --C_PARAM_ADDR_IBS_MUL_TABLE_START + C_MAX_FFT_PRIMES
+        C_PARAM_ADDR_IBS_MUL_FFT_TABLE_START : integer := 54; --C_PARAM_ADDR_IBS_MUL_TABLE_START + C_MAX_FFT_PRIMES;
+        C_PARAM_ADDR_FOLDS_START             : integer := 63 --C_PARAM_ADDR_IBS_MUL_FFT_TABLE_START + C_MAX_FFT_PRIMES
         ---
     );
     --port ();
-end tb_mulmodfft;
+end tb_mulmodcrtfft;
 
-architecture behavior of tb_mulmodfft is
+architecture behavior of tb_mulmodcrtfft is
                         
     signal   stop               : std_logic := '0';
     constant clk_period         : time := 10ns;
@@ -62,17 +66,20 @@ architecture behavior of tb_mulmodfft is
     type prime_fold_table is array(0 to C_MAX_FFT_PRIMES_FOLDS-1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
     type prime_fold_table_array is array(0 to C_MAX_FFT_PRIMES-1) of prime_fold_table;
 
-    constant PRIME: prime_array      := (x"1000000000000D41", x"1000000000004341", x"1000000000007041", x"10000000000104C1", x"1000000000011FC1", x"1000000000012F81");-- x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF");
-    constant PRIME_RED: prime_array  := (x"0FFFFFFFFFFFF2BF", x"0FFFFFFFFFFFBCBF", x"0FFFFFFFFFFF8FBF", x"0FFFFFFFFFFEFB3F", x"0FFFFFFFFFFEE03F", x"0FFFFFFFFFFED07F");-- x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF");
-    constant PRIME_I: prime_array    := (x"0FFFFFFFFFFFF2BF", x"0FFFFFFFFFFFBCBF", x"0FFFFFFFFFFF8FBF", x"0FFFFFFFFFFEFB3F", x"0FFFFFFFFFFEE03F", x"0FFFFFFFFFFED07F");-- x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF");
-    constant PRIME_LEN : integer    := 256; 
+    constant PRIMES: prime_array      := (x"1000000000000D41", x"1000000000004341", x"1000000000007041", x"10000000000104C1", x"1000000000011FC1", x"1000000000012F81");-- x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF");
+    constant PRIMES_RED: prime_array  := (x"0FFFFFFFFFFFF2BF", x"0FFFFFFFFFFFBCBF", x"0FFFFFFFFFFF8FBF", x"0FFFFFFFFFFEFB3F", x"0FFFFFFFFFFEE03F", x"0FFFFFFFFFFED07F");-- x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF");
+    constant PRIMES_I: prime_array  := (x"0FFFFFFFFFFFF2BF", x"0FFFFFFFFFFFBCBF", x"0FFFFFFFFFFF8FBF", x"0FFFFFFFFFFEFB3F", x"0FFFFFFFFFFEE03F", x"0FFFFFFFFFFED07F");-- x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF");
+    constant PRIMES_FOLDS: prime_fold_table_array := ((x"00000000AFAA8100", x"FFFFFFFFFFFFFFFF"), (x"00000011AB168100", x"FFFFFFFFFFFFFFFF"), (x"0000003138F08100", x"FFFFFFFFFFFFFFFF"), (x"0000010998998100", x"FFFFFFFFFFFFFFFF"), (x"00000143724F8100", x"FFFFFFFFFFFFFFFF"), (x"00000167D29F0100", x"FFFFFFFFFFFFFFFF"));
+                                            --((x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), 
+                                            -- (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF")); (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"), (x"FFFFFFFFFFFFFFFF", x"FFFFFFFFFFFFFFFF"));
+    constant PRIME_LEN : integer := 61; 
                 
     alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is mm_param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
     alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is mm_param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
         
 begin
 
-    mulmodfft_inst : entity work.mulmodfft
+    mulmodcrtfft_inst : entity work.mulmodcrtfft
         generic map (
             C_PARAM_WIDTH                        => C_PARAM_WIDTH,
             C_PARAM_ADDR_WIDTH                   => C_PARAM_ADDR_WIDTH,
@@ -80,7 +87,10 @@ begin
             C_LENGTH_WIDTH                       => C_LENGTH_WIDTH,	
             C_MAX_FFT_PRIME_WIDTH                => C_MAX_FFT_PRIME_WIDTH,
             C_MAX_FFT_LENGTH                     => C_MAX_FFT_LENGTH, 
-            C_MAX_POLY_LENGTH                    => C_MAX_POLY_LENGTH
+            C_MAX_POLY_LENGTH                    => C_MAX_POLY_LENGTH, 
+            C_MAX_CRT_PRIME_WIDTH                => C_MAX_CRT_PRIME_WIDTH, 
+            C_MAX_FFT_PRIMES		             => C_MAX_FFT_PRIMES,
+            C_MAX_FFT_PRIMES_FOLDS               => C_MAX_FFT_PRIMES_FOLDS,
             ---
             C_PARAM_ADDR_MUL_TABLE_START         => C_PARAM_ADDR_MUL_TABLE_START,
             C_PARAM_ADDR_FFT_TABLE_START         => C_PARAM_ADDR_FFT_TABLE_START,
@@ -88,7 +98,8 @@ begin
             C_PARAM_ADDR_BS_MUL_TABLE_START      => C_PARAM_ADDR_BS_MUL_TABLE_START,
             C_PARAM_ADDR_BS_MUL_FFT_TABLE_START  => C_PARAM_ADDR_BS_MUL_FFT_TABLE_START,
             C_PARAM_ADDR_IBS_MUL_TABLE_START     => C_PARAM_ADDR_IBS_MUL_TABLE_START,
-            C_PARAM_ADDR_IBS_MUL_FFT_TABLE_START => C_PARAM_ADDR_IBS_MUL_FFT_TABLE_START
+            C_PARAM_ADDR_IBS_MUL_FFT_TABLE_START => C_PARAM_ADDR_IBS_MUL_FFT_TABLE_START,
+            C_PARAM_ADDR_FOLDS_START             => C_PARAM_ADDR_FOLDS_START
             ---
         )
         port map (
