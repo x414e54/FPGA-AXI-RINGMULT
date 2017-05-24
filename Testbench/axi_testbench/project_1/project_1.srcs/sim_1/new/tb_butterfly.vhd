@@ -24,7 +24,7 @@ architecture behavior of tb_butterfly is
     signal bf_y               :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
     signal bf_prime           :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
     signal bf_prime_r         :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
-    signal bs_prime_s         :  std_logic_vector(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
+    signal bf_prime_s         :  std_logic_vector(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
                     
     constant A: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"10000000000007a1");
     constant B: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"10000000000007a1");
@@ -71,18 +71,18 @@ begin
     begin
         wait until rising_edge(clk);
         
-        bs_prime   <= PRIME;
-        bs_prime_r <= PRIME_RED;
-        bs_prime_s <= std_logic_vector(to_unsigned(PRIME_LEN, C_LENGTH_WIDTH));
+        bf_prime   <= PRIME;
+        bf_prime_r <= PRIME_RED;
+        bf_prime_s <= std_logic_vector(to_unsigned(PRIME_LEN, C_LENGTH_WIDTH));
             
-        bs_a <= A;
-        bs_b <= B;            
+        bf_a <= A;
+        bf_b <= B;            
         
         wait until rising_edge(clk);
         wait until rising_edge(clk);
         
-        assert bs_x = X;
-        assert bs_y = Y;
+        assert bf_x = X;
+        assert bf_y = Y;
 
         stop <= '1';
         

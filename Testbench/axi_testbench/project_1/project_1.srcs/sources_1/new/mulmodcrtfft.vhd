@@ -53,7 +53,7 @@ entity mulmodcrtfft is
         ----
 		value          : in std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0)      := (others => '0');      
 		value_valid    : in std_logic; 
-        output         : in std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0)      := (others => '0');
+        output         : out std_logic_vector(C_MAX_CRT_PRIME_WIDTH-1 downto 0)      := (others => '0');
         output_valid   : out std_logic
 	);  
 end mulmodcrtfft;
