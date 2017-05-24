@@ -4,7 +4,7 @@
 -- 
 -- Create Date: 2017/04/03 13:09:21
 -- Design Name: 
--- Module Name: abswitch - Behavioral
+-- Module Name: delay2 - Behavioral
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
@@ -30,31 +30,32 @@ use IEEE.NUMERIC_STD.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity abswitch is
+entity delay2 is
 	generic (
-		C_MAX_INPUT_WIDTH   : integer    := 64
+		C_DELAY		      : integer    := 5
 	);
 	port (
-		clk      : in std_logic;
-		switch   : in std_logic                                           := '0';
-    	in_a     : in std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0)     := (others => '0');
-		in_b     : in std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0)     := (others => '0');
-		out_ab   : out std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0)    := (others => '0')
+		clk       : in  std_logic;
+		i		  : in  std_logic       := '0';
+		o		  : out std_logic       := '0'
 	);  
-end abswitch;
+end delay2;
 
-architecture Behavioral of abswitch is
+architecture Behavioral of delay2 is
 
+    signal a_regs : std_logic_vector(0 to C_DELAY-1)  := (others => '0');
+       
 begin
-        
+
+    o <= a_regs(0);
+
     state_proc : process (clk) is
     begin	
         if rising_edge(clk) then
-		    if (switch = '0') then
-				out_ab <= in_a;
-			else 
-				out_ab <= in_b;
-			end if;
+            for j in 0 to C_DELAY-2 loop
+				a_regs(j) <= a_regs(j+1);
+			end loop;
+            a_regs(C_DELAY-1) <= i;
         end if;
     end process state_proc;
 

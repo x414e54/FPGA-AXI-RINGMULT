@@ -50,16 +50,18 @@ architecture Behavioral of delay is
        
 begin
 
-    o <= a_regs(0);
-
-    state_proc : process (clk) is
-    begin	
-        if rising_edge(clk) then
-            for j in 0 to C_DELAY-2 loop
-				a_regs(j) <= a_regs(j+1);
-			end loop;
-            a_regs(C_DELAY-1) <= i;
-        end if;
-    end process state_proc;
+    o <= i when C_DELAY = 0 else a_regs(0);
+    
+    delay_loop: if C_DELAY > 0 generate
+        state_proc : process (clk) is
+        begin	
+            if rising_edge(clk) then
+                for j in 0 to C_DELAY-2 loop
+				    a_regs(j) <= a_regs(j+1);
+			    end loop;
+                a_regs(C_DELAY-1) <= i;
+            end if;
+        end process state_proc;
+    end generate;
 
 end Behavioral;

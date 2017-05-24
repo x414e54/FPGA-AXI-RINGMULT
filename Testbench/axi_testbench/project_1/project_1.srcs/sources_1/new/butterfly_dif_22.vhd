@@ -51,49 +51,27 @@ architecture Behavioral of butterfly_dif_22 is
 
     signal a_reg : unsigned(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
     signal b_reg : unsigned(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
-    signal x_reg : std_logic_vector((2*C_MAX_FFT_PRIME_WIDTH)-1 downto 0) := (others => '0');
-    signal y_reg : std_logic_vector((2*C_MAX_FFT_PRIME_WIDTH)-1 downto 0) := (others => '0');
-
+    
+    signal x_reg : unsigned(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
+    
 begin
-       
-    red_x : entity work.red
-        generic map (
-            C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
-            C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-            C_MAX_INPUT_WIDTH   => 2*C_MAX_FFT_PRIME_WIDTH
-        )
-       	port map (
-            clk       => clk,
-            modulus   => prime,
-            modulus_r => prime_r,
-            modulus_s => prime_s,
-            value     => x_reg,
-            remainder => x
-        );
-        
-    red_y : entity work.red
-        generic map (
-            C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
-            C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-            C_MAX_INPUT_WIDTH   => 2*C_MAX_FFT_PRIME_WIDTH
-         )
-        port map (
-            clk       => clk,
-            modulus   => prime,
-            modulus_r => prime_r,
-            modulus_s => prime_s,
-            value     => y_reg,
-            remainder => y
-        );
-       	   
+              	   
     state_proc : process (clk) is
     begin	
         if rising_edge(clk) then
             a_reg <= unsigned(a);
             b_reg <= unsigned(b);
+            x_reg <= unsigned(a) + unsigned(b);
             
-            x_reg <= std_logic_vector(resize(a_reg + b_reg, 2*C_MAX_FFT_PRIME_WIDTH));
-            y_reg <= std_logic_vector(resize(a_reg - b_reg, 2*C_MAX_FFT_PRIME_WIDTH));
+            if (x_reg >= prime) then 
+                x <= std_logic_vector(resize(x_reg - prime, C_MAX_FFT_PRIME_WIDTH));
+            )
+            
+            if (a_reg >= b_reg) then
+                y <= std_logic_vector(resize(a_reg - b_reg, C_MAX_FFT_PRIME_WIDTH));
+            else
+                y <= std_logic_vector(resize(prime - (b_reg - a_reg), C_MAX_FFT_PRIME_WIDTH)); 
+            end if  
         end if;
     end process state_proc;
 

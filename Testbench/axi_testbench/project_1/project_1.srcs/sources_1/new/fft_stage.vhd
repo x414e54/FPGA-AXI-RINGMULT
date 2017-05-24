@@ -58,23 +58,46 @@ architecture Behavioral of fft_stage is
     signal switch_1 : std_logic := '0';
     signal switch_2 : std_logic := '0';
     signal switch_3 : std_logic := '0';
-    
+        
+    signal input_reg  : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
+        
     signal dif_0_shift_in  : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
     signal dif_0_shift_out : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
     signal dif_1_shift_in  : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
     signal dif_1_shift_out : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
 
-begin
+    constant butterfly_delay : integer := 2;
     
-    switch_1 <= switches(0);
-    switch_2 <= switches(1);
-    switch_3 <= (not switches(0)) and switches(1);
+begin
+
+    switch_3 <= (not switch_1) and switch_2;
      
---- 0    
+--- 0
+    switch1_delay : entity work.delay2
+        generic map (
+	       C_DELAY		      => butterfly_delay
+        )
+        port map (
+            clk       => clk,
+            i         => switches(1),
+            o         => switch_1
+        );
+    
+    input_delay : entity work.delay
+        generic map (
+            C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH,
+            C_DELAY		      => butterfly_delay
+        )
+        port map (
+            clk       => clk,
+            i         => input,
+            o         => input_reg
+        );
+                
     dif_0_shift : entity work.delay
         generic map (
     		C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-    		C_DELAY		      => C_STAGE_LENGTH/2
+    		C_DELAY		      => C_STAGE_LENGTH/2 - 1 - butterfly_delay
         )
         port map (
             clk       => clk,
@@ -89,7 +112,7 @@ begin
         )
         port map (
             clk     => clk,
-            a       => input,
+            a       => input_reg,
             b       => dif_0_shift_out,
             x       => regs(1),
             y       => regs(0),
@@ -98,19 +121,19 @@ begin
             prime_s => prime_s
         );   
                 
-    abswitch_delay_0_0 : entity work.abswitch
+    abswitch_0_0 : entity work.abswitch
         generic map (
             C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
         )
         port map (
             clk    => clk,
             switch => switch_1,
-            in_a   => input,
+            in_a   => input_reg,
             in_b   => regs(0),
             out_ab => dif_0_shift_in
         );
                 
-    abswitch_delay_0_1 : entity work.abswitch
+    abswitch_0_1 : entity work.abswitch
         generic map (
             C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
         )
@@ -138,22 +161,32 @@ begin
             c           => regs(3)  
         );
       
-    abswitch_delay_0_2 : entity work.abswitch
+    abswitch_0_2 : entity work.abswitch
         generic map (
             C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
         )
         port map (
             clk    => clk,
             switch => switch_3,
-            in_a   => regs(3),
-            in_b   => regs(2),
+            in_a   => regs(2),
+            in_b   => regs(3),
             out_ab => regs(4)
         );
 --- 1
+    switch2_delay : entity work.delay2
+    generic map (
+        C_DELAY		      => 8
+    )
+    port map (
+        clk       => clk,
+        i         => switches(1),
+        o         => switch_2
+    );
+    
     dif_1_shift : entity work.delay
         generic map (
 		    C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-		    C_DELAY		      => C_STAGE_LENGTH/4
+		    C_DELAY		      => C_STAGE_LENGTH/4 - 1 - butterfly_delay
         )
         port map (
             clk       => clk,
@@ -177,7 +210,7 @@ begin
             prime_s => prime_s
         );   
     
-    abswitch_delay_0 : entity work.abswitch
+    abswitch_0 : entity work.abswitch
     generic map (
         C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
     )
@@ -189,7 +222,7 @@ begin
         out_ab => dif_1_shift_in
     );
     
-    abswitch_delay_1 : entity work.abswitch
+    abswitch_1 : entity work.abswitch
     generic map (
         C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
     )
