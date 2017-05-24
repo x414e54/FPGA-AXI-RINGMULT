@@ -63,15 +63,15 @@ begin
             b_reg <= unsigned(b);
             x_reg <= unsigned(a) + unsigned(b);
             
-            if (x_reg >= prime) then 
-                x <= std_logic_vector(resize(x_reg - prime, C_MAX_FFT_PRIME_WIDTH));
-            )
+            if (x_reg >= unsigned(prime)) then 
+                x <= std_logic_vector(resize(x_reg - unsigned(prime), C_MAX_FFT_PRIME_WIDTH));
+            end if;
             
             if (a_reg >= b_reg) then
                 y <= std_logic_vector(resize(a_reg - b_reg, C_MAX_FFT_PRIME_WIDTH));
             else
-                y <= std_logic_vector(resize(prime - (b_reg - a_reg), C_MAX_FFT_PRIME_WIDTH)); 
-            end if  
+                y <= std_logic_vector(resize(unsigned(prime) - (b_reg - a_reg), C_MAX_FFT_PRIME_WIDTH)); 
+            end if;  
         end if;
     end process state_proc;
 

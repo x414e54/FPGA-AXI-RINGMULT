@@ -70,34 +70,17 @@ architecture Behavioral of fft_stage is
     
 begin
 
+    input_reg <= input;
+    switch_1 <= switches(1);
+    switch_2 <= switches(0);
     switch_3 <= (not switch_1) and switch_2;
      
 --- 0
-    switch1_delay : entity work.delay2
-        generic map (
-	       C_DELAY		      => butterfly_delay
-        )
-        port map (
-            clk       => clk,
-            i         => switches(1),
-            o         => switch_1
-        );
-    
-    input_delay : entity work.delay
-        generic map (
-            C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-            C_DELAY		      => butterfly_delay
-        )
-        port map (
-            clk       => clk,
-            i         => input,
-            o         => input_reg
-        );
-                
+                    
     dif_0_shift : entity work.delay
         generic map (
     		C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-    		C_DELAY		      => C_STAGE_LENGTH/2 - 1 - butterfly_delay
+    		C_DELAY		      => C_STAGE_LENGTH/2 - 1
         )
         port map (
             clk       => clk,
@@ -186,7 +169,7 @@ begin
     dif_1_shift : entity work.delay
         generic map (
 		    C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-		    C_DELAY		      => C_STAGE_LENGTH/4 - 1 - butterfly_delay
+		    C_DELAY		      => C_STAGE_LENGTH/4 - 1
         )
         port map (
             clk       => clk,
