@@ -71,6 +71,10 @@ architecture Behavioral of bluestein_fft is
     
     constant NUM_STAGES : integer := integer(ceil(log2(real(C_MAX_FFT_LENGTH)))); 
 
+    signal mul_table_in_val : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
+    signal mul_table_out_val : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
+    signal mul_fft_table_val : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)     := (others => '0');
+    
     signal mul_table_in_idx        : integer := 0;
     signal mul_table_out_idx       : integer := 0;
     signal mul_fft_table_idx       : integer := 0;
@@ -94,6 +98,10 @@ architecture Behavioral of bluestein_fft is
 
 begin
     
+    mul_table_in_val <= mul_table(mul_table_in_idx);
+    mul_table_out_val <= mul_table(mul_table_out_idx);
+    mul_fft_table_val <= mul_table(mul_fft_table_idx);
+    
 --- Mul yi table
     mulyi : entity work.mulred
     generic map (
@@ -106,7 +114,7 @@ begin
         modulus_r   => prime_r,
         modulus_s   => prime_s,
         a           => value,
-        b           => mul_table(mul_table_in_idx),
+        b           => mul_table_in_val,
         c           => mul_output  
     );
 
@@ -151,7 +159,7 @@ begin
         modulus_r   => prime_r,
         modulus_s   => prime_s,
         a           => fft_output,
-        b           => mul_fft_table(mul_fft_table_idx),
+        b           => mul_fft_table_val,
         c           => mul_fft_output  
     );
     
@@ -196,7 +204,7 @@ begin
         modulus_r   => prime_r,
         modulus_s   => prime_s,
         a           => ifft_output,
-        b           => mul_table(mul_table_out_idx),
+        b           => mul_table_out_val,
         c           => output  
     ); 
         

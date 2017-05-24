@@ -40,7 +40,8 @@ architecture behavior of tb_fft is
     type fft_table_array is array(0 to FFT_TABLE_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
 
     constant INPUT: fft_array :=  (x"0fd868c34e228cb8", x"08446ea1bafa97ea", x"0277227c62203448", x"0d88dd839ddfd359", x"07bb915e45056fb7", x"0027973cb1dd7ae9", x"0000000000000001", x"0027973cb1dd7ae9", x"07bb915e45056fb7", x"0d88dd839ddfd359", x"0277227c62203448", x"08446ea1bafa97ea", x"0fd868c34e228cb8", x"0000000000000000", x"0000000000000000", x"0000000000000000");
-    constant OUTPUT: fft_array := (x"0000000000000001", x"082c7277d5209517", x"0a39af4a620f810b", x"0a39af4a620f810b", x"0f8ff74817c53dce", x"0c59a0eddd9d8881", x"03a65f1222627f20", x"007008b7e83ac9d3", x"04fc1b20c8b5ab29", x"0d03f2f2d7f24cf1", x"067cc0d5b3e3b6be", x"08a1276b944bfa4e", x"06ff53e8f49c3fe3", x"00108288607f0462", x"024ac820d2f7b12b", x"066e264137fe41d1");
+    constant OUTPUT: fft_array := (x"0000000000000001", x"082c7277d5209517", x"0a39af4a620f810b", x"0a39af4a620f810b", x"0f8ff74817c53dce", x"0c59a0eddd9d8881", x"03a65f1222627f20", x"007008b7e83ac9d3", x"04fc1b20c8b5ab29", x"0d03f2f2d7f24cf1", x"067cc0d5b3e3b6be", x"08a1276b944bfa4e", x"06ff53e8f49c3fe3", x"00108288607f0462", x"024ac820d2f7b12b", x"066e264137fe41d1");   
+    
     constant W_TABLE: fft_table_array := (x"0000000000000001", x"02988d35c17ccc9f", x"0b95ba03d2895a0b", x"008ce9213c497ee6", x"081a85435318023a", x"04d42929728e6e1c", x"08b88974961e1594", x"047928ca80c01ac0", x"10000000000007a0", x"0d6772ca3e833b02");
     constant PRIME: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"10000000000007a1");
     constant PRIME_RED: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"0FFFFFFFFFFFF85f");
@@ -120,7 +121,14 @@ begin
         end loop;
         
         fft_value_valid <= '0';
-        
+                
+        -- fill pipeline with extra data
+        for i in 0 to C_FFT_LENGTH - 1 loop
+            fft_value_valid <= '1';
+            fft_value <= OUTPUT(i);
+        	wait until rising_edge(clk);
+       end loop;
+                
         wait until fft_output_valid = '1';
         
 		for i in 0 to C_FFT_LENGTH - 1 loop
