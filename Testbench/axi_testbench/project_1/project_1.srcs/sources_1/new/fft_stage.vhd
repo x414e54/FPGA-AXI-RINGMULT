@@ -51,9 +51,16 @@ end fft_stage;
 
 architecture Behavioral of fft_stage is
 
-    type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
+    signal bf_0_x : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
+    signal bf_0_y : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
+    signal substage_0_out : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
     
-    signal regs : REGISTER_TYPE(0 to 8-1)  := (others => (others => '0'));
+    signal mul_i : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
+    
+    signal substage_1_in : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
+    signal bf_1_x : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
+    signal bf_1_y : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
+    signal substage_1_out : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
 
     signal switch_1 : std_logic := '0';
     signal switch_2 : std_logic := '0';
@@ -65,8 +72,6 @@ architecture Behavioral of fft_stage is
     signal dif_0_shift_out : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
     signal dif_1_shift_in  : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
     signal dif_1_shift_out : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
-
-    constant butterfly_delay : integer := 2;
     
 begin
 
@@ -97,8 +102,8 @@ begin
             clk     => clk,
             a       => input_reg,
             b       => dif_0_shift_out,
-            x       => regs(1),
-            y       => regs(0),
+            x       => bf_0_x,
+            y       => bf_0_y,
             prime   => prime,
             prime_r => prime_r,
             prime_s => prime_s
@@ -112,7 +117,7 @@ begin
             clk    => clk,
             switch => switch_1,
             in_a   => input_reg,
-            in_b   => regs(0),
+            in_b   => bf_0_y,
             out_ab => dif_0_shift_in
         );
                 
@@ -124,11 +129,11 @@ begin
             clk    => clk,
             switch => switch_1,
             in_a   => dif_0_shift_out,
-            in_b   => regs(1),
-            out_ab => regs(2)
+            in_b   => bf_0_x,
+            out_ab => substage_0_out
         );
     
- --- twiddle i
+--- twiddle i
     i_mul : entity work.mulred
         generic map (
             C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
@@ -139,9 +144,9 @@ begin
             modulus     => prime,
             modulus_r   => prime_r,
             modulus_s   => prime_s,
-            a           => regs(2),
+            a           => substage_0_out,
             b           => prime_i,
-            c           => regs(3)  
+            c           => mul_i
         );
       
     abswitch_0_2 : entity work.abswitch
@@ -151,9 +156,9 @@ begin
         port map (
             clk    => clk,
             switch => switch_3,
-            in_a   => regs(2),
-            in_b   => regs(3),
-            out_ab => regs(4)
+            in_a   => substage_0_out,
+            in_b   => mul_i,
+            out_ab => substage_1_in
         );
 --- 1
     switch2_delay : entity work.delay2
@@ -169,7 +174,7 @@ begin
     dif_1_shift : entity work.delay
         generic map (
 		    C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-		    C_DELAY		      => C_STAGE_LENGTH/4 - 1
+		    C_DELAY		      => C_STAGE_LENGTH/4
         )
         port map (
             clk       => clk,
@@ -184,37 +189,37 @@ begin
         )
         port map (
             clk     => clk,
-            a       => regs(4),
+            a       => substage_1_in,
             b       => dif_1_shift_out,
-            x       => regs(6),
-            y       => regs(5),
+            x       => bf_1_x,
+            y       => bf_1_y,
             prime   => prime,
             prime_r => prime_r,
             prime_s => prime_s
         );   
     
-    abswitch_0 : entity work.abswitch
+    abswitch_1_0 : entity work.abswitch
     generic map (
         C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
     )
     port map (
         clk    => clk,
         switch => switch_2,
-        in_a   => regs(6),
-        in_b   => regs(5),
+        in_a   => substage_1_in,
+        in_b   => bf_1_y,
         out_ab => dif_1_shift_in
     );
     
-    abswitch_1 : entity work.abswitch
+    abswitch_1_1 : entity work.abswitch
     generic map (
         C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH
     )
     port map (
         clk    => clk,
         switch => switch_2,
-        in_a   => regs(6),
-        in_b   => dif_1_shift_out,
-        out_ab => regs(7)
+        in_a   => dif_1_shift_out,
+        in_b   => bf_1_x,
+        out_ab => substage_1_out
     );
 
 --- twiddle
@@ -228,7 +233,7 @@ begin
         modulus     => prime,
         modulus_r   => prime_r,
         modulus_s   => prime_s,
-        a           => regs(7),
+        a           => substage_1_out,
         b           => w,
         c           => output  
     );

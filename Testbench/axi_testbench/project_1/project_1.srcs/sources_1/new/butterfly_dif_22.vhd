@@ -48,29 +48,22 @@ entity butterfly_dif_22 is
 end butterfly_dif_22;
 
 architecture Behavioral of butterfly_dif_22 is
-
-    signal a_reg : unsigned(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
-    signal b_reg : unsigned(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
-    
-    signal x_reg : unsigned(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
     
 begin
               	   
     state_proc : process (clk) is
     begin	
         if rising_edge(clk) then
-            a_reg <= unsigned(a);
-            b_reg <= unsigned(b);
-            x_reg <= unsigned(a) + unsigned(b);
-            
-            if (x_reg >= unsigned(prime)) then 
-                x <= std_logic_vector(resize(x_reg - unsigned(prime), C_MAX_FFT_PRIME_WIDTH));
+            if ((unsigned(a) + unsigned(b)) >= unsigned(prime)) then 
+                x <= std_logic_vector(resize(unsigned(a) + unsigned(b) - unsigned(prime), C_MAX_FFT_PRIME_WIDTH));
+            else 
+                x <= std_logic_vector(resize(unsigned(a) + unsigned(b), C_MAX_FFT_PRIME_WIDTH));
             end if;
             
-            if (a_reg >= b_reg) then
-                y <= std_logic_vector(resize(a_reg - b_reg, C_MAX_FFT_PRIME_WIDTH));
+            if (a >= b) then
+                y <= std_logic_vector(resize(unsigned(a) - unsigned(b), C_MAX_FFT_PRIME_WIDTH));
             else
-                y <= std_logic_vector(resize(unsigned(prime) - (b_reg - a_reg), C_MAX_FFT_PRIME_WIDTH)); 
+                y <= std_logic_vector(resize(unsigned(prime) - (unsigned(b) - unsigned(a)), C_MAX_FFT_PRIME_WIDTH)); 
             end if;  
         end if;
     end process state_proc;

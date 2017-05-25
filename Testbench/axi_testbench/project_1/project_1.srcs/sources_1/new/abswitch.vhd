@@ -45,17 +45,18 @@ end abswitch;
 
 architecture Behavioral of abswitch is
 
+    signal a_reg : std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0)  := (others => '0');
+    signal switch_reg : std_logic  := '0';
+    
 begin
-        
-    state_proc : process (clk) is
-    begin	
-        if rising_edge(clk) then
-		    if (switch = '0') then
-				out_ab <= in_a;
-			else 
-				out_ab <= in_b;
-			end if;
-        end if;
-    end process state_proc;
+    
+    out_ab <= in_b when switch_reg = '1' else a_reg;
 
+    state_proc : process (clk) is
+        begin    
+            if rising_edge(clk) then
+                a_reg <= in_a;
+                switch_reg <= switch;
+            end if;
+        end process state_proc;
 end Behavioral;
