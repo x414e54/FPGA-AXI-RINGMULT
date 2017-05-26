@@ -78,9 +78,18 @@ begin
 
     input_reg <= input;
     switch_1 <= switches(1);
-    switch_2 <= switches(0);
     switch_3 <= (not switch_1) and switch_2;
      
+    switch_2_delay : entity work.delay2
+        generic map (
+            C_DELAY => 1
+        )
+        port map (
+            clk       => clk,
+            i         => switches(0),
+            o         => switch_2
+        );
+
 --- 0
                     
     dif_0_shift : entity work.delay
@@ -153,7 +162,7 @@ begin
     no_i_mul_delay : entity work.delay
         generic map (
             C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-            C_DELAY           => 8
+            C_DELAY           => 7
         )
         port map (
             clk       => clk,
@@ -176,7 +185,7 @@ begin
     dif_1_shift : entity work.delay
         generic map (
 		    C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-		    C_DELAY		      => C_STAGE_LENGTH/4
+		    C_DELAY		      => C_STAGE_LENGTH/4 - 1
         )
         port map (
             clk       => clk,
