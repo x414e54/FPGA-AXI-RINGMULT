@@ -59,7 +59,7 @@ entity fft is
 		output_valid   : out std_logic                                              := '0'
 	);  
 end fft;
-
+    
 architecture Behavioral of fft is
 
     type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
@@ -71,18 +71,22 @@ architecture Behavioral of fft is
 
     signal w_table : REGISTER_TYPE(0 to (C_MAX_FFT_LENGTH + 3) - 1)  := (others => (others => '0'));
 
-    signal w_val   : REGISTER_TYPE(0 to NUM_STAGES)        := (others => (others => '0'));    
+    signal w_val   : REGISTER_TYPE(0 to NUM_STAGES-1)        := (others => (others => '0'));    
     signal regs    : REGISTER_TYPE(0 to NUM_STAGES)        := (others => (others => '0'));
 
     alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
     alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
-
+    
 begin
     
     regs(0) <= value;
     output <= regs(NUM_STAGES);
     
     fft_stages : for i in 0 to NUM_STAGES - 1 generate
+                
+                -- need to rotate idx NS-1 and -2 to be -2 and -1 etc
+        w_val(i) <= w_table(to_integer((unsigned(counter((2*NUM_STAGES-1-(2*i)) downto (2*NUM_STAGES-2-(2*i)))))*(unsigned(counter((2*NUM_STAGES-3-(2*i)) downto 0)))));
+        
         stage_i : entity work.fft_stage
             generic map (
                 C_LENGTH_WIDTH => C_LENGTH_WIDTH,
@@ -93,7 +97,7 @@ begin
             port map (
                 clk      => clk,
                 w        => w_val(i),
-                switches => std_logic_vector(counter((2*NUM_STAGES-1-i) downto (2*NUM_STAGES-2-i))),
+                switches => std_logic_vector(counter((2*NUM_STAGES-1-(2*i)) downto (2*NUM_STAGES-2-(2*i)))),
                 prime    => prime,
                 prime_r  => prime_r,
                 prime_i  => prime_i,
