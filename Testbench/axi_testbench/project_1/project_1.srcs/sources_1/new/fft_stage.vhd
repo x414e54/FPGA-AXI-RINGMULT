@@ -160,7 +160,7 @@ begin
     no_i_mul_delay : entity work.delay
         generic map (
             C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-            C_DELAY           => 7
+            C_DELAY           => 3
         )
         port map (
             clk       => clk,

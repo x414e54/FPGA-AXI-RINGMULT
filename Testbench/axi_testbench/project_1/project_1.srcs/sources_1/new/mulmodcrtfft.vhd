@@ -199,6 +199,9 @@ begin
             );  
     end generate ibs;
 
+    output <= std_logic_vector(unsigned(ibs_outputs(0)) + unsigned(ibs_outputs(1)) +  unsigned(ibs_outputs(2)) + unsigned(ibs_outputs(3)));
+    output_valid <= ibs_outputs_valid(0);
+    
 --        icrt : entity work.icrt
  --           generic (
   --              C_MAX_MODULUS_WIDTH   => C_MAX_FFT_PRIME_WIDTH,

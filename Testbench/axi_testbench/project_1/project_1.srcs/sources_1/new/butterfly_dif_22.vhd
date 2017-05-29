@@ -47,23 +47,12 @@ end butterfly_dif_22;
 
 architecture Behavioral of butterfly_dif_22 is
     
+    signal tmp  : unsigned(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
+    
 begin
-              	   
-    state_proc : process (clk) is
-    begin	
-        if rising_edge(clk) then
-            if ((unsigned(a) + unsigned(b)) >= unsigned(prime)) then 
-                x <= std_logic_vector(resize(unsigned(a) + unsigned(b) - unsigned(prime), C_MAX_FFT_PRIME_WIDTH));
-            else 
-                x <= std_logic_vector(resize(unsigned(a) + unsigned(b), C_MAX_FFT_PRIME_WIDTH));
-            end if;
-            
-            if (a >= b) then
-                y <= std_logic_vector(resize(unsigned(a) - unsigned(b), C_MAX_FFT_PRIME_WIDTH));
-            else
-                y <= std_logic_vector(resize(unsigned(prime) - (unsigned(b) - unsigned(a)), C_MAX_FFT_PRIME_WIDTH)); 
-            end if;  
-        end if;
-    end process state_proc;
 
+    tmp <= unsigned(a) + unsigned(b);
+    x <= std_logic_vector(resize(tmp - unsigned(prime), C_MAX_FFT_PRIME_WIDTH)) when tmp >= unsigned(prime) else std_logic_vector(resize(tmp, C_MAX_FFT_PRIME_WIDTH));
+    y <=  std_logic_vector(resize(unsigned(a) - unsigned(b), C_MAX_FFT_PRIME_WIDTH)) when a >= b else std_logic_vector(resize(unsigned(prime) - (unsigned(b) - unsigned(a)), C_MAX_FFT_PRIME_WIDTH));
+      
 end Behavioral;
