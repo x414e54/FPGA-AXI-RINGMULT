@@ -31,7 +31,7 @@ entity mulmodcrtfft is
         C_MAX_FFT_LENGTH                     : integer   := 16384; 
         C_MAX_POLY_LENGTH                    : integer   := 7710; 
 		C_MAX_CRT_PRIME_WIDTH                : integer   := 256; 
-		C_MAX_FFT_PRIMES		             : integer   := 9;
+		C_MAX_FFT_PRIMES		             : integer   := 4;
 		C_MAX_FFT_PRIMES_FOLDS               : integer   := (256/64)-2;--C_MAX_CRT_PRIME_WIDTH / C_MAX_FFT_PRIME_WIDTH - 2
 		---
 		C_PARAM_ADDR_MUL_TABLE_START         : integer := 0;

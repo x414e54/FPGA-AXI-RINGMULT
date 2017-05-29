@@ -114,9 +114,7 @@ begin
             b       => dif_0_shift_out,
             x       => bf_0_x,
             y       => bf_0_y,
-            prime   => prime,
-            prime_r => prime_r,
-            prime_s => prime_s
+            prime   => prime
         );   
                 
     abswitch_0_0 : entity work.abswitch
@@ -204,9 +202,7 @@ begin
             b       => dif_1_shift_out,
             x       => bf_1_x,
             y       => bf_1_y,
-            prime   => prime,
-            prime_r => prime_r,
-            prime_s => prime_s
+            prime   => prime
         );   
     
     abswitch_1_0 : entity work.abswitch

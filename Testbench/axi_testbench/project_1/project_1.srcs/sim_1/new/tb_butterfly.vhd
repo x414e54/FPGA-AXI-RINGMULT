@@ -23,16 +23,13 @@ architecture behavior of tb_butterfly is
     signal bf_x               :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
     signal bf_y               :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
     signal bf_prime           :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
-    signal bf_prime_r         :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
-    signal bf_prime_s         :  std_logic_vector(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
                     
-    constant A: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"10000000000007a1");
-    constant B: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"10000000000007a1");
-    constant X: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"10000000000007a1");
-    constant Y: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"10000000000007a1");
+    constant A: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"0000000000000200");
+    constant B: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"1000000000000798");
+    constant X: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"00000000000001f7");
+    constant Y: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"0000000000000209");
                                     
     constant PRIME: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"10000000000007a1");
-    constant PRIME_RED: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"0FFFFFFFFFFFF85f");
     constant PRIME_I: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"081a85435318023a");
     constant PRIME_LEN : integer := 61; 
             
@@ -51,9 +48,7 @@ begin
             b       => bf_b,
             x       => bf_x,
             y       => bf_y, 
-            prime   => bf_prime,
-            prime_r => bf_prime_r,
-            prime_s => bf_prime_s
+            prime   => bf_prime
         );  
 
     clk_process : process
@@ -72,8 +67,6 @@ begin
         wait until rising_edge(clk);
         
         bf_prime   <= PRIME;
-        bf_prime_r <= PRIME_RED;
-        bf_prime_s <= std_logic_vector(to_unsigned(PRIME_LEN, C_LENGTH_WIDTH));
             
         bf_a <= A;
         bf_b <= B;            
