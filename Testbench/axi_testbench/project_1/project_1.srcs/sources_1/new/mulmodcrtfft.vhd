@@ -199,7 +199,7 @@ begin
             );  
     end generate ibs;
 
-    output <= std_logic_vector(unsigned(ibs_outputs(0)) + unsigned(ibs_outputs(1)) +  unsigned(ibs_outputs(2)) + unsigned(ibs_outputs(3)));
+    output <= std_logic_vector(resize(unsigned(ibs_outputs(0)) + unsigned(ibs_outputs(1)) +  unsigned(ibs_outputs(2)) + unsigned(ibs_outputs(3)), C_MAX_CRT_PRIME_WIDTH));
     output_valid <= ibs_outputs_valid(0);
     
 --        icrt : entity work.icrt

@@ -95,7 +95,7 @@ begin
     dif_0_shift : entity work.delay
         generic map (
     		C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-    		C_DELAY		      => C_STAGE_LENGTH/2 - 1
+    		C_DELAY		      => C_STAGE_LENGTH/2
         )
         port map (
             clk       => clk,
@@ -183,7 +183,7 @@ begin
     dif_1_shift : entity work.delay
         generic map (
 		    C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-		    C_DELAY		      => C_STAGE_LENGTH/4 - 1
+		    C_DELAY		      => C_STAGE_LENGTH/4
         )
         port map (
             clk       => clk,
