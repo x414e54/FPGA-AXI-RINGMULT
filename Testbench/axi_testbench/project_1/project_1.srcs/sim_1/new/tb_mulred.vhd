@@ -25,7 +25,7 @@ architecture behavior of tb_mulred is
     signal mr_b              :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
     signal mr_c              :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
                     
-    constant INPUT: std_logic_vector(2*C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"07E3289AF6E2EAA0");
+    constant INPUT: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"07E3289AF6E2EAA0");
     constant OUTPUT: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"082AA6303118D119");
                                     
     constant PRIME: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"10000000000007a1");
@@ -42,9 +42,9 @@ begin
         )
         port map (
             clk         => clk,
-            modulus     => mr_prime,
-            modulus_r   => mr_prime_r,
-            modulus_s   => mr_prime_s,
+            modulus     => mr_modulus,
+            modulus_r   => mr_modulus_r,
+            modulus_s   => mr_modulus_s,
             a           => mr_a,
             b           => mr_b,
             c           => mr_c
