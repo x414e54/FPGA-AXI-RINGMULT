@@ -67,6 +67,18 @@ architecture Behavioral of mulmodcrtfft_single is
     signal mul_table_val : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
         
     signal mul_table_idx : integer := 0;
+    
+    signal prime : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+    signal prime_r : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+    signal prime_bs : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+    signal prime_r_bs : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+    signal prime_i_bs : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+    signal prime_mul : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+    signal prime_r_mul : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+    signal prime_ibs : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+    signal prime_r_ibs : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+    signal prime_i_ibs : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+    
     signal prime_idx : integer := 0;
     signal bs_idx : integer := 0;
     signal mul_idx : integer := 0;
@@ -88,8 +100,8 @@ architecture Behavioral of mulmodcrtfft_single is
     signal bs_output_valid  : std_logic := '0';
     signal mul_output       : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
     signal mul_output_valid : std_logic := '0';
-    signal ibs_outputs       : REGISTER_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
-    signal ibs_outputs_valid : VALID_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => '0');
+    signal ibs_output       : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
+    signal ibs_output_valid : std_logic := '0';
     
     alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
     alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
@@ -97,6 +109,16 @@ architecture Behavioral of mulmodcrtfft_single is
 begin
 
     mul_table_val <= mul_table(mul_table_idx);
+    prime <= primes(prime_idx);
+    prime_r <= primes_r(prime_idx);
+    prime_bs <= primes(bs_idx);
+    prime_r_bs <= primes_r(bs_idx);
+    prime_i_bs <= primes_i(bs_idx);
+    prime_mul <= primes(mul_idx); 
+    prime_r_mul <= primes_r(mul_idx);
+    prime_ibs <= primes(mul_idx);
+    prime_r_ibs <= primes_r(ibs_idx);
+    prime_i_ibs <= primes_i(ibs_idx);
 
     prime_i : entity work.rem_fold
         generic map (
@@ -115,8 +137,8 @@ begin
             param        => param,
             param_addr   => param_addr,
             param_valid  => param_valid,
-            modulus      => primes(prime_idx),
-            modulus_r    => primes_r(prime_idx),
+            modulus      => prime,
+            modulus_r    => prime_r,
             modulus_s    => prime_s,
             value	     => value,
             remainder    => remainder
@@ -140,9 +162,9 @@ begin
             param          => param,
             param_addr     => param_addr,
             param_valid    => param_valid,
-            prime          => primes(bs_idx),
-            prime_r        => primes_r(bs_idx),
-            prime_i        => primes_i(bs_idx),
+            prime          => prime_bs,
+            prime_r        => prime_r_bs,
+            prime_i        => prime_i_bs,
             prime_s        => prime_s,
             fft_length     => fft_length,
             length         => length,
@@ -160,8 +182,8 @@ begin
         )
         port map (
             clk         => clk,
-            modulus     => primes(mul_idx),
-            modulus_r   => primes_r(mul_idx),
+            modulus     => prime_mul,
+            modulus_r   => prime_r_mul,
             modulus_s   => prime_s,
             a           => bs_output,
             b           => mul_table_val,
@@ -186,20 +208,20 @@ begin
             param          => param,
             param_addr     => param_addr,
             param_valid    => param_valid,
-            prime          => primes(ibs_idx),
-            prime_r        => primes_r(ibs_idx),
-            prime_i        => primes_i(ibs_idx),
+            prime          => prime_ibs,
+            prime_r        => prime_r_ibs,
+            prime_i        => prime_i_ibs,
             prime_s        => prime_s,
             fft_length     => fft_length,
             length         => length,
             value          => mul_output,
             value_valid    => mul_output_valid,
-            output         => ibs_outputs(ibs_idx),
-            output_valid   => ibs_outputs_valid(ibs_idx)
+            output         => ibs_output,
+            output_valid   => ibs_output_valid
         );  
 
-    output <= std_logic_vector(resize(unsigned(ibs_outputs(0)) + unsigned(ibs_outputs(1)) +  unsigned(ibs_outputs(2)) + unsigned(ibs_outputs(3)), C_MAX_CRT_PRIME_WIDTH));
-    output_valid <= ibs_outputs_valid(0);
+    output <= ibs_output;
+    output_valid <= ibs_output_valid;
     
 --        icrt : entity work.icrt
  --           generic (
@@ -235,7 +257,7 @@ begin
             if (param_valid = '1' and to_integer(unsigned(param_addr_top)) = C_PARAM_ADDR_MUL_TABLE_START) then
                 fft_length <= param;
             end if;     
-            
+                        
             if (bs_output_valid = '1') then
                 if (mul_table_idx - 1 = to_integer(unsigned(length))) then
                     mul_table_idx <= 0;

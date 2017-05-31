@@ -62,7 +62,8 @@ begin
         if rising_edge(clk) then
             -- pipeline barret
             -- convert to shift register
-            a_reg_1 <= unsigned(value);
+            a_reg_1 <= a_reg_0;
+            a_reg_0 <= unsigned(value);
             --
             b_reg <= resize(unsigned(value) srl (C_MODULUS_WIDTH - 1), C_MAX_INPUT_WIDTH-C_MODULUS_WIDTH) * resize(unsigned(modulus_r), C_MODULUS_WIDTH);
             c_reg <= a_reg_1 - resize(b_reg srl (C_MODULUS_WIDTH - 1), C_MAX_INPUT_WIDTH-C_MODULUS_WIDTH) * resize(unsigned(modulus), C_MODULUS_WIDTH);

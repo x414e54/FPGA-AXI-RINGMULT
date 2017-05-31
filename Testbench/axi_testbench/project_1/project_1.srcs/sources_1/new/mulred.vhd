@@ -68,9 +68,8 @@ begin
                 value     => c_reg,
                 remainder => c
             );
+            
         mul : entity work.mult_gen_0
-            generic map (
-            )
             port map (
                 clk => clk,
                 a   => a,

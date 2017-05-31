@@ -41,7 +41,7 @@ entity mulmodcrtfft is
         C_PARAM_ADDR_BS_MUL_FFT_TABLE_START  : integer := 36; --C_PARAM_ADDR_BS_MUL_TABLE_START + C_MAX_FFT_PRIMES;
         C_PARAM_ADDR_IBS_MUL_TABLE_START     : integer := 45; --C_PARAM_ADDR_BS_MUL_FFT_TABLE_START + C_MAX_FFT_PRIMES;
         C_PARAM_ADDR_IBS_MUL_FFT_TABLE_START : integer := 54; --C_PARAM_ADDR_IBS_MUL_TABLE_START + C_MAX_FFT_PRIMES;
-        C_PARAM_ADDR_FOLDS_START             : integer := 63 --C_PARAM_ADDR_IBS_MUL_FFT_TABLE_START + C_MAX_FFT_PRIMES
+        C_PARAM_ADDR_FOLDS_START             : integer := 63; --C_PARAM_ADDR_IBS_MUL_FFT_TABLE_START + C_MAX_FFT_PRIMES
         ---
         C_USE_CORE                           : boolean := true
 	);
