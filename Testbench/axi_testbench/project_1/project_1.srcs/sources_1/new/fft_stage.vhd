@@ -58,7 +58,7 @@ architecture Behavioral of fft_stage is
     signal substage_0_out_delay : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
     
     signal mul_i : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
-    
+        
     signal substage_1_in : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
     signal bf_1_x : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
     signal bf_1_y : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
@@ -104,6 +104,7 @@ begin
             i         => switch_3_tmp,
             o         => switch_3
         );
+
 --- 0
                     
     dif_0_shift : entity work.delay

@@ -64,10 +64,12 @@ architecture Behavioral of fft is
 
     type REGISTER_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
     type ADDR_TYPE is array(natural range <>) of std_logic_vector(C_LENGTH_WIDTH-1 downto 0);
+    type CRT_TYPE is array(natural range <>) of unsigned(C_LENGTH_WIDTH-1 downto 0);
 
     constant NUM_STAGES : integer := integer(ceil(log2(real(C_MAX_FFT_LENGTH))))/2; 
 
     signal counter : unsigned(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
+    signal counter_offsets : CRT_TYPE(0 to NUM_STAGES-1) := (others => (others => '0'));
 
     signal w_table : REGISTER_TYPE(0 to (C_MAX_FFT_LENGTH + 3) - 1)  := (others => (others => '0'));
 
@@ -83,9 +85,11 @@ begin
     output <= regs(NUM_STAGES);
     
     fft_stages : for i in 0 to NUM_STAGES - 1 generate
-                
-                -- need to rotate idx NS-1 and -2 to be -2 and -1 etc
-        w_val(i) <= w_table(to_integer((unsigned(counter((2*NUM_STAGES-1-(2*i)) downto (2*NUM_STAGES-2-(2*i)))))*(unsigned(counter((2*NUM_STAGES-3-(2*i)) downto 0)))));
+        
+        -- TODO Fix w indexing
+        --constant c_w_offset : integer := (mulred_delay * 2) + C_STAGE_LENGTH/2 + C_STAGE_LENGTH/4;
+        counter_offsets(i) <= counter - unsigned(w_offsets(i));
+        w_val(i) <= w_table(to_integer((unsigned(counter_offsets(i)((2*NUM_STAGES-1-(2*i)) downto (2*NUM_STAGES-2-(2*i)))) rol 1)*(unsigned(counter_offsets(i)((2*NUM_STAGES-3-(2*i)) downto 0)))));
         
         stage_i : entity work.fft_stage
             generic map (
