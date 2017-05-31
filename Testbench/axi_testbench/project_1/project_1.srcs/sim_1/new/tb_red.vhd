@@ -5,7 +5,8 @@ use ieee.numeric_std.all;
 entity tb_red is
     generic (
         C_LENGTH_WIDTH           : integer   := 16;
-        C_MAX_FFT_PRIME_WIDTH    : integer   := 64
+        C_MAX_FFT_PRIME_WIDTH    : integer   := 64;
+        C_USE_CORE               : boolean   := true
     );
     --port ();
 end tb_red;
@@ -34,22 +35,43 @@ architecture behavior of tb_red is
             
 begin
 
-    red_inst : entity work.red
-        generic map (
-            C_LENGTH_WIDTH         => C_LENGTH_WIDTH,
-            C_MAX_MODULUS_WIDTH    => C_MAX_FFT_PRIME_WIDTH,
-            C_MAX_INPUT_WIDTH      => 2*C_MAX_FFT_PRIME_WIDTH
-        )
-        port map (
-            clk => clk,
-                    
-            -- Ports of red
-            modulus     => red_modulus,
-            modulus_r   => red_modulus_r,
-            modulus_s   => red_modulus_s,
-            value       => red_value, 
-            remainder   => red_remainder
-        );  
+    core : if C_USE_CORE = true generate
+        red_core_inst : entity work.red_core
+            generic map (
+                C_LENGTH_WIDTH         => C_LENGTH_WIDTH,
+                C_MAX_MODULUS_WIDTH    => C_MAX_FFT_PRIME_WIDTH,
+                C_MAX_INPUT_WIDTH      => 2*C_MAX_FFT_PRIME_WIDTH
+            )
+            port map (
+                clk => clk,
+                        
+                -- Ports of red
+                modulus     => red_modulus,
+                modulus_r   => red_modulus_r,
+                modulus_s   => red_modulus_s,
+                value       => red_value, 
+                remainder   => red_remainder
+            );  
+    end generate core;
+    
+    non_core : if C_USE_CORE = false generate
+        red_inst : entity work.red
+            generic map (
+                C_LENGTH_WIDTH         => C_LENGTH_WIDTH,
+                C_MAX_MODULUS_WIDTH    => C_MAX_FFT_PRIME_WIDTH,
+                C_MAX_INPUT_WIDTH      => 2*C_MAX_FFT_PRIME_WIDTH
+            )
+            port map (
+                clk => clk,
+                        
+                -- Ports of red
+                modulus     => red_modulus,
+                modulus_r   => red_modulus_r,
+                modulus_s   => red_modulus_s,
+                value       => red_value, 
+                remainder   => red_remainder
+            );  
+    end generate non_core;
         
     clk_process : process
     begin
@@ -72,10 +94,7 @@ begin
             
         red_value <= INPUT;           
         
-        wait until rising_edge(clk);
-        wait until rising_edge(clk);
-        wait until rising_edge(clk);
-        wait until rising_edge(clk);
+        wait for clk_period * 37;     
         
         assert red_remainder = OUTPUT;
 

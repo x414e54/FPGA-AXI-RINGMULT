@@ -5,7 +5,8 @@ use ieee.numeric_std.all;
 entity tb_mulred is
     generic (
         C_LENGTH_WIDTH           : integer   := 16;
-        C_MAX_FFT_PRIME_WIDTH    : integer   := 64
+        C_MAX_FFT_PRIME_WIDTH    : integer   := 64;
+        C_USE_CORE               : boolean   := true
     );
     --port ();
 end tb_mulred;
@@ -30,7 +31,7 @@ architecture behavior of tb_mulred is
                                     
     constant PRIME: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"10000000000007a1");
     constant PRIME_RED: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"0FFFFFFFFFFFF85f");
-    constant PRIME_I: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"081a85435318023a");
+    constant PRIME_I: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"081A85435318023A");
     constant PRIME_LEN : integer := 61; 
             
 begin
@@ -38,7 +39,8 @@ begin
     i_mul : entity work.mulred
         generic map (
             C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
-            C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH
+            C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
+            C_USE_CORE          => C_USE_CORE
         )
         port map (
             clk         => clk,
@@ -73,9 +75,9 @@ begin
         mr_b <= PRIME_I;           
         
         wait until rising_edge(clk);
-        wait until rising_edge(clk);
-        wait until rising_edge(clk);
-        wait until rising_edge(clk);
+        mr_a <= PRIME_I;   
+         
+        wait for clk_period * (3 * 18);   
         
         assert mr_c = OUTPUT;
 
