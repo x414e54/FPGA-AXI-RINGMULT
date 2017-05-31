@@ -68,7 +68,7 @@ architecture Behavioral of fft is
 
     constant NUM_STAGES : integer := integer(ceil(log2(real(C_MAX_FFT_LENGTH))))/2; 
 
-    signal counter : unsigned(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
+    signal counter : CRT_TYPE(0 to NUM_STAGES-1) := (others => (others => '0')); 
     signal counter_offsets : CRT_TYPE(0 to NUM_STAGES-1) := (others => (others => '0'));
 
     signal w_table : REGISTER_TYPE(0 to (C_MAX_FFT_LENGTH + 3) - 1)  := (others => (others => '0'));
@@ -79,18 +79,21 @@ architecture Behavioral of fft is
     alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
     alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
     
+    constant mulred_delay : integer := 3*18;
+    constant stage_delay : integer := 2*mulred_delay;
+    
 begin
     
+    counter(1) <= (counter(0) - stage_delay); -- can convert mod to a bitmask as should be po2
     regs(0) <= value;
     output <= regs(NUM_STAGES);
     
     fft_stages : for i in 0 to NUM_STAGES - 1 generate
         
         -- TODO Fix w indexing
-        --constant c_w_offset : integer := (mulred_delay * 2) + C_STAGE_LENGTH/2 + C_STAGE_LENGTH/4;
-        counter_offsets(i) <= counter - unsigned(w_offsets(i));
+        counter_offsets(i) <= (counter(0) - (mulred_delay + 2**((2*(NUM_STAGES-i)-1)) + 2**((2*(NUM_STAGES-i)-2)))) mod 2**(2*(NUM_STAGES-i)); -- can convert mod to a bitmask as should be po2
         w_val(i) <= w_table(to_integer((unsigned(counter_offsets(i)((2*NUM_STAGES-1-(2*i)) downto (2*NUM_STAGES-2-(2*i)))) rol 1)*(unsigned(counter_offsets(i)((2*NUM_STAGES-3-(2*i)) downto 0)))));
-        
+                  
         stage_i : entity work.fft_stage
             generic map (
                 C_LENGTH_WIDTH => C_LENGTH_WIDTH,
@@ -101,7 +104,7 @@ begin
             port map (
                 clk      => clk,
                 w        => w_val(i),
-                switches => std_logic_vector(counter((2*NUM_STAGES-1-(2*i)) downto (2*NUM_STAGES-2-(2*i)))),
+                switches => std_logic_vector(counter(0)((2*NUM_STAGES-1-(2*i)) downto (2*NUM_STAGES-2-(2*i)))),
                 prime    => prime,
                 prime_r  => prime_r,
                 prime_i  => prime_i,
@@ -118,10 +121,10 @@ begin
                     w_table(to_integer(unsigned(param_addr_bottom))) <= param;
                 end if;
                 if (value_valid = '1') then
-                    if (counter = unsigned(length) - 1) then
-                        counter <= (others => '0');
+                    if (counter(0) = unsigned(length) - 1) then
+                        counter(0) <= (others => '0');
                     else
-                        counter <= counter + 1;
+                        counter(0) <= counter(0) + 1;
                     end if;
                 end if;
             end if;
