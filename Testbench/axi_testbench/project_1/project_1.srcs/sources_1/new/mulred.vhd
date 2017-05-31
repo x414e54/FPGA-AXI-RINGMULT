@@ -34,7 +34,7 @@ entity mulred is
 	generic (
 	    C_LENGTH_WIDTH      : integer    := 16;
 		C_MAX_MODULUS_WIDTH : integer    := 64;
-		C_USE_CORE          : boolean    := true;
+		C_USE_CORE          : boolean    := true
 	);
 	port (
 		clk       : in std_logic;
@@ -52,26 +52,56 @@ architecture Behavioral of mulred is
     signal c_reg : std_logic_vector(2*C_MAX_MODULUS_WIDTH-1 downto 0) := (others => '0');
 
 begin
-    red_x : entity work.red
-        generic map (
-            C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
-            C_MAX_MODULUS_WIDTH => C_MAX_MODULUS_WIDTH,
-            C_MAX_INPUT_WIDTH   => 2*C_MAX_MODULUS_WIDTH
-        )
-        port map (
-            clk       => clk,
-            modulus   => modulus,
-            modulus_r => modulus_r,
-            modulus_s => modulus_s,
-            value     => c_reg,
-            remainder => c
-        );
+
+    core : if C_USE_CORE = true generate
+        red_x : entity work.red_core
+            generic map (
+                C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
+                C_MAX_MODULUS_WIDTH => C_MAX_MODULUS_WIDTH,
+                C_MAX_INPUT_WIDTH   => 2*C_MAX_MODULUS_WIDTH
+            )
+            port map (
+                clk       => clk,
+                modulus   => modulus,
+                modulus_r => modulus_r,
+                modulus_s => modulus_s,
+                value     => c_reg,
+                remainder => c
+            );
+        mul : entity work.mult_gen_0
+            generic map (
+            )
+            port map (
+                clk => clk,
+                a   => a,
+                b   => b,
+                p   => c_reg
+           );
+    end generate core;
+
+    non_core : if C_USE_CORE = false generate
+        red_x : entity work.red
+            generic map (
+                C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
+                C_MAX_MODULUS_WIDTH => C_MAX_MODULUS_WIDTH,
+                C_MAX_INPUT_WIDTH   => 2*C_MAX_MODULUS_WIDTH
+            )
+            port map (
+                clk       => clk,
+                modulus   => modulus,
+                modulus_r => modulus_r,
+                modulus_s => modulus_s,
+                value     => c_reg,
+                remainder => c
+            );
     
-    state_proc : process (clk) is
-    begin	
-        if rising_edge(clk) then
-            c_reg <= std_logic_vector(unsigned(a) * unsigned(b)); 
-        end if;
-    end process state_proc;
+        state_proc : process (clk) is
+        begin	
+            if rising_edge(clk) then
+                c_reg <= std_logic_vector(unsigned(a) * unsigned(b)); 
+            end if;
+        end process state_proc;
+    
+    end generate non_core;
 
 end Behavioral;

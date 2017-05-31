@@ -4,7 +4,7 @@
 -- 
 -- Create Date: 2017/04/03 13:09:21
 -- Design Name: 
--- Module Name: reduce - Behavioral
+-- Module Name: red_core - Behavioral
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
@@ -30,7 +30,7 @@ use IEEE.NUMERIC_STD.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity red is
+entity red_core is
 	generic (
 	    C_LENGTH_WIDTH      : integer    := 16;
 		C_MAX_MODULUS_WIDTH : integer    := 64;
@@ -44,9 +44,9 @@ entity red is
         value     : in std_logic_vector(C_MAX_INPUT_WIDTH-1 downto 0)         := (others => '0');
 		remainder : out std_logic_vector(C_MAX_MODULUS_WIDTH-1 downto 0)      := (others => '0')
 	);  
-end red;
+end red_core;
 
-architecture Behavioral of red is
+architecture Behavioral of red_core is
 
     constant C_MODULUS_WIDTH : integer := C_MAX_MODULUS_WIDTH - 3; -- use modulus_s instead of hardcoding
 

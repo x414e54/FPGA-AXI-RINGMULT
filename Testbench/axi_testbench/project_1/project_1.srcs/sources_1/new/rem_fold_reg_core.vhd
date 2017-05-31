@@ -4,7 +4,7 @@
 -- 
 -- Create Date: 2017/04/03 13:09:21
 -- Design Name: 
--- Module Name: rem_fold_reg - Behavioral
+-- Module Name: rem_fold_reg_core - Behavioral
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
@@ -31,7 +31,7 @@ use IEEE.NUMERIC_STD.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity rem_fold_reg is
+entity rem_fold_reg_core is
 	generic (
 		C_MAX_MODULUS_WIDTH : integer    := 64;
 		C_INPUT_WIDTH       : integer    := 64
@@ -43,9 +43,9 @@ entity rem_fold_reg is
 		fold      : out std_logic_vector(C_INPUT_WIDTH-C_MAX_MODULUS_WIDTH-1 downto 0)    := (others => '0');
 		carry     : out std_logic
 	);  
-end rem_fold_reg;
+end rem_fold_reg_core;
 
-architecture Behavioral of rem_fold_reg is
+architecture Behavioral of rem_fold_reg_core is
 
     signal a_reg : unsigned(C_INPUT_WIDTH-1 downto 0) := (others => '0');
     alias a_reg_top : unsigned(C_MAX_MODULUS_WIDTH-1 downto 0) is a_reg(C_INPUT_WIDTH-1 downto C_INPUT_WIDTH-C_MAX_MODULUS_WIDTH);

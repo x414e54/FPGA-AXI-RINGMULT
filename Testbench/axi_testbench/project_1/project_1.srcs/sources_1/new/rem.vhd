@@ -39,7 +39,8 @@ entity rem_fold is
 		C_MAX_MODULUS_WIDTH : integer    := 64;
 		C_MAX_INPUT_WIDTH   : integer    := 256;
         C_MAX_INPUT_LEN     : integer    := 256/64;--C_MAX_INPUT_WIDTH / C_MAX_MODULUS_WIDTH;
-        C_MAX_MODULUS_FOLDS : integer    := (256/64)-2--C_MAX_INPUT_LEN - 2
+        C_MAX_MODULUS_FOLDS : integer    := (256/64)-2;--C_MAX_INPUT_LEN - 2
+        C_USE_CORE          : boolean    := true
 	);
 	port (
 		clk            : in std_logic;
@@ -75,35 +76,68 @@ begin
     fold_reg(0) <= value;
     red_reg <= fold_reg(C_MAX_MODULUS_FOLDS)((2*C_MAX_MODULUS_WIDTH)-1 downto 0);
     
-	folds : for i in 0 to C_MAX_MODULUS_FOLDS - 1 generate
-		fold_i : entity work.rem_fold_reg
-			generic map (
-				C_MAX_MODULUS_WIDTH => C_MAX_MODULUS_WIDTH,
-				C_INPUT_WIDTH   => C_MAX_INPUT_WIDTH-(i*C_MAX_MODULUS_WIDTH) 
-			)
-			port map (
-				clk	      => clk,
-				value	  => fold_reg(i)(C_MAX_INPUT_WIDTH-(i*C_MAX_MODULUS_WIDTH)-1 downto 0),
-                m	      => modulus_ms(i),
-				fold      => fold_reg(i+1)(C_MAX_INPUT_WIDTH-((i+1)*C_MAX_MODULUS_WIDTH)-1 downto 0)
-			);
-	end generate folds;
-	
-    red : entity work.red
-	   generic map (
-	      C_LENGTH_WIDTH      => C_LENGTH_WIDTH, 
-		  C_MAX_MODULUS_WIDTH => C_MAX_MODULUS_WIDTH,
-		  C_MAX_INPUT_WIDTH   => 2 * C_MAX_MODULUS_WIDTH
-	   )
-	   port map (
-		  clk       => clk,
-		  modulus   => modulus,
-		  modulus_r => modulus_r,
-          modulus_s => modulus_s,
-          value     => red_reg,
-		  remainder => remainder
-	   );
-	   
+    non_core : if C_USE_CORE = false generate
+        folds : for i in 0 to C_MAX_MODULUS_FOLDS - 1 generate
+            fold_i : entity work.rem_fold_reg
+                generic map (
+                    C_MAX_MODULUS_WIDTH => C_MAX_MODULUS_WIDTH,
+                    C_INPUT_WIDTH   => C_MAX_INPUT_WIDTH-(i*C_MAX_MODULUS_WIDTH) 
+                )
+                port map (
+                    clk	      => clk,
+                    value	  => fold_reg(i)(C_MAX_INPUT_WIDTH-(i*C_MAX_MODULUS_WIDTH)-1 downto 0),
+                    m	      => modulus_ms(i),
+                    fold      => fold_reg(i+1)(C_MAX_INPUT_WIDTH-((i+1)*C_MAX_MODULUS_WIDTH)-1 downto 0)
+                );
+        end generate folds;
+        
+        red : entity work.red
+           generic map (
+              C_LENGTH_WIDTH      => C_LENGTH_WIDTH, 
+              C_MAX_MODULUS_WIDTH => C_MAX_MODULUS_WIDTH,
+              C_MAX_INPUT_WIDTH   => 2 * C_MAX_MODULUS_WIDTH
+           )
+           port map (
+              clk       => clk,
+              modulus   => modulus,
+              modulus_r => modulus_r,
+              modulus_s => modulus_s,
+              value     => red_reg,
+              remainder => remainder
+           );
+    end generate non_core;
+    
+    core : if C_USE_CORE = true generate
+       folds_core : for i in 0 to C_MAX_MODULUS_FOLDS - 1 generate
+           fold_i : entity work.rem_fold_reg_core
+               generic map (
+                   C_MAX_MODULUS_WIDTH => C_MAX_MODULUS_WIDTH,
+                   C_INPUT_WIDTH   => C_MAX_INPUT_WIDTH-(i*C_MAX_MODULUS_WIDTH) 
+               )
+               port map (
+                   clk      => clk,
+                   value    => fold_reg(i)(C_MAX_INPUT_WIDTH-(i*C_MAX_MODULUS_WIDTH)-1 downto 0),
+                   m        => modulus_ms(i),
+                   fold     => fold_reg(i+1)(C_MAX_INPUT_WIDTH-((i+1)*C_MAX_MODULUS_WIDTH)-1 downto 0)
+               );
+       end generate folds_core;
+       
+       red_core : entity work.red_core
+          generic map (
+             C_LENGTH_WIDTH      => C_LENGTH_WIDTH, 
+             C_MAX_MODULUS_WIDTH => C_MAX_MODULUS_WIDTH,
+             C_MAX_INPUT_WIDTH   => 2 * C_MAX_MODULUS_WIDTH
+          )
+          port map (
+             clk       => clk,
+             modulus   => modulus,
+             modulus_r => modulus_r,
+             modulus_s => modulus_s,
+             value     => red_reg,
+             remainder => remainder
+          );
+    end generate core;
+    
        state_proc : process (clk) is
        begin	
            if rising_edge(clk) then
