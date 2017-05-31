@@ -67,6 +67,7 @@ architecture Behavioral of fft_stage is
     signal switch_1 : std_logic := '0';
     signal switch_2 : std_logic := '0';
     signal switch_3 : std_logic := '0';
+    signal switch_3_tmp : std_logic := '0';
         
     signal input_reg  : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
         
@@ -75,22 +76,34 @@ architecture Behavioral of fft_stage is
     signal dif_1_shift_in  : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
     signal dif_1_shift_out : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)  := (others => '0');
     
+    constant mulred_delay : integer := 3*18; -- TODO: This is only for USE_CORE = true and when using DSP48
+    
 begin
 
     input_reg <= input;
     switch_1 <= switches(1);
-    switch_3 <= (not switch_1) and switch_2;
      
     switch_2_delay : entity work.delay2
         generic map (
-            C_DELAY => 1
+            C_DELAY => mulred_delay
         )
         port map (
             clk       => clk,
             i         => switches(0),
             o         => switch_2
         );
-
+     
+    switch_3_tmp <= ((not switches(1)) and switches(0));
+    
+    switch_3_delay : entity work.delay2
+        generic map (
+            C_DELAY => mulred_delay
+        )
+        port map (
+            clk       => clk,
+            i         => switch_3_tmp,
+            o         => switch_3
+        );
 --- 0
                     
     dif_0_shift : entity work.delay
@@ -162,7 +175,7 @@ begin
     no_i_mul_delay : entity work.delay
         generic map (
             C_MAX_INPUT_WIDTH => C_MAX_FFT_PRIME_WIDTH,
-            C_DELAY           => 3
+            C_DELAY           => mulred_delay
         )
         port map (
             clk       => clk,
