@@ -34,7 +34,8 @@ entity fft_stage is
 	    C_LENGTH_WIDTH          : integer    := 16;
 		C_MAX_FFT_PRIME_WIDTH   : integer    := 64;
 		C_STAGE_LENGTH          : integer    := 7710;
-        C_STAGE_INDEX           : integer    := 1
+        C_STAGE_INDEX           : integer    := 1;
+        C_USE_CORE              : boolean    := true
 	);
 	port (
 		clk        : in std_logic;
@@ -145,7 +146,8 @@ begin
     i_mul : entity work.mulred
         generic map (
             C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
-            C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH
+            C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
+            C_USE_CORE          => C_USE_CORE
         )
         port map (
             clk         => clk,
@@ -233,7 +235,8 @@ begin
     twiddle_mul : entity work.mulred
     generic map (
         C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
-        C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH
+        C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
+        C_USE_CORE          => C_USE_CORE
     )
     port map (
         clk         => clk,

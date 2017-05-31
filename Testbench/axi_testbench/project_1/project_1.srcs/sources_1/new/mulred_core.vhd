@@ -33,8 +33,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity mulred is
 	generic (
 	    C_LENGTH_WIDTH      : integer    := 16;
-		C_MAX_MODULUS_WIDTH : integer    := 64;
-		C_USE_CORE          : boolean    := true;
+		C_MAX_MODULUS_WIDTH : integer    := 64
 	);
 	port (
 		clk       : in std_logic;
@@ -67,11 +66,21 @@ begin
             remainder => c
         );
     
-    state_proc : process (clk) is
-    begin	
-        if rising_edge(clk) then
-            c_reg <= std_logic_vector(unsigned(a) * unsigned(b)); 
-        end if;
-    end process state_proc;
+    mul : entity work.mult_gen_0
+        generic map (
+        )
+        port map (
+            clk => clk,
+            a   => a,
+            b   => b,
+            p   => c_reg
+       );
+            
+    --state_proc : process (clk) is
+    --begin	
+    --    if rising_edge(clk) then
+    --        c_reg <= std_logic_vector(unsigned(a) * unsigned(b)); 
+    --    end if;
+    --end process state_proc;
 
 end Behavioral;

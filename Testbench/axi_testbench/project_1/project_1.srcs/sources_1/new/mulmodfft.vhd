@@ -95,7 +95,8 @@ begin
             C_LENGTH_WIDTH             => C_LENGTH_WIDTH,	
             C_MAX_FFT_PRIME_WIDTH      => C_MAX_FFT_PRIME_WIDTH,
             C_MAX_BLUESTEIN_LENGTH     => C_MAX_POLY_LENGTH, 
-            C_MAX_FFT_LENGTH           => C_MAX_FFT_LENGTH 
+            C_MAX_FFT_LENGTH           => C_MAX_FFT_LENGTH,
+            C_USE_CORE                 => false
         )
         port map (
             clk            => clk,
@@ -117,7 +118,8 @@ begin
     mul : entity work.mulred
         generic map (
             C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
-            C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH
+            C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
+            C_USE_CORE          => false
         )
         port map (
             clk         => clk,
@@ -140,7 +142,8 @@ begin
             C_LENGTH_WIDTH             => C_LENGTH_WIDTH,	
             C_MAX_FFT_PRIME_WIDTH      => C_MAX_FFT_PRIME_WIDTH,
             C_MAX_BLUESTEIN_LENGTH     => C_MAX_POLY_LENGTH, 
-            C_MAX_FFT_LENGTH           => C_MAX_FFT_LENGTH 
+            C_MAX_FFT_LENGTH           => C_MAX_FFT_LENGTH,
+            C_USE_CORE                 => false
         ) 
         port map (
             clk            => clk,

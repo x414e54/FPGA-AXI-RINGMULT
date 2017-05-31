@@ -42,7 +42,8 @@ entity bluestein_fft is
         C_LENGTH_WIDTH             : integer   := 16;	
 		C_MAX_FFT_PRIME_WIDTH      : integer   := 64;
     	C_MAX_BLUESTEIN_LENGTH     : integer   := 7710; 
-		C_MAX_FFT_LENGTH           : integer   := 16384 
+		C_MAX_FFT_LENGTH           : integer   := 16384;
+		C_USE_CORE                 : boolean   := true
 	);
 	port (
 		clk            : in std_logic;
@@ -106,7 +107,8 @@ begin
     mulyi : entity work.mulred
     generic map (
         C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
-        C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH
+        C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
+        C_USE_CORE          => C_USE_CORE
     )
     port map (
         clk         => clk,
@@ -151,7 +153,8 @@ begin
     muly : entity work.mulred
     generic map (
         C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
-        C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH
+        C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
+        C_USE_CORE          => C_USE_CORE
     )
     port map (
         clk         => clk,
@@ -196,7 +199,8 @@ begin
     mulyi2 : entity work.mulred
     generic map (
         C_LENGTH_WIDTH      => C_LENGTH_WIDTH,
-        C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH
+        C_MAX_MODULUS_WIDTH => C_MAX_FFT_PRIME_WIDTH,
+        C_USE_CORE          => C_USE_CORE
     )
     port map (
         clk         => clk,

@@ -31,7 +31,7 @@ entity mulmodcrtfft is
         C_MAX_FFT_LENGTH                     : integer   := 16384; 
         C_MAX_POLY_LENGTH                    : integer   := 7710; 
 		C_MAX_CRT_PRIME_WIDTH                : integer   := 256; 
-		C_MAX_FFT_PRIMES		             : integer   := 4;
+		C_MAX_FFT_PRIMES		             : integer   := 9;
 		C_MAX_FFT_PRIMES_FOLDS               : integer   := (256/64)-2;--C_MAX_CRT_PRIME_WIDTH / C_MAX_FFT_PRIME_WIDTH - 2
 		---
 		C_PARAM_ADDR_MUL_TABLE_START         : integer := 0;
@@ -43,6 +43,7 @@ entity mulmodcrtfft is
         C_PARAM_ADDR_IBS_MUL_FFT_TABLE_START : integer := 54; --C_PARAM_ADDR_IBS_MUL_TABLE_START + C_MAX_FFT_PRIMES;
         C_PARAM_ADDR_FOLDS_START             : integer := 63 --C_PARAM_ADDR_IBS_MUL_FFT_TABLE_START + C_MAX_FFT_PRIMES
         ---
+        C_USE_CORE                           : boolean := true
 	);
 	port (
 		clk            : in std_logic                                                := '0';
@@ -221,9 +222,9 @@ begin
     state_proc : process (clk) is
     begin	
         if rising_edge(clk) then
-            --if (param_valid = '1' and to_integer(unsigned(param_addr_top)) = C_PARAM_ADDR_MUL_TABLE) then
-            --    mul_table(to_integer(unsigned(param_addr_bottom))) <= param;
-            --end if;     
+            if (param_valid = '1' and to_integer(unsigned(param_addr_top)) = C_PARAM_ADDR_MUL_TABLE_START) then
+                mul_table(to_integer(unsigned(param_addr_bottom))) <= param;
+            end if;        
             
             if (bs_outputs_valid(0) = '1') then
                 if (mul_table_idx - 1 = to_integer(unsigned(length))) then
