@@ -131,13 +131,15 @@ begin
         
         fft_value_valid <= '0';
                 
-        wait until fft_output_valid = '1';
+        wait until fft_output_valid = '1' and rising_edge(clk);
         
 		for i in 0 to C_FFT_LENGTH - 1 loop
 			assert fft_output = OUTPUT(i);
             wait until rising_edge(clk);
 		end loop;
 
+        wait until fft_output_valid = '0';
+        
         stop <= '1';
         
         wait;

@@ -142,7 +142,7 @@ begin
                             w_table(to_integer(unsigned(param_addr_bottom))) <= param;
                         end if;
                         length_reg <= unsigned(length);
-                        counter_delay <= unsigned(length) + to_unsigned(full_mulred_delay, C_LENGTH_WIDTH+1);
+                        counter_delay <= unsigned(length) + to_unsigned(full_mulred_delay, C_LENGTH_WIDTH+1)-2;
                         if (value_valid = '1') then
                             counter <= to_unsigned(1, C_LENGTH_WIDTH);
                             counter_output <= to_unsigned(1, C_LENGTH_WIDTH);
