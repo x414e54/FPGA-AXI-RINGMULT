@@ -127,7 +127,9 @@ begin
             fft_value_valid <= '1';
             fft_value <= OUTPUT(i);
         	wait until rising_edge(clk);
-       end loop;
+        end loop;
+        
+        fft_value_valid <= '0';
                 
         wait until fft_output_valid = '1';
         

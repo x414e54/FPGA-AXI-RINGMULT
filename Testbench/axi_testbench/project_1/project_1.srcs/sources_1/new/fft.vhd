@@ -94,6 +94,7 @@ begin
     
     regs(0) <= value;
     output <= regs(NUM_STAGES);
+    output_valid <= '1' when state = WORKING else '0';
     
     fft_stages : for i in 0 to NUM_STAGES - 1 generate
         
