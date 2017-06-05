@@ -125,8 +125,8 @@ begin
         )
         port map (
             clk     => clk,
-            a       => input_reg,
-            b       => dif_0_shift_out,
+            a       => dif_0_shift_out,
+            b       => input_reg,
             x       => bf_0_x,
             y       => bf_0_y,
             prime   => prime
@@ -214,8 +214,8 @@ begin
         )
         port map (
             clk     => clk,
-            a       => substage_1_in,
-            b       => dif_1_shift_out,
+            a       => dif_1_shift_out,
+            b       => substage_1_in,
             x       => bf_1_x,
             y       => bf_1_y,
             prime   => prime

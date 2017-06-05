@@ -68,7 +68,10 @@ architecture Behavioral of fft is
 
     constant NUM_STAGES : integer := integer(ceil(log2(real(C_MAX_FFT_LENGTH))))/2; 
 
-    signal counter : CRT_TYPE(0 to NUM_STAGES-1) := (others => (others => '0')); 
+    signal length_reg : unsigned(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
+    signal counter : unsigned(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
+    signal counter_delay : unsigned((C_LENGTH_WIDTH+1)-1 downto 0) := (others => '0');
+    signal counter_output : unsigned(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
     signal counter_offsets : CRT_TYPE(0 to NUM_STAGES-1) := (others => (others => '0'));
 
     signal w_table : REGISTER_TYPE(0 to (C_MAX_FFT_LENGTH + 3) - 1)  := (others => (others => '0'));
@@ -80,18 +83,22 @@ architecture Behavioral of fft is
     alias param_addr_bottom : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is param_addr((C_PARAM_ADDR_WIDTH/2)-1 downto 0);
     
     constant mulred_delay : integer := 3*18;
-    constant stage_delay : integer := 2*mulred_delay;
+    constant stage_mulred_delay : integer := 2*mulred_delay;
+    constant full_mulred_delay : integer := NUM_STAGES*stage_mulred_delay;
     
+    type STATE_TYPE is (IDLE, DELAY, WORKING);
+        
+    signal state                : STATE_TYPE;
+        
 begin
     
-    counter(1) <= (counter(0) - stage_delay); -- can convert mod to a bitmask as should be po2
     regs(0) <= value;
     output <= regs(NUM_STAGES);
     
     fft_stages : for i in 0 to NUM_STAGES - 1 generate
         
         -- TODO Fix w indexing
-        counter_offsets(i) <= (counter(0) - (mulred_delay + 2**((2*(NUM_STAGES-i)-1)) + 2**((2*(NUM_STAGES-i)-2)))) mod 2**(2*(NUM_STAGES-i)); -- can convert mod to a bitmask as should be po2
+        counter_offsets(i) <= (counter - (mulred_delay + 2**((2*(NUM_STAGES-i)-1)) + 2**((2*(NUM_STAGES-i)-2)))) mod 2**(2*(NUM_STAGES-i)); -- can convert mod to a bitmask as should be po2
         w_val(i) <= w_table(to_integer((unsigned(counter_offsets(i)((2*NUM_STAGES-1-(2*i)) downto (2*NUM_STAGES-2-(2*i)))) rol 1)*(unsigned(counter_offsets(i)((2*NUM_STAGES-3-(2*i)) downto 0)))));
                   
         stage_i : entity work.fft_stage
@@ -104,7 +111,7 @@ begin
             port map (
                 clk      => clk,
                 w        => w_val(i),
-                switches => std_logic_vector(counter(0)((2*NUM_STAGES-1-(2*i)) downto (2*NUM_STAGES-2-(2*i)))),
+                switches => std_logic_vector(counter((2*NUM_STAGES-1-(2*i)) downto (2*NUM_STAGES-2-(2*i)))),
                 prime    => prime,
                 prime_r  => prime_r,
                 prime_i  => prime_i,
@@ -117,16 +124,46 @@ begin
     state_proc : process (clk) is
         begin	
             if rising_edge(clk) then
-                if (param_valid = '1' and to_integer(unsigned(param_addr_top)) = C_PARAM_ADDR_FFT_TABLE) then
-                    w_table(to_integer(unsigned(param_addr_bottom))) <= param;
-                end if;
-                if (value_valid = '1') then
-                    if (counter(0) = unsigned(length) - 1) then
-                        counter(0) <= (others => '0');
+                if (state /= IDLE) then
+                    if (value_valid = '1') then
+                        counter_output <= counter_output + 1;
+                    end if;
+                    if (counter >= length_reg - 1) then
+                        counter <= (others => '0');
                     else
-                        counter(0) <= counter(0) + 1;
+                        counter <= counter + 1;
                     end if;
                 end if;
+                
+                case state is
+                    when IDLE =>
+                        if (param_valid = '1' and to_integer(unsigned(param_addr_top)) = C_PARAM_ADDR_FFT_TABLE) then
+                            w_table(to_integer(unsigned(param_addr_bottom))) <= param;
+                        end if;
+                        length_reg <= unsigned(length);
+                        counter_delay <= unsigned(length) + to_unsigned(full_mulred_delay, C_LENGTH_WIDTH+1);
+                        if (value_valid = '1') then
+                            counter <= to_unsigned(1, C_LENGTH_WIDTH);
+                            counter_output <= to_unsigned(1, C_LENGTH_WIDTH);
+                            state <= DELAY;
+                        end if;
+                    
+                    when DELAY =>
+                        if (counter_delay = 1) then
+                            counter_delay <= (others => '0');
+                            state <= WORKING;
+                        else
+                            counter_delay <= counter_delay - 1;
+                        end if;
+                    
+                    when WORKING =>
+                        if (counter_output = 1) then
+                            counter_output <= (others => '0');
+                            state <= IDLE;
+                        else
+                            counter_output <= counter_output - 1;
+                        end if;
+                end case;
             end if;
         end process state_proc;
 end Behavioral;
