@@ -54,7 +54,7 @@ begin
         o <= i;
     end generate;
         
-    delay_else: if C_DELAY > 1 generate
+    delay_else: if C_DELAY >= 1 generate
         o <= a_regs(0);
         
         state_proc : process (clk) is
