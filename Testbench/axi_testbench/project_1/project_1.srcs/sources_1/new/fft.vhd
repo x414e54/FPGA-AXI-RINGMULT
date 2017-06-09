@@ -67,14 +67,17 @@ architecture Behavioral of fft is
     type CRT_TYPE is array(natural range <>) of unsigned(C_LENGTH_WIDTH-1 downto 0);
 
     constant NUM_STAGES : integer := integer(ceil(log2(real(C_MAX_FFT_LENGTH))))/2; 
+    constant FFT_TABLE_LENGTH: integer := (3*((C_MAX_FFT_LENGTH/4)-1)) + 1;
 
     signal length_reg : unsigned(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
     signal counter : unsigned(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
     signal counter_delay : unsigned((C_LENGTH_WIDTH+1)-1 downto 0) := (others => '0');
     signal counter_output : unsigned(C_LENGTH_WIDTH-1 downto 0) := (others => '0');
     signal counter_offsets : CRT_TYPE(0 to NUM_STAGES-1) := (others => (others => '0'));
+    signal counter_offsets2 : CRT_TYPE(0 to NUM_STAGES-1) := (others => (others => '0'));
+    signal w_table_idxs : CRT_TYPE(0 to NUM_STAGES-1) := (others => (others => '0'));
 
-    signal w_table : REGISTER_TYPE(0 to (C_MAX_FFT_LENGTH + 3) - 1)  := (others => (others => '0'));
+    signal w_table : REGISTER_TYPE(0 to FFT_TABLE_LENGTH-1)  := (others => (others => '0'));
 
     signal w_val   : REGISTER_TYPE(0 to NUM_STAGES-1)        := (others => (others => '0'));    
     signal regs    : REGISTER_TYPE(0 to NUM_STAGES)        := (others => (others => '0'));
@@ -98,9 +101,11 @@ begin
     
     fft_stages : for i in 0 to NUM_STAGES - 1 generate
         
-        -- TODO Fix w indexing
-        counter_offsets(i) <= (counter - (mulred_delay + 2**((2*(NUM_STAGES-i)-1)) + 2**((2*(NUM_STAGES-i)-2)))) mod 2**(2*(NUM_STAGES-i)); -- can convert mod to a bitmask as should be po2
-        w_val(i) <= w_table(to_integer((unsigned(counter_offsets(i)((2*NUM_STAGES-1-(2*i)) downto (2*NUM_STAGES-2-(2*i)))) rol 1)*(unsigned(counter_offsets(i)((2*NUM_STAGES-3-(2*i)) downto 0)))));
+        -- TODO Can cutdown on first stage and last stage of ifft when using bluestein padding
+        counter_offsets(i) <= (counter - (i*stage_mulred_delay + mulred_delay + 2**((2*(NUM_STAGES-i)-1)) + 2**((2*(NUM_STAGES-i)-2)))) mod 2**(2*(NUM_STAGES-i)); -- can convert mod to a bitmask as should be po2
+        counter_offsets2(i) <= (counter - (i*stage_mulred_delay) mod 2**(2*(NUM_STAGES-i))); -- can convert mod to a bitmask as should be po2
+        w_table_idxs(i) <= resize(to_unsigned(4**i, C_LENGTH_WIDTH)*(unsigned(counter_offsets(i)((2*NUM_STAGES-1-(2*i)) downto (2*NUM_STAGES-2-(2*i)))) rol 1)*(unsigned(counter_offsets(i)((2*NUM_STAGES-3-(2*i)) downto 0))), C_LENGTH_WIDTH);
+        w_val(i) <= w_table(to_integer(w_table_idxs(i)));
                   
         stage_i : entity work.fft_stage
             generic map (
@@ -112,7 +117,7 @@ begin
             port map (
                 clk      => clk,
                 w        => w_val(i),
-                switches => std_logic_vector(counter((2*NUM_STAGES-1-(2*i)) downto (2*NUM_STAGES-2-(2*i)))),
+                switches => std_logic_vector(counter_offsets2(i)((2*NUM_STAGES-1-(2*i)) downto (2*NUM_STAGES-2-(2*i)))),
                 prime    => prime,
                 prime_r  => prime_r,
                 prime_i  => prime_i,
