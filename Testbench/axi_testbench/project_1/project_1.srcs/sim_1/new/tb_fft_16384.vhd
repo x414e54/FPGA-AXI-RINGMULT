@@ -126,16 +126,7 @@ begin
         end loop;
         
         fft_value_valid <= '0';
-                
-        -- fill pipeline with extra data
-        for i in 0 to C_FFT_LENGTH - 1 loop
-            fft_value_valid <= '1';
-            fft_value <= OUTPUT(i);
-        	wait until rising_edge(clk);
-        end loop;
-        
-        fft_value_valid <= '0';
-                
+                                
         wait until fft_output_valid = '1' and rising_edge(clk);
         
 		for i in 0 to C_FFT_LENGTH - 1 loop
