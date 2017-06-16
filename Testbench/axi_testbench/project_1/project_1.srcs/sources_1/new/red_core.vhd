@@ -59,6 +59,8 @@ architecture Behavioral of red_core is
     signal mul_1_out : std_logic_vector(2*C_MAX_MODULUS_WIDTH-1 downto 0) := (others => '0');
     
     signal tmp : unsigned(C_MAX_INPUT_WIDTH-1 downto 0) := (others => '0');
+    signal tmp2 : unsigned(C_MAX_INPUT_WIDTH-1 downto 0) := (others => '0');
+    signal tmp3 : unsigned(C_MAX_INPUT_WIDTH-1 downto 0) := (others => '0');
         
 begin
 
@@ -93,6 +95,10 @@ begin
     mul_1_in <= std_logic_vector(resize(unsigned(mul_0_out) srl (C_MODULUS_WIDTH - 1), C_MAX_MODULUS_WIDTH));
     
     tmp <= unsigned(value_delay) - unsigned(mul_1_out);
-    remainder <= std_logic_vector(resize(tmp - resize(unsigned(modulus), C_MODULUS_WIDTH), C_MAX_MODULUS_WIDTH)) when (tmp >= unsigned(modulus)) else std_logic_vector(resize(tmp, C_MAX_MODULUS_WIDTH));
+    tmp2 <= tmp - unsigned(modulus);
+    tmp3 <= tmp - (unsigned(modulus) sll 1);
+    remainder <= std_logic_vector(resize(tmp3, C_MAX_MODULUS_WIDTH)) when (tmp >= (unsigned(modulus) sll 1)) else
+                 std_logic_vector(resize(tmp2, C_MAX_MODULUS_WIDTH)) when (tmp >= unsigned(modulus)) else
+                 std_logic_vector(resize(tmp, C_MAX_MODULUS_WIDTH));
 
 end Behavioral;

@@ -26,11 +26,14 @@ architecture behavior of tb_mulred is
     signal mr_b              :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
     signal mr_c              :  std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (others => '0');
                     
-    constant INPUT: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"07E3289AF6E2EAA0");
-    constant OUTPUT: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"082AA6303118D119");
+    --constant INPUT: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"07E3289AF6E2EAA0");
+    --constant OUTPUT: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"082AA6303118D119");
+    constant INPUT_A: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"0fd1993b46be49de");
+    constant INPUT_B: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"08524e3b9736ec6f");
+    constant OUTPUT: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"002695a122bce814");
                                     
-    constant PRIME: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"10000000000007a1");
-    constant PRIME_RED: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"0FFFFFFFFFFFF85f");
+    constant PRIME: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"100000000e1e0001");
+    constant PRIME_RED: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"0ffffffff1e1ffff");
     constant PRIME_I: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"081A85435318023A");
     constant PRIME_LEN : integer := 61; 
             
@@ -71,8 +74,8 @@ begin
         mr_modulus_r <= PRIME_RED;
         mr_modulus_s <= std_logic_vector(to_unsigned(PRIME_LEN, C_LENGTH_WIDTH));
             
-        mr_a <= INPUT;   
-        mr_b <= PRIME_I;           
+        mr_a <= INPUT_A;   
+        mr_b <= INPUT_B;           
         
         wait until rising_edge(clk);
         mr_a <= PRIME_I;   

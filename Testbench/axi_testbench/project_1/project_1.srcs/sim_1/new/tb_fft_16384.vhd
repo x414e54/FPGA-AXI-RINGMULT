@@ -45,7 +45,7 @@ architecture behavior of tb_fft_16384 is
     constant W: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"044ea5e6b344eb19");
     constant PRIME: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"100000000e1e0001");
     constant PRIME_RED: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"0ffffffff1e1ffff");
-    constant PRIME_I: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"00984bbf7f1459ad");
+    constant PRIME_I: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"0f67b4408f09a654");
     constant PRIME_LEN : integer := 61; 
             
     alias param_addr_top : std_logic_vector((C_PARAM_ADDR_WIDTH/2)-1 downto 0) is fft_param_addr(C_PARAM_ADDR_WIDTH-1 downto C_PARAM_ADDR_WIDTH/2);
@@ -91,6 +91,23 @@ begin
         end if;
     end process;
         
+    check_proc : process 
+    begin                      
+        wait until fft_output_valid = '1' and rising_edge(clk);
+        
+        for i in 0 to C_FFT_LENGTH - 1 loop
+            assert fft_output = OUTPUT(i);
+            if fft_output /= OUTPUT(i) then
+                report "Failed at" & integer'image(i);
+                --report "With Value" & std_logic_vector'image(fft_output);
+                --report "With Value" & std_logic_vector'image(OUTPUT(i));
+            end if;
+            wait until rising_edge(clk);
+        end loop;
+        
+        stop <= '1';
+    end process;
+    
     stimulus : process
     
         variable tmp: unsigned(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := to_unsigned(1, C_MAX_FFT_PRIME_WIDTH);
@@ -126,15 +143,6 @@ begin
         end loop;
         
         fft_value_valid <= '0';
-                                
-        wait until fft_output_valid = '1' and rising_edge(clk);
-        
-		for i in 0 to C_FFT_LENGTH - 1 loop
-			assert fft_output = OUTPUT(i);
-            wait until rising_edge(clk);
-		end loop;
-        
-        stop <= '1';
         
         wait;
     end process;

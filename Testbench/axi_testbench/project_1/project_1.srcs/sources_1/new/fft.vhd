@@ -131,9 +131,6 @@ begin
         begin	
             if rising_edge(clk) then
                 if (state /= IDLE) then
-                    if (value_valid = '1') then
-                        counter_output <= counter_output + 1;
-                    end if;
                     if (counter >= length_reg - 1) then
                         counter <= (others => '0');
                     else
@@ -161,13 +158,18 @@ begin
                         else
                             counter_delay <= counter_delay - 1;
                         end if;
+                        if (value_valid = '1') then
+                            counter_output <= counter_output + 1;
+                        end if;
                     
                     when WORKING =>
-                        if (counter_output = 1) then
-                            counter_output <= (others => '0');
-                            state <= IDLE;
-                        else
-                            counter_output <= counter_output - 1;
+                        if (value_valid = '0') then
+                            if (counter_output = 1) then
+                                counter_output <= (others => '0');
+                                state <= IDLE;
+                            else
+                                counter_output <= counter_output - 1;
+                            end if;
                         end if;
                 end case;
             end if;
