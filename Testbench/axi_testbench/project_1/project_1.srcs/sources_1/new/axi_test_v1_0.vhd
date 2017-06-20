@@ -12,11 +12,11 @@ entity axi_test_v1_0 is
 
 
 		-- Parameters of Axi Master Bus Interface M00_AXIS
-		C_M00_AXIS_TDATA_WIDTH	: integer	:= 32;
+		C_M00_AXIS_TDATA_WIDTH	: integer	:= 256;
 		C_M00_AXIS_START_COUNT	: integer	:= 32;
 
 		-- Parameters of Axi Slave Bus Interface S00_AXIS
-		C_S00_AXIS_TDATA_WIDTH	: integer	:= 32;
+		C_S00_AXIS_TDATA_WIDTH	: integer	:= 256;
 
 		-- Parameters of Axi Slave Bus Interface S00_AXI
 		C_S00_AXI_DATA_WIDTH	: integer	:= 32;
@@ -97,9 +97,9 @@ architecture arch_imp of axi_test_v1_0 is
 	-- component declaration
 	component axi_test_v1_0_M00_AXIS is
 		generic (
-        C_MAX_DATA_WIDTH    : integer    := 32;
-		C_M_AXIS_TDATA_WIDTH	: integer	:= 32;
-		C_M_START_COUNT	: integer	:= 32
+        C_MAX_DATA_WIDTH     : integer := C_M00_AXIS_TDATA_WIDTH;
+		C_M_AXIS_TDATA_WIDTH : integer	:= C_M00_AXIS_TDATA_WIDTH;
+		C_M_START_COUNT	     : integer	:= C_M00_AXIS_START_COUNT
 		);
 		port (
         clk             : in std_logic;
@@ -117,8 +117,8 @@ architecture arch_imp of axi_test_v1_0 is
 
 	component axi_test_v1_0_S00_AXIS is
 		generic (
-        C_MAX_DATA_WIDTH    : integer    := 32;
-		C_S_AXIS_TDATA_WIDTH	: integer	:= 32
+        C_MAX_DATA_WIDTH     : integer := C_S00_AXIS_TDATA_WIDTH;
+		C_S_AXIS_TDATA_WIDTH : integer	:= C_S00_AXIS_TDATA_WIDTH
 		);
 		port (
         clk             : in std_logic;
@@ -137,8 +137,8 @@ architecture arch_imp of axi_test_v1_0 is
         
     component axi_test_v1_0_S01_AXIS is
         generic (
-        C_MAX_DATA_WIDTH    : integer    := 32;
-        C_S_AXIS_TDATA_WIDTH    : integer    := 32
+        C_MAX_DATA_WIDTH     : integer    := C_S00_AXIS_TDATA_WIDTH;
+        C_S_AXIS_TDATA_WIDTH : integer    := C_S00_AXIS_TDATA_WIDTH
         );
         port (
         clk             : in std_logic;
@@ -157,8 +157,8 @@ architecture arch_imp of axi_test_v1_0 is
 
 	component axi_test_v1_0_S00_AXI is
 		generic (
-		C_S_AXI_DATA_WIDTH	: integer	:= 32;
-		C_S_AXI_ADDR_WIDTH	: integer	:= 4
+		C_S_AXI_DATA_WIDTH	: integer	:= C_S00_AXI_DATA_WIDTH;
+		C_S_AXI_ADDR_WIDTH	: integer	:= C_S00_AXI_ADDR_WIDTH
 		);
 		port (
         start           : out std_logic;

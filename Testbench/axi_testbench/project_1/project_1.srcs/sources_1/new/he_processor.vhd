@@ -24,7 +24,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx leaf cells in this code.
@@ -34,7 +34,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity he_processor is
 	generic (
         C_MAX_PROG_LENGTH    : integer   := 5;
-        C_MAX_DATA_WIDTH     : integer   := 32;
+        C_MAX_DATA_WIDTH     : integer   := 256;
         C_REGISTER_WIDTH     : integer   := 32;
 	    C_PARAM_WIDTH        : integer   := 64;
         C_PARAM_ADDR_WIDTH   : integer   := 32;
@@ -45,7 +45,7 @@ entity he_processor is
         C_MAX_POLY_LENGTH      : integer   := 18; 
         C_MAX_CRT_PRIME_WIDTH  : integer   := 256; 
         C_MAX_FFT_PRIMES       : integer   := 3;
-        C_MAX_FFT_PRIMES_FOLDS : integer   := 2;--(256/64)-2;--C_MAX_CRT_PRIME_WIDTH / C_MAX_FFT_PRIME_WIDTH - 2
+        C_MAX_FFT_PRIMES_FOLDS : integer   := 2
         ---
 	);
     Port ( clk : in std_logic;
@@ -71,7 +71,7 @@ architecture Behavioral of he_processor is
     subtype INSTRUCTION_TYPE is std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
     type RAM_TYPE is array(C_MAX_PROG_LENGTH-1 downto 0) of INSTRUCTION_TYPE;
     
-    type STATE_TYPE is (IDLE, LOAD_CODE, LOAD_MOD_CHAIN, LOAD_PUB_KEY, LOAD_SEC_KEY, LOAD_EV_KEY, LOAD_FFT_TABLE, RUN, EXEC);
+    type STATE_TYPE is (IDLE, LOAD_CODE, LOAD_INFO, LOAD_PRIMES, LOAD_FFT_TABLE, RUN, EXEC);
 
     -- Program integer registers (not for HE)
     constant REG_0              : REGISTER_INDEX_TYPE := b"0000";
@@ -126,10 +126,9 @@ architecture Behavioral of he_processor is
     shared variable program : RAM_TYPE;
     
     -- FFT       
-    signal poly_length : std_logic_vector(C_LENGTH_WIDTH-1 downto 0)   := (others => '0');
-    signal fft_length  : std_logic_vector(C_LENGTH_WIDTH-1 downto 0)   := (others => '0');
-
-    signal mul_table   : FFT_DATA_TYPE(0 to (C_MAX_POLY_LENGTH*C_MAX_FFT_PRIMES)-1)  := (others => (others => '0'));
+    signal num_primes  : unsigned(C_LENGTH_WIDTH-1 downto 0)   := (others => '0');
+    signal poly_length : unsigned(C_LENGTH_WIDTH-1 downto 0)   := (others => '0');
+    signal fft_length  : unsigned(C_LENGTH_WIDTH-1 downto 0)   := (others => '0');
 
     signal primes      : FFT_DATA_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
     signal primes_r    : FFT_DATA_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
@@ -139,36 +138,50 @@ architecture Behavioral of he_processor is
     signal prime : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
     signal prime_r : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
     signal prime_i : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+    
+    signal fft_param       : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+    signal fft_param_addr  : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+    signal fft_param_valid : std_logic := '0';
+    
+    signal fft_valid_enabled : std_logic := '0';
         
     signal prime_idx : integer := 0;
-    
+    signal fft_table_idx : integer := 0;
+                
 begin
 
     prime <= primes(prime_idx);
     prime_r <= primes_r(prime_idx);
     prime_i <= primes_i(prime_idx);
-
-    --core_mux_inst : entity work.core_mux
-    --    generic map (
-    --       C_MAX_DATA_WIDTH => C_MAX_DATA_WIDTH
-    --    )
-    --    port map (
-    --        clk => clk,
-    --        a => data_a,
-    --        b => data_b,
-    --        q => modulus,
-    --        c => data_out,
-    --        mode => mux_mode
-    --    );  
+    fft_valid_enabled <= '1' when mux_mode = fft_enabled and valid_a else '0';
+    mux_out <= mux_out(;
+    
+    simd_core_mux_inst : entity work.simd_core_mux
+        generic map (
+           C_MAX_DATA_WIDTH => C_FFT_PRIME_WIDTH,
+           C_MAX_NUM_DATA => C_MAX_DATA_WIDTH/C_FFT_PRIME_WIDTH
+        )
+        port map (
+            clk     => clk,
+            a       => data_a,
+            a_valid => valid_a,
+            b       => data_b,
+            b_valid => valid_b,
+            prime   => prime,
+            prime_r => prime_r,
+            c       => data_out,
+            c_valid => mux_out(0), 
+            mode    => mux_valid(0)
+        );  
     
     fft_inst : entity work.fft
         generic map (
             C_PARAM_WIDTH          => C_PARAM_WIDTH,
             C_PARAM_ADDR_WIDTH     => C_PARAM_ADDR_WIDTH,
-            C_PARAM_ADDR_FFT_TABLE => C_PARAM_ADDR_FFT_TABLE,
+            C_PARAM_ADDR_FFT_TABLE => 0,
             C_LENGTH_WIDTH         => C_LENGTH_WIDTH,
             C_MAX_FFT_PRIME_WIDTH  => C_MAX_FFT_PRIME_WIDTH,
-            C_MAX_FFT_LENGTH       => C_FFT_LENGTH
+            C_MAX_FFT_LENGTH       => C_MAX_FFT_LENGTH
         )
         port map (
             clk => clk,
@@ -181,11 +194,11 @@ begin
             prime_r        => prime_r,
             prime_i        => prime_i,
             prime_s        => prime_s,
-            length         => fft_length,
-            value          => data_a,
-            value_valid    => valid_a,
-            output         => data_out,
-            output_valid   => valid_out
+            length         => std_logic_vector(fft_length),
+            value          => data_a(C_MAX_DATA_WIDTH/C_MAX_FFT_PRIME_WIDTH-1 downto 0),
+            value_valid    => fft_valid_enabled,
+            output         => mux_out(1)(C_MAX_DATA_WIDTH/C_MAX_FFT_PRIME_WIDTH-1 downto 0),
+            output_valid   => mux_valid(1),
         );  
      
     state_proc : process (clk) is
@@ -221,15 +234,37 @@ begin
                         end if;
                         program_length <= program_length + 1;
                     end if;
-                                                               
-                when LOAD_FFT_TABLE =>
+                                            
+                when LOAD_INFO =>
                     if (valid_a = '1') then
-                        program(program_length) := data_a;
-                        if (program_length = C_MAX_PROG_LENGTH - 1) then
+                        -- TODO split here will not work if C_MAX_DATA_WIDTH < 3 * C_MAX_FFT_PRIME_WIDTH
+                        num_primes <= unsigned(data_a(C_MAX_DATA_WIDTH/C_MAX_FFT_PRIME_WIDTH-1 downto 0));
+                        poly_length <= unsigned(data_a(2*(C_MAX_DATA_WIDTH/C_MAX_FFT_PRIME_WIDTH)-1 downto 0));
+                        fft_length <= unsigned(data_a(2*(C_MAX_DATA_WIDTH/C_MAX_FFT_PRIME_WIDTH)-1 downto 0));
+                    end if;
+                    
+                when LOAD_PRIMES =>
+                    if (valid_a = '1') then
+                        -- TODO split here will not work if C_MAX_DATA_WIDTH < 3 * C_MAX_FFT_PRIME_WIDTH
+                        primes(prime_idx) <= data_a(C_MAX_DATA_WIDTH/C_MAX_FFT_PRIME_WIDTH-1 downto 0);
+                        primes_r(prime_idx) <= data_a(2*(C_MAX_DATA_WIDTH/C_MAX_FFT_PRIME_WIDTH)-1 downto 0);
+                        primes_i(prime_idx) <= data_a(3*(C_MAX_DATA_WIDTH/C_MAX_FFT_PRIME_WIDTH)-1 downto 0);
+                        if (prime_idx = num_primes - 1) then
                             state <= IDLE;
                             ready_a <= '0';
                         end if;
-                        program_length <= program_length + 1;
+                        prime_idx <= prime_idx + 1;
+                    end if;
+                                                               
+                when LOAD_FFT_TABLE =>
+                    if (valid_a = '1') then
+                        fft_param <= data_a;
+                        fft_param_addr <= std_logic_vector(to_unsigned(fft_table_idx, C_PARAM_ADDR_WIDTH));
+                        if (fft_table_idx = fft_length - 1) then
+                            state <= IDLE;
+                            ready_a <= '0';
+                        end if;
+                        fft_table_idx <= fft_table_idx + 1;
                     end if;
                                                                                 
                 when RUN =>

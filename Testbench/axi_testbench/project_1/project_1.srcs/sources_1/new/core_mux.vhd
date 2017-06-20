@@ -4,7 +4,7 @@
 -- 
 -- Create Date: 01/19/2017 02:01:53 PM
 -- Design Name: 
--- Module Name: core_mux - Behavioral
+-- Module Name: simd_core_mux - Behavioral
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
@@ -31,17 +31,18 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity core_mux is
-	Generic (C_MAX_DATA_WIDTH    : integer    := 32);
+entity simd_core_mux is
+	Generic (C_MAX_SIMD_WIDTH    : integer    := 4;
+	         C_MAX_DATA_WIDTH    : integer    := 256);
     Port ( clk : in STD_LOGIC;
            a : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
            b : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
            q : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
            c : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
            mode : in std_logic_vector(4-1 downto 0));
-end core_mux;
+end simd_core_mux;
 
-architecture Behavioral of core_mux is
+architecture Behavioral of simd_core_mux is
 
 begin
 
