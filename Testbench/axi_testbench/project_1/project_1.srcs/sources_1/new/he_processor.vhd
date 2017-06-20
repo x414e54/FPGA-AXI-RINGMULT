@@ -36,6 +36,7 @@ entity he_processor is
         C_MAX_PROG_LENGTH    : integer   := 5;
         C_MAX_DATA_WIDTH     : integer   := 256;
         C_REGISTER_WIDTH     : integer   := 32;
+        ---
 	    C_PARAM_WIDTH        : integer   := 64;
         C_PARAM_ADDR_WIDTH   : integer   := 32;
         ---
@@ -48,18 +49,20 @@ entity he_processor is
         C_MAX_FFT_PRIMES_FOLDS : integer   := 2
         ---
 	);
-    Port ( clk : in std_logic;
-           reset : in std_logic;
-           start : in std_logic;
-           mode : in std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
-           valid_a : in std_logic;
-           ready_a : out std_logic;
-           data_a : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
-           valid_b : in std_logic;
-           ready_b : out std_logic;
-           data_b : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
-           valid : out std_logic;
-           data_out : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0));
+    port (
+        clk : in std_logic;
+        reset : in std_logic;
+        start : in std_logic;
+        mode : in std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
+        a_valid : in std_logic;
+        a_ready : out std_logic;
+        a_data : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+        b_valid : in std_logic;
+        b_ready : out std_logic;
+        b_data : in std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+        out_valid : out std_logic;
+        out_data : out std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0)
+    );
 end he_processor;
 
 architecture Behavioral of he_processor is
@@ -95,14 +98,12 @@ architecture Behavioral of he_processor is
     constant OP_LOAD  : OPCODE_TYPE := "1000";
     constant OP_STORE : OPCODE_TYPE := "1001";
     constant OP_BNE   : OPCODE_TYPE := "1010"; -- Loop for program integer registers only
-    
-    constant MUX_IN_VALID_TO_ADD  : integer := 0;
-    constant MUX_IN_VALID_TO_SUB  : integer := 1;
-    constant MUX_IN_VALID_TO_MUL  : integer := 2;
-    constant MUX_IN_VALID_TO_FFT  : integer := 3;
-    constant MUX_IN_VALID_TO_IFFT : integer := 4;
-    constant MUX_IN_VALID_TO_CRT  : integer := 5;
-    constant MUX_IN_VALID_TO_ICRT : integer := 6;
+        
+    constant NUM_MUX     : integer := 4;
+    constant MUX_TO_SIMD : integer := 0;
+    constant MUX_TO_FFT  : integer := 1;
+    constant MUX_TO_CRT  : integer := 2;
+    constant MUX_TO_ICRT : integer := 3;
     
     signal state                : STATE_TYPE;
         
@@ -112,16 +113,15 @@ architecture Behavioral of he_processor is
         alias opcode : OPCODE_TYPE is instruction(31 downto 28); -- unhard code these values 'left/'range etc.
         alias reg : REGISTER_INDEX_TYPE is instruction(27 downto 24); -- unhard code these values
     
-    constant add_enabled  : std_logic_vector(4-1 downto 0) := "0000";
-    constant sub_enabled  : std_logic_vector(4-1 downto 0) := "0001";
-    constant mul_enabled  : std_logic_vector(4-1 downto 0) := "0010";
-    constant fft_enabled  : std_logic_vector(4-1 downto 0) := "0011";
-    constant ifft_enabled : std_logic_vector(4-1 downto 0) := "0100";
-    constant crt_enabled  : std_logic_vector(4-1 downto 0) := "0101";
-    constant icrt_enabled : std_logic_vector(4-1 downto 0) := "0110";
-    
-    signal mux_mode : std_logic_vector(4-1 downto 0);
-    signal modulus : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0) := (others => '0');
+    constant simd_add_enabled  : std_logic_vector(4-1 downto 0) := "0000";
+    constant simd_sub_enabled  : std_logic_vector(4-1 downto 0) := "0001";
+    constant simd_mul_enabled  : std_logic_vector(4-1 downto 0) := "0010";
+        
+    signal mux_mode : integer := 0;
+    signal simd_mode : std_logic_vector(4-1 downto 0);
+        
+    signal mux_out   : array(NUM_MUX downto 0) of std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0) := (others => (others => '0'));
+    signal mux_valid : array(NUM_MUX downto 0) of std_logic := (others => '0');   
     
     shared variable program : RAM_TYPE;
     
@@ -143,7 +143,10 @@ architecture Behavioral of he_processor is
     signal fft_param_addr  : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
     signal fft_param_valid : std_logic := '0';
     
+    signal simd_valid_enabled : std_logic := '0';
     signal fft_valid_enabled : std_logic := '0';
+    signal crt_valid_enabled : std_logic := '0';
+    signal icrt_valid_enabled : std_logic := '0';
         
     signal prime_idx : integer := 0;
     signal fft_table_idx : integer := 0;
@@ -153,25 +156,32 @@ begin
     prime <= primes(prime_idx);
     prime_r <= primes_r(prime_idx);
     prime_i <= primes_i(prime_idx);
-    fft_valid_enabled <= '1' when mux_mode = fft_enabled and valid_a else '0';
-    mux_out <= mux_out(;
     
-    simd_core_mux_inst : entity work.simd_core_mux
+    fft_valid_enabled <= '1' when (mux_mode = MUX_TO_FFT) and (a_valid = '1') else '0';
+    crt_valid_enabled <= '1' when (mux_mode = MUX_TO_CRT) and (a_valid = '1') else '0';
+    icrt_valid_enabled <= '1' when (mux_mode = MUX_TO_ICRT) and (a_valid = '1') else '0';
+    
+    out_data <= mux_out(mux_mode);
+    out_valid <= mux_valid(mux_mode);
+    
+    red_simd_core_mux_inst : entity work.red_simd_core_mux
         generic map (
-           C_MAX_DATA_WIDTH => C_FFT_PRIME_WIDTH,
-           C_MAX_NUM_DATA => C_MAX_DATA_WIDTH/C_FFT_PRIME_WIDTH
+            C_MAX_DATA_WIDTH => C_FFT_PRIME_WIDTH,
+            C_MAX_NUM_DATA   => C_MAX_DATA_WIDTH/C_FFT_PRIME_WIDTH,
+            C_LENGTH_WIDTH  => C_LENGTH_WIDTH,
         )
         port map (
             clk     => clk,
+            prime   => prime,
+            prime_r => prime_r,
+            prime_s => prime_s, 
+            mode    => simd_mode,
             a       => data_a,
             a_valid => valid_a,
             b       => data_b,
             b_valid => valid_b,
-            prime   => prime,
-            prime_r => prime_r,
-            c       => data_out,
-            c_valid => mux_out(0), 
-            mode    => mux_valid(0)
+            c       => mux_out(MUX_TO_SIMD),
+            c_valid => mux_valid(MUX_TO_SIMD)
         );  
     
     fft_inst : entity work.fft
@@ -184,9 +194,7 @@ begin
             C_MAX_FFT_LENGTH       => C_MAX_FFT_LENGTH
         )
         port map (
-            clk => clk,
-                    
-            -- Ports of fft
+            clk            => clk,
             param          => fft_param,
             param_addr     => fft_param_addr,
             param_valid    => fft_param_valid,
@@ -197,8 +205,8 @@ begin
             length         => std_logic_vector(fft_length),
             value          => data_a(C_MAX_DATA_WIDTH/C_MAX_FFT_PRIME_WIDTH-1 downto 0),
             value_valid    => fft_valid_enabled,
-            output         => mux_out(1)(C_MAX_DATA_WIDTH/C_MAX_FFT_PRIME_WIDTH-1 downto 0),
-            output_valid   => mux_valid(1),
+            output         => mux_out(MUX_TO_FFT)(C_MAX_DATA_WIDTH/C_MAX_FFT_PRIME_WIDTH-1 downto 0),
+            output_valid   => mux_valid(MUX_TO_FFT),
         );  
      
     state_proc : process (clk) is
@@ -210,7 +218,7 @@ begin
                         case mode is
                             when MODE_LOAD_CODE =>
                                 state <= LOAD_CODE;
-                                ready_a <= '1';
+                                a_ready <= '1';
                                 program_length <= 0;
                             when MODE_RUN =>
                                 if (program_length > 0) then
@@ -276,20 +284,23 @@ begin
                     state <= EXEC;
                     case opcode is
                         when OP_SUB =>
-                            mux_mode <= sub_enabled;
+                            mux_mode <= MUX_TO_SIMD;
+                            simd_mode <= sub_enabled;
                         when OP_ADD =>
-                            mux_mode <= add_enabled;
+                            mux_mode <= MUX_TO_SIMD;
+                            simd_mode <= add_enabled;
                         when OP_MUL => -- For now always relin
-                            mux_mode <= mul_enabled;
+                            mux_mode <= MUX_TO_SIMD;
+                            simd_mode <= mul_enabled;
                         when OP_B =>
-                        --when OP_CRT =>
-                        --    mux_mode <= crt_enabled;
-                        --when OP_ICRT =>
-                        --    mux_mode <= icrt_enabled;
+                        when OP_CRT =>
+                            mux_mode <= crt_enabled;
+                        when OP_ICRT =>
+                            mux_mode <= icrt_enabled;
                         when OP_FFT =>
                             mux_mode <= fft_enabled;
                         when OP_IFFT =>
-                            mux_mode <= ifft_enabled;
+                            mux_mode <= fft_enabled;
                         when OP_LOAD => -- Load "regiser"
                             --case reg is
                             --    when REG_A =>

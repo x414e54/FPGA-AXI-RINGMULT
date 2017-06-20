@@ -7,6 +7,18 @@ entity axi_test_v1_0 is
 		-- Users to add parameters here
         C_MAX_DATA_WIDTH    : integer    := 32;
         C_MAX_PROG_LENGTH   : integer    := 5;
+        ---
+        C_PARAM_WIDTH        : integer   := 64;
+        C_PARAM_ADDR_WIDTH   : integer   := 32;
+        ---
+        C_LENGTH_WIDTH         : integer   := 16;    
+        C_MAX_FFT_PRIME_WIDTH  : integer   := 64;
+        C_MAX_FFT_LENGTH       : integer   := 64; 
+        C_MAX_POLY_LENGTH      : integer   := 18; 
+        C_MAX_CRT_PRIME_WIDTH  : integer   := 256; 
+        C_MAX_FFT_PRIMES       : integer   := 3;
+        C_MAX_FFT_PRIMES_FOLDS : integer   := 2;
+        ---
 		-- User parameters ends
 		-- Do not modify the parameters beyond this line
 
@@ -85,12 +97,12 @@ end axi_test_v1_0;
 architecture arch_imp of axi_test_v1_0 is
 	signal start            : std_logic;
 	signal mode	            : std_logic_vector(C_S00_AXI_DATA_WIDTH-1 downto 0);
-    signal valid_a          : std_logic;
-    signal valid_b          : std_logic;
-    signal ready_a          : std_logic;
-    signal ready_b          : std_logic;
-    signal data_a           : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
-    signal data_b           : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+    signal a_valid          : std_logic;
+    signal b_valid          : std_logic;
+    signal a_ready          : std_logic;
+    signal b_ready          : std_logic;
+    signal a_data           : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+    signal b_data           : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
     signal out_data         : std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
     signal out_valid        : std_logic;
 	
@@ -217,9 +229,9 @@ axi_test_v1_0_S00_AXIS_inst : axi_test_v1_0_S00_AXIS
 	)
 	port map (
         clk             => clk,
-        valid           => valid_a,
-        ready           => ready_a,
-        data            => data_a,
+        valid           => a_valid,
+        ready           => a_ready,
+        data            => a_data,
 		S_AXIS_ACLK	    => s00_axis_aclk,
 		S_AXIS_ARESETN	=> s00_axis_aresetn,
 		S_AXIS_TREADY	=> s00_axis_tready,
@@ -237,9 +249,9 @@ axi_test_v1_0_S01_AXIS_inst : axi_test_v1_0_S00_AXIS
     )
     port map (
         clk             => clk,
-        valid           => valid_b,
-        ready           => ready_b,
-        data            => data_b,
+        valid           => b_valid,
+        ready           => b_ready,
+        data            => b_data,
         S_AXIS_ACLK     => s01_axis_aclk,
         S_AXIS_ARESETN  => s01_axis_aresetn,
         S_AXIS_TREADY   => s01_axis_tready,
@@ -287,21 +299,32 @@ testmult_inst : entity work.he_processor
         generic map (
             C_MAX_PROG_LENGTH => C_MAX_PROG_LENGTH,
             C_MAX_DATA_WIDTH => C_MAX_DATA_WIDTH,
-            C_REGISTER_WIDTH => C_S00_AXI_DATA_WIDTH
+            C_REGISTER_WIDTH => C_S00_AXI_DATA_WIDTH,
+            C_PARAM_WIDTH => C_PARAM_WIDTH,
+            C_PARAM_ADDR_WIDTH => C_PARAM_ADDR_WIDTH,
+            ---
+            C_LENGTH_WIDTH => C_LENGTH_WIDTH,
+            C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_PRIME_WIDTH,
+            C_MAX_FFT_LENGTH => C_MAX_FFT_LENGTH,
+            C_MAX_POLY_LENGTH => C_MAX_POLY_LENGTH,
+            C_MAX_CRT_PRIME_WIDTH => C_MAX_CRT_PRIME_WIDTH,
+            C_MAX_FFT_PRIMES => C_MAX_FFT_PRIMES,
+            C_MAX_FFT_PRIMES_FOLDS => C_MAX_FFT_PRIMES_FOLDS
+            ---
         )
         port map (
-               clk          => clk,
-               reset        => reset,
-               start        => start,
-               mode         => mode,
-               valid_a      => valid_a,
-               ready_a      => ready_a,
-               data_a       => data_a,
-               valid_b      => valid_b,
-               ready_b      => ready_b,
-               data_b       => data_b,
-               valid        => out_valid,
-               data_out     => out_data
+               clk       => clk,
+               reset     => reset,
+               start     => start,
+               mode      => mode,
+               a_valid   => a_valid,
+               a_ready   => a_ready,
+               a_data    => a_data,
+               b_valid   => b_valid,
+               b_ready   => b_ready,
+               b_data    => b_data,
+               out_valid => out_valid,
+               out_data  => out_data
         );
 	-- User logic ends
 

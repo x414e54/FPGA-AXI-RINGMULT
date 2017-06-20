@@ -124,7 +124,6 @@ begin
         param_addr_top <= std_logic_vector(to_unsigned(C_PARAM_ADDR_FFT_TABLE, (C_PARAM_ADDR_WIDTH/2)));
         param_addr_bottom <= x"0000";
         
-               
         for i in 0 to FFT_TABLE_LENGTH - 1 loop   
             fft_param_valid <= '1';
             fft_param <= std_logic_vector(tmp);
