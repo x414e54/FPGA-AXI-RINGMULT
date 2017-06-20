@@ -1,0 +1,25 @@
+{
+   guistr: "# # String gsaved with Nlview 6.6.8  2016-12-21 bk=1.3817 VDI=40 GEI=35 GUI=JA:1.6
+#  -string -flagsOSRD
+preplace port reset_rtl -pg 1 -y 240 -defaultsOSRD
+preplace port pcie_7x_mgt_rtl -pg 1 -y 20 -defaultsOSRD
+preplace port diff_clock_rtl_0 -pg 1 -y 20 -defaultsOSRD
+preplace inst util_ds_buf -pg 1 -lvl 1 -y 20 -defaultsOSRD
+preplace inst xdma_0 -pg 1 -lvl 3 -y 70 -defaultsOSRD
+preplace inst axis_data_fifo_0 -pg 1 -lvl 2 -y -80 -defaultsOSRD
+preplace netloc util_ds_buf_IBUF_OUT 1 1 2 120J 20 470J
+preplace netloc xdma_0_axi_aclk 1 1 3 130J 10 490J -50 830
+preplace netloc diff_clock_rtl_0_1 1 0 1 NJ
+preplace netloc xdma_0_axi_aresetn 1 1 3 120J 0 470J -70 850
+preplace netloc xdma_0_pcie_mgt 1 3 1 N
+preplace netloc axis_data_fifo_0_M_AXIS 1 2 1 480
+preplace netloc xdma_0_M_AXIS_H2C_0 1 1 3 120J -160 NJ -160 840
+preplace netloc reset_rtl_1 1 0 3 -180J 80 NJ 80 NJ
+levelinfo -pg 1 -200 -30 310 670 870 -top -330 -bot 660
+",
+}
+{
+   da_board_cnt: "14",
+   da_clkrst_cnt: "5",
+   da_xdma_cnt: "2",
+}

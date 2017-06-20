@@ -85,7 +85,7 @@ architecture arch_imp of axi_test_v1_0_S00_AXIS is
     -- FIFO read enable
     signal fifo_ren : std_logic;
 
-	type BYTE_FIFO_TYPE is array (0 to (NUMBER_OF_INPUT_WORDS-1)) of std_logic_vector(((C_S_AXIS_TDATA_WIDTH/4)-1)downto 0);
+	type BYTE_FIFO_TYPE is array (0 to (NUMBER_OF_INPUT_WORDS-1)) of std_logic_vector(8-1 downto 0);
 begin
 	-- I/O Connections assignments
 

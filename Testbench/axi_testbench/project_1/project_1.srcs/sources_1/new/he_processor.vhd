@@ -142,8 +142,8 @@ architecture Behavioral of he_processor is
     signal prime_r : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
     signal prime_i : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
     
-    signal fft_param       : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
-    signal fft_param_addr  : std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0)   := (others => '0');
+    signal fft_param       : std_logic_vector(C_PARAM_WIDTH-1 downto 0)   := (others => '0');
+    signal fft_param_addr  : std_logic_vector(C_PARAM_ADDR_WIDTH-1 downto 0)   := (others => '0');
     signal fft_param_valid : std_logic := '0';
     
     signal simd_valid_enabled : std_logic := '0';
@@ -206,10 +206,10 @@ begin
             prime_i        => prime_i,
             prime_s        => prime_s,
             length         => std_logic_vector(fft_length),
-            value          => data_a(C_MAX_DATA_WIDTH-C_MAX_FFT_PRIME_WIDTH-1 downto C_MAX_DATA_WIDTH-2*C_MAX_FFT_PRIME_WIDTH),
+            value          => a_data(C_MAX_DATA_WIDTH-1 downto C_MAX_DATA_WIDTH-C_MAX_FFT_PRIME_WIDTH),
             value_valid    => fft_valid_enabled,
-            output         => mux_out(MUX_TO_FFT)(C_MAX_DATA_WIDTH-C_MAX_FFT_PRIME_WIDTH-1 downto C_MAX_DATA_WIDTH-2*C_MAX_FFT_PRIME_WIDTH),
-            output_valid   => mux_valid(MUX_TO_FFT),
+            output         => mux_out(MUX_TO_FFT)(C_MAX_DATA_WIDTH-1 downto C_MAX_DATA_WIDTH-C_MAX_FFT_PRIME_WIDTH),
+            output_valid   => mux_valid(MUX_TO_FFT)
         );
      
     state_proc : process (clk) is
@@ -248,18 +248,18 @@ begin
                                             
                 when LOAD_INFO =>
                     if (a_valid = '1') then
-                        -- TODO split here will not work if C_MAX_DATA_WIDTH < 3 * C_MAX_FFT_PRIME_WIDTH
-                        num_primes <= unsigned(a_data(C_MAX_DATA_WIDTH-C_MAX_FFT_PRIME_WIDTH-1 downto C_MAX_DATA_WIDTH-2*C_MAX_FFT_PRIME_WIDTH));
-                        poly_length <= unsigned(a_data(C_MAX_DATA_WIDTH-2*C_MAX_FFT_PRIME_WIDTH-1 downto C_MAX_DATA_WIDTH-3*C_MAX_FFT_PRIME_WIDTH));
-                        fft_length <= unsigned(a_data(C_MAX_DATA_WIDTH-3*C_MAX_FFT_PRIME_WIDTH-1 downto C_MAX_DATA_WIDTH-4*C_MAX_FFT_PRIME_WIDTH));
+                        -- TODO split here will not work if C_MAX_DATA_WIDTH < 3 * C_LENGTH_WIDTH
+                        num_primes <= unsigned(a_data(C_MAX_DATA_WIDTH-1 downto C_MAX_DATA_WIDTH-C_LENGTH_WIDTH));
+                        poly_length <= unsigned(a_data(C_MAX_DATA_WIDTH-C_LENGTH_WIDTH-1 downto C_MAX_DATA_WIDTH-2*C_LENGTH_WIDTH));
+                        fft_length <= unsigned(a_data(C_MAX_DATA_WIDTH-2*C_LENGTH_WIDTH-1 downto C_MAX_DATA_WIDTH-3*C_LENGTH_WIDTH));
                     end if;
                     
                 when LOAD_PRIMES =>
                     if (a_valid = '1') then
                         -- TODO split here will not work if C_MAX_DATA_WIDTH < 3 * C_MAX_FFT_PRIME_WIDTH
-                        primes(prime_idx) <= a_data(C_MAX_DATA_WIDTH-C_MAX_FFT_PRIME_WIDTH-1 downto C_MAX_DATA_WIDTH-2*C_MAX_FFT_PRIME_WIDTH);
-                        primes_r(prime_idx) <= a_data(C_MAX_DATA_WIDTH-2*C_MAX_FFT_PRIME_WIDTH-1 downto C_MAX_DATA_WIDTH-3*C_MAX_FFT_PRIME_WIDTH);
-                        primes_i(prime_idx) <= a_data(C_MAX_DATA_WIDTH-3*C_MAX_FFT_PRIME_WIDTH-1 downto C_MAX_DATA_WIDTH-4*C_MAX_FFT_PRIME_WIDTH);
+                        primes(prime_idx) <= a_data(C_MAX_DATA_WIDTH-1 downto C_MAX_DATA_WIDTH-C_MAX_FFT_PRIME_WIDTH);
+                        primes_r(prime_idx) <= a_data(C_MAX_DATA_WIDTH-C_MAX_FFT_PRIME_WIDTH-1 downto C_MAX_DATA_WIDTH-2*C_MAX_FFT_PRIME_WIDTH);
+                        --primes_i(prime_idx) <= a_data(C_MAX_DATA_WIDTH-2*C_MAX_FFT_PRIME_WIDTH-1 downto C_MAX_DATA_WIDTH-3*C_MAX_FFT_PRIME_WIDTH);
                         if (prime_idx = num_primes - 1) then
                             state <= IDLE;
                             a_ready <= '0';
@@ -269,7 +269,7 @@ begin
                                                                
                 when LOAD_FFT_TABLE =>
                     if (a_valid = '1') then
-                        fft_param <= a_data;
+                        fft_param <= a_data(C_MAX_DATA_WIDTH-1 downto C_MAX_DATA_WIDTH-C_PARAM_WIDTH);
                         fft_param_addr <= std_logic_vector(to_unsigned(fft_table_idx, C_PARAM_ADDR_WIDTH));
                         if (fft_table_idx = fft_length - 1) then
                             state <= IDLE;

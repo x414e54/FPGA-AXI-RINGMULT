@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 entity axi_test_v1_0 is
 	generic (
 		-- Users to add parameters here
-        C_MAX_DATA_WIDTH    : integer    := 32;
+        C_MAX_DATA_WIDTH    : integer    := 128;
         C_MAX_PROG_LENGTH   : integer    := 5;
         ---
         C_PARAM_WIDTH        : integer   := 64;
@@ -13,8 +13,8 @@ entity axi_test_v1_0 is
         ---
         C_LENGTH_WIDTH         : integer   := 16;    
         C_MAX_FFT_PRIME_WIDTH  : integer   := 64;
-        C_MAX_FFT_LENGTH       : integer   := 64; 
-        C_MAX_POLY_LENGTH      : integer   := 18; 
+        C_MAX_FFT_LENGTH       : integer   := 16384; 
+        C_MAX_POLY_LENGTH      : integer   := 7710; 
         C_MAX_CRT_PRIME_WIDTH  : integer   := 256; 
         C_MAX_FFT_PRIMES       : integer   := 3;
         C_MAX_FFT_PRIMES_FOLDS : integer   := 2;
@@ -24,11 +24,11 @@ entity axi_test_v1_0 is
 
 
 		-- Parameters of Axi Master Bus Interface M00_AXIS
-		C_M00_AXIS_TDATA_WIDTH	: integer	:= 256;
+		C_M00_AXIS_TDATA_WIDTH	: integer	:= 128;
 		C_M00_AXIS_START_COUNT	: integer	:= 32;
 
 		-- Parameters of Axi Slave Bus Interface S00_AXIS
-		C_S00_AXIS_TDATA_WIDTH	: integer	:= 256;
+		C_S00_AXIS_TDATA_WIDTH	: integer	:= 128;
 
 		-- Parameters of Axi Slave Bus Interface S00_AXI
 		C_S00_AXI_DATA_WIDTH	: integer	:= 32;
