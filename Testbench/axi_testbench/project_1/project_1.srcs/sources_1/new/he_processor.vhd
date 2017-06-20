@@ -66,7 +66,10 @@ entity he_processor is
 end he_processor;
 
 architecture Behavioral of he_processor is
+
     type FFT_DATA_TYPE is array(natural range <>) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
+    type DATA_TYPE is array(natural range <>) of std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0);
+    type VALID_TYPE is array(natural range <>) of std_logic;
     
     subtype CONTROL_TYPE is std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
     subtype OPCODE_TYPE is std_logic_vector(3 downto 0);
@@ -120,8 +123,8 @@ architecture Behavioral of he_processor is
     signal mux_mode : integer := 0;
     signal simd_mode : std_logic_vector(4-1 downto 0);
         
-    signal mux_out   : array(NUM_MUX downto 0) of std_logic_vector(C_MAX_DATA_WIDTH-1 downto 0) := (others => (others => '0'));
-    signal mux_valid : array(NUM_MUX downto 0) of std_logic := (others => '0');   
+    signal mux_out   : DATA_TYPE(NUM_MUX downto 0) := (others => (others => '0'));
+    signal mux_valid : VALID_TYPE(NUM_MUX downto 0) := (others => '0');   
     
     shared variable program : RAM_TYPE;
     
@@ -166,9 +169,9 @@ begin
     
     red_simd_core_mux_inst : entity work.red_simd_core_mux
         generic map (
-            C_MAX_DATA_WIDTH => C_FFT_PRIME_WIDTH,
-            C_MAX_NUM_DATA   => C_MAX_DATA_WIDTH/C_FFT_PRIME_WIDTH,
-            C_LENGTH_WIDTH  => C_LENGTH_WIDTH,
+            C_MAX_SIMD_NUM   => C_MAX_DATA_WIDTH/C_MAX_FFT_PRIME_WIDTH,
+            C_MAX_DATA_WIDTH => C_MAX_FFT_PRIME_WIDTH,
+            C_LENGTH_WIDTH  => C_LENGTH_WIDTH
         )
         port map (
             clk     => clk,
@@ -176,10 +179,10 @@ begin
             prime_r => prime_r,
             prime_s => prime_s, 
             mode    => simd_mode,
-            a       => data_a,
-            a_valid => valid_a,
-            b       => data_b,
-            b_valid => valid_b,
+            a       => a_data,
+            a_valid => a_valid,
+            b       => b_data,
+            b_valid => b_valid,
             c       => mux_out(MUX_TO_SIMD),
             c_valid => mux_valid(MUX_TO_SIMD)
         );  
@@ -203,11 +206,11 @@ begin
             prime_i        => prime_i,
             prime_s        => prime_s,
             length         => std_logic_vector(fft_length),
-            value          => data_a(C_MAX_DATA_WIDTH/C_MAX_FFT_PRIME_WIDTH-1 downto 0),
+            value          => data_a(C_MAX_DATA_WIDTH-C_MAX_FFT_PRIME_WIDTH-1 downto C_MAX_DATA_WIDTH-2*C_MAX_FFT_PRIME_WIDTH),
             value_valid    => fft_valid_enabled,
-            output         => mux_out(MUX_TO_FFT)(C_MAX_DATA_WIDTH/C_MAX_FFT_PRIME_WIDTH-1 downto 0),
+            output         => mux_out(MUX_TO_FFT)(C_MAX_DATA_WIDTH-C_MAX_FFT_PRIME_WIDTH-1 downto C_MAX_DATA_WIDTH-2*C_MAX_FFT_PRIME_WIDTH),
             output_valid   => mux_valid(MUX_TO_FFT),
-        );  
+        );
      
     state_proc : process (clk) is
     begin	
@@ -234,43 +237,43 @@ begin
                     end if;
                    
                 when LOAD_CODE =>
-                    if (valid_a = '1') then
-                        program(program_length) := data_a;
+                    if (a_valid = '1') then
+                        program(program_length) := a_data;
                         if (program_length = C_MAX_PROG_LENGTH - 1) then
                             state <= IDLE;
-                            ready_a <= '0';
+                            a_ready <= '0';
                         end if;
                         program_length <= program_length + 1;
                     end if;
                                             
                 when LOAD_INFO =>
-                    if (valid_a = '1') then
+                    if (a_valid = '1') then
                         -- TODO split here will not work if C_MAX_DATA_WIDTH < 3 * C_MAX_FFT_PRIME_WIDTH
-                        num_primes <= unsigned(data_a(C_MAX_DATA_WIDTH/C_MAX_FFT_PRIME_WIDTH-1 downto 0));
-                        poly_length <= unsigned(data_a(2*(C_MAX_DATA_WIDTH/C_MAX_FFT_PRIME_WIDTH)-1 downto 0));
-                        fft_length <= unsigned(data_a(2*(C_MAX_DATA_WIDTH/C_MAX_FFT_PRIME_WIDTH)-1 downto 0));
+                        num_primes <= unsigned(a_data(C_MAX_DATA_WIDTH-C_MAX_FFT_PRIME_WIDTH-1 downto C_MAX_DATA_WIDTH-2*C_MAX_FFT_PRIME_WIDTH));
+                        poly_length <= unsigned(a_data(C_MAX_DATA_WIDTH-2*C_MAX_FFT_PRIME_WIDTH-1 downto C_MAX_DATA_WIDTH-3*C_MAX_FFT_PRIME_WIDTH));
+                        fft_length <= unsigned(a_data(C_MAX_DATA_WIDTH-3*C_MAX_FFT_PRIME_WIDTH-1 downto C_MAX_DATA_WIDTH-4*C_MAX_FFT_PRIME_WIDTH));
                     end if;
                     
                 when LOAD_PRIMES =>
-                    if (valid_a = '1') then
+                    if (a_valid = '1') then
                         -- TODO split here will not work if C_MAX_DATA_WIDTH < 3 * C_MAX_FFT_PRIME_WIDTH
-                        primes(prime_idx) <= data_a(C_MAX_DATA_WIDTH/C_MAX_FFT_PRIME_WIDTH-1 downto 0);
-                        primes_r(prime_idx) <= data_a(2*(C_MAX_DATA_WIDTH/C_MAX_FFT_PRIME_WIDTH)-1 downto 0);
-                        primes_i(prime_idx) <= data_a(3*(C_MAX_DATA_WIDTH/C_MAX_FFT_PRIME_WIDTH)-1 downto 0);
+                        primes(prime_idx) <= a_data(C_MAX_DATA_WIDTH-C_MAX_FFT_PRIME_WIDTH-1 downto C_MAX_DATA_WIDTH-2*C_MAX_FFT_PRIME_WIDTH);
+                        primes_r(prime_idx) <= a_data(C_MAX_DATA_WIDTH-2*C_MAX_FFT_PRIME_WIDTH-1 downto C_MAX_DATA_WIDTH-3*C_MAX_FFT_PRIME_WIDTH);
+                        primes_i(prime_idx) <= a_data(C_MAX_DATA_WIDTH-3*C_MAX_FFT_PRIME_WIDTH-1 downto C_MAX_DATA_WIDTH-4*C_MAX_FFT_PRIME_WIDTH);
                         if (prime_idx = num_primes - 1) then
                             state <= IDLE;
-                            ready_a <= '0';
+                            a_ready <= '0';
                         end if;
                         prime_idx <= prime_idx + 1;
                     end if;
                                                                
                 when LOAD_FFT_TABLE =>
-                    if (valid_a = '1') then
-                        fft_param <= data_a;
+                    if (a_valid = '1') then
+                        fft_param <= a_data;
                         fft_param_addr <= std_logic_vector(to_unsigned(fft_table_idx, C_PARAM_ADDR_WIDTH));
                         if (fft_table_idx = fft_length - 1) then
                             state <= IDLE;
-                            ready_a <= '0';
+                            a_ready <= '0';
                         end if;
                         fft_table_idx <= fft_table_idx + 1;
                     end if;
@@ -285,22 +288,22 @@ begin
                     case opcode is
                         when OP_SUB =>
                             mux_mode <= MUX_TO_SIMD;
-                            simd_mode <= sub_enabled;
+                            simd_mode <= simd_sub_enabled;
                         when OP_ADD =>
                             mux_mode <= MUX_TO_SIMD;
-                            simd_mode <= add_enabled;
+                            simd_mode <= simd_add_enabled;
                         when OP_MUL => -- For now always relin
                             mux_mode <= MUX_TO_SIMD;
-                            simd_mode <= mul_enabled;
+                            simd_mode <= simd_mul_enabled;
                         when OP_B =>
                         when OP_CRT =>
-                            mux_mode <= crt_enabled;
+                            mux_mode <= MUX_TO_CRT;
                         when OP_ICRT =>
-                            mux_mode <= icrt_enabled;
+                            mux_mode <= MUX_TO_ICRT;
                         when OP_FFT =>
-                            mux_mode <= fft_enabled;
+                            mux_mode <= MUX_TO_FFT;
                         when OP_IFFT =>
-                            mux_mode <= fft_enabled;
+                            mux_mode <= MUX_TO_FFT;
                         when OP_LOAD => -- Load "regiser"
                             --case reg is
                             --    when REG_A =>
@@ -313,14 +316,14 @@ begin
                     end case;
                 
                 when EXEC => --- Execute current instruction
-                    ready_a <= '1';
-                    ready_b <= '1';
-                    if (valid_a = '1') then
+                    a_ready <= '1';
+                    b_ready <= '1';
+                    if (a_valid = '1') then
                         --
                         --mux_valid_a <=
-                        ready_a <= '0';
+                        a_ready <= '0';
                     end if;                    
-                    if (valid_b = '1') then
+                    if (b_valid = '1') then
                             --
                     end if;
                 
