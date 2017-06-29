@@ -77,7 +77,7 @@ architecture Behavioral of he_processor is
     subtype INSTRUCTION_TYPE is std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
     type RAM_TYPE is array(C_MAX_PROG_LENGTH-1 downto 0) of INSTRUCTION_TYPE;
     
-    type STATE_TYPE is (IDLE, LOAD_CODE, LOAD_INFO, LOAD_PRIMES_1, LOAD_PRIMES_2, LOAD_PRIMES_3, LOAD_FFT_TABLE, RUN, EXEC_FFT, EXEC_SIMD, EXEC_CRT);
+    type STATE_TYPE is (IDLE, LOAD_CODE, LOAD_INFO, LOAD_PRIMES_1, LOAD_PRIMES_2, LOAD_PRIMES_3, LOAD_FFT_TABLE, RUN, EXEC_FFT, EXEC_FFT_OUTPUT, EXEC_SIMD, EXEC_CRT);
 
     -- Program integer registers (not for HE)
     constant REG_0              : REGISTER_INDEX_TYPE := b"0000";
@@ -348,6 +348,11 @@ begin
                 when EXEC_FFT => --- Execute current instruction
                     if (mux_valid(MUX_TO_FFT) = '1') then
                         a_ready <= '0';
+                        state <= EXEC_FFT_OUTPUT;
+                    end if;
+                    
+                when EXEC_FFT_OUTPUT => --- Execute current instruction
+                    if (mux_valid(MUX_TO_FFT) = '0') then
                         state <= RUN;
                     end if;
                     
