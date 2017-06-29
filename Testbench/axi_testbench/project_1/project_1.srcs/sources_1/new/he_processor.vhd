@@ -77,7 +77,7 @@ architecture Behavioral of he_processor is
     subtype INSTRUCTION_TYPE is std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
     type RAM_TYPE is array(C_MAX_PROG_LENGTH-1 downto 0) of INSTRUCTION_TYPE;
     
-    type STATE_TYPE is (IDLE, LOAD_CODE, LOAD_INFO, LOAD_PRIMES, LOAD_FFT_TABLE, RUN, EXEC);
+    type STATE_TYPE is (IDLE, LOAD_CODE, LOAD_INFO, LOAD_PRIMES_1, LOAD_PRIMES_2, LOAD_PRIMES_3, LOAD_FFT_TABLE, RUN, EXEC);
 
     -- Program integer registers (not for HE)
     constant REG_0              : REGISTER_INDEX_TYPE := b"0000";
@@ -86,9 +86,10 @@ architecture Behavioral of he_processor is
     -- Encrypted buffers (for HE)
     ----
         
-    constant MODE_LOAD_CODE : CONTROL_TYPE := x"00000000";
-    constant MODE_RUN       : CONTROL_TYPE := x"00000001";
-    constant MODE_TERM      : CONTROL_TYPE := x"00000002";
+    constant MODE_LOAD_CODE   : CONTROL_TYPE := x"00000000";
+    constant MODE_RUN         : CONTROL_TYPE := x"00000001";
+    constant MODE_TERM        : CONTROL_TYPE := x"00000002";
+    constant MODE_LOAD_PARAMS : CONTROL_TYPE := x"00000003";
     
     constant OP_SUB   : OPCODE_TYPE := "0000";
     constant OP_ADD   : OPCODE_TYPE := "0001";
@@ -223,6 +224,9 @@ begin
                                 state <= LOAD_CODE;
                                 a_ready <= '1';
                                 program_length <= 0;
+                            when MODE_LOAD_PARAMS =>
+                                state <= LOAD_INFO;
+                                a_ready <= '1';
                             when MODE_RUN =>
                                 if (program_length > 0) then
                                     state <= RUN;
@@ -238,7 +242,7 @@ begin
                    
                 when LOAD_CODE =>
                     if (a_valid = '1') then
-                        program(program_length) := a_data;
+                        program(program_length) := a_data(C_MAX_DATA_WIDTH-1 downto C_MAX_DATA_WIDTH-C_REGISTER_WIDTH);
                         if (program_length = C_MAX_PROG_LENGTH - 1) then
                             state <= IDLE;
                             a_ready <= '0';
@@ -252,30 +256,52 @@ begin
                         num_primes <= unsigned(a_data(C_MAX_DATA_WIDTH-1 downto C_MAX_DATA_WIDTH-C_LENGTH_WIDTH));
                         poly_length <= unsigned(a_data(C_MAX_DATA_WIDTH-C_LENGTH_WIDTH-1 downto C_MAX_DATA_WIDTH-2*C_LENGTH_WIDTH));
                         fft_length <= unsigned(a_data(C_MAX_DATA_WIDTH-2*C_LENGTH_WIDTH-1 downto C_MAX_DATA_WIDTH-3*C_LENGTH_WIDTH));
+                        state <= LOAD_PRIMES_1;
                     end if;
                     
-                when LOAD_PRIMES =>
+                when LOAD_PRIMES_1 =>
                     if (a_valid = '1') then
-                        -- TODO split here will not work if C_MAX_DATA_WIDTH < 3 * C_MAX_FFT_PRIME_WIDTH
                         primes(prime_idx) <= a_data(C_MAX_DATA_WIDTH-1 downto C_MAX_DATA_WIDTH-C_MAX_FFT_PRIME_WIDTH);
-                        primes_r(prime_idx) <= a_data(C_MAX_DATA_WIDTH-C_MAX_FFT_PRIME_WIDTH-1 downto C_MAX_DATA_WIDTH-2*C_MAX_FFT_PRIME_WIDTH);
-                        --primes_i(prime_idx) <= a_data(C_MAX_DATA_WIDTH-2*C_MAX_FFT_PRIME_WIDTH-1 downto C_MAX_DATA_WIDTH-3*C_MAX_FFT_PRIME_WIDTH);
-                        if (prime_idx = num_primes - 1) then
-                            state <= IDLE;
-                            a_ready <= '0';
-                        end if;
                         prime_idx <= prime_idx + 1;
+                        if (prime_idx = num_primes - 1) then
+                            state <= LOAD_PRIMES_2;
+                            a_ready <= '0';
+                            prime_idx <= 0;
+                        end if;
+                    end if;
+                    
+                when LOAD_PRIMES_2 =>
+                        if (a_valid = '1') then
+                            primes_r(prime_idx) <= a_data(C_MAX_DATA_WIDTH-1 downto C_MAX_DATA_WIDTH-C_MAX_FFT_PRIME_WIDTH);
+                            prime_idx <= prime_idx + 1;
+                            if (prime_idx = num_primes - 1) then
+                                state <= LOAD_PRIMES_3;
+                                a_ready <= '0';
+                                prime_idx <= 0;
+                            end if;
+                        end if;
+                    
+                when LOAD_PRIMES_3 =>
+                    if (a_valid = '1') then
+                        primes_i(prime_idx) <= a_data(C_MAX_DATA_WIDTH-1 downto C_MAX_DATA_WIDTH-C_MAX_FFT_PRIME_WIDTH);
+                        prime_idx <= prime_idx + 1;
+                        if (prime_idx = num_primes - 1) then
+                            state <= LOAD_FFT_TABLE;
+                            a_ready <= '0';
+                            prime_idx <= 0;
+                        end if;
                     end if;
                                                                
                 when LOAD_FFT_TABLE =>
                     if (a_valid = '1') then
                         fft_param <= a_data(C_MAX_DATA_WIDTH-1 downto C_MAX_DATA_WIDTH-C_PARAM_WIDTH);
                         fft_param_addr <= std_logic_vector(to_unsigned(fft_table_idx, C_PARAM_ADDR_WIDTH));
+                        fft_table_idx <= fft_table_idx + 1;
                         if (fft_table_idx = fft_length - 1) then
                             state <= IDLE;
                             a_ready <= '0';
+                            fft_table_idx <= 0;
                         end if;
-                        fft_table_idx <= fft_table_idx + 1;
                     end if;
                                                                                 
                 when RUN =>
@@ -319,14 +345,11 @@ begin
                     a_ready <= '1';
                     b_ready <= '1';
                     if (a_valid = '1') then
-                        --
-                        --mux_valid_a <=
                         a_ready <= '0';
                     end if;                    
                     if (b_valid = '1') then
-                            --
                     end if;
-                
+                    state <= RUN;
             end case;
         end if;
     end process state_proc;

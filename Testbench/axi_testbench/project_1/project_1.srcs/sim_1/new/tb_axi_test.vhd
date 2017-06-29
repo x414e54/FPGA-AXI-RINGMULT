@@ -4,16 +4,28 @@ use ieee.numeric_std.all;
 
 entity axi_test_tb is
     generic (		
-        C_MAX_DATA_WIDTH        : integer   := 32;		
+        C_MAX_DATA_WIDTH        : integer   := 64;		
         C_MAX_DATA_LENGTH       : integer   := 771;
-        C_MAX_PROG_LENGTH       : integer   := 3;
+        C_MAX_PROG_LENGTH       : integer   := 3;       
+        ---
+        C_PARAM_WIDTH        : integer   := 64;
+        C_PARAM_ADDR_WIDTH   : integer   := 32;
+        ---
+        C_LENGTH_WIDTH         : integer   := 16;    
+        C_MAX_FFT_PRIME_WIDTH  : integer   := 64;
+        C_MAX_FFT_LENGTH       : integer   := 64; 
+        C_MAX_POLY_LENGTH      : integer   := 16; 
+        C_MAX_CRT_PRIME_WIDTH  : integer   := 256; 
+        C_MAX_FFT_PRIMES       : integer   := 3;
+        C_MAX_FFT_PRIMES_FOLDS : integer   := 2;
+        ---
         
 		-- Parameters of Axi Master Bus Interface M00_AXIS
-        C_M00_AXIS_TDATA_WIDTH  : integer   := 32;
+        C_M00_AXIS_TDATA_WIDTH  : integer   := 64;
         C_M00_AXIS_START_COUNT  : integer   := 32;
 
         -- Parameters of Axi Slave Bus Interface S00_AXIS
-        C_S00_AXIS_TDATA_WIDTH  : integer   := 32;
+        C_S00_AXIS_TDATA_WIDTH  : integer   := 64;
 
         -- Parameters of Axi Slave Bus Interface S00_AXI
         C_S00_AXI_DATA_WIDTH    : integer   := 32;
@@ -82,8 +94,20 @@ architecture behavior of axi_test_tb is
         signal sending_stream       : std_logic := '0';
         signal reading_stream       : std_logic := '0';
         
-        shared variable test_rdata  : STREAM_TYPE:= (others => (others => '0'));
-            
+        shared variable test_rdata  : STREAM_TYPE := (others => (others => '0'));
+                               
+        constant FFT_TABLE_LENGTH: integer := (3*((C_MAX_FFT_LENGTH/4)-1)) + 1;
+        type fft_array is array(0 to C_MAX_FFT_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
+        type fft_table_array is array(0 to FFT_TABLE_LENGTH - 1) of std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0);
+
+        constant INPUT: fft_array := (x"05da70c865fceff8", x"0a1996af809f5eea", x"0eb3e56f9f718027", x"0e2ebeb634481c01", x"0488b321b3b901b8", x"0000000000000001", x"059cdc15e64a1b91", x"07b7aa9a4b189f97", x"0eb3e56f9f718027", x"07b7aa9a4b189f97", x"059cdc15e64a1b91", x"0000000000000001", x"0488b321b3b901b8", x"0e2ebeb634481c01", x"0eb3e56f9f718027", x"0a1996af809f5eea", x"05da70c865fceff8", x"0000000000000001", x"05da70c865fceff8", x"0a1996af809f5eea", x"0eb3e56f9f718027", x"0e2ebeb634481c01", x"0488b321b3b901b8", x"0000000000000001", x"059cdc15e64a1b91", x"07b7aa9a4b189f97", x"0eb3e56f9f718027", x"07b7aa9a4b189f97", x"059cdc15e64a1b91", x"0000000000000001", x"0488b321b3b901b8", x"0e2ebeb634481c01", x"0eb3e56f9f718027", x"0a1996af809f5eea", x"05da70c865fceff8", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000", x"0000000000000000");
+        constant OUTPUT: fft_array := (x"0837609dbca8beaa", x"0837609dbca8bea0", x"0eb3e56f9f718027", x"014c1a90608e8d1a", x"0a150adea428b242", x"0276070b0887d0ef", x"05b5d7d85a6f80e3", x"031c993208c546c5", x"072e504d3da22e8b", x"006f0447128500c4", x"0e1299a07c1a2c3a", x"0b168274ccfb1715", x"0784c05fa8fefc94", x"097c79d1afc18e62", x"084976f64cfcc19c", x"06af0a05ee847109", x"0aa7550a72633120", x"0df34b59eb84e426", x"0deec8ac512665c9", x"007e0e37dd51cf34", x"06ab4355042b5273", x"09a56c98c05d0615", x"081211d72c2cc26e", x"0701a7eb8371293f", x"0cf23a963c42561e", x"01e2dabb7a10320c", x"0722374dbdd7ad2e", x"063e7f71776fb439", x"028d223bab9c93b2", x"089a8955f5831d85", x"08284a002156adf8", x"054cb45e4880ce71", x"0d67a4ec92d463c1", x"010dcc9ea3290839", x"06ec6dffb69daeb9", x"09b25e9cb5de5fb3", x"0d90b46b93127c7d", x"065e811bef883fc1", x"0d7ecd06a96cc620", x"0aad7952a35aba83", x"0bde9605ade65c65", x"06130eb9694f0a69", x"0ff18c6d976d5eff", x"08231f63fbe22ab5", x"0452fd3e6dc2c74e", x"0a6be056424a90b7", x"0bc28f24a62e0224", x"0736949544925a48", x"0779cb79ad4c6f36", x"0bbef1ad9d943f55", x"08fd4fb174b9de97", x"08395b9372f93316", x"072a73e08e217b03", x"019cbabec756c996", x"0b3173c516c258ae", x"024c4453bc2e260c", x"0ac44c73a8159ad6", x"0899485df055f4fc", x"04f4ba2842d1cfae", x"0f094efc55ea27ba", x"004e2e10365ae8c8", x"085478c186d104c5", x"08a0b21fe664466d", x"0a901924ea8d2f0a");
+
+        constant W: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"072283f8f018f3a7");
+        constant PRIME: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"1000000000000d41");
+        constant PRIME_RED: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"0ffffffffffff2bf");
+        constant PRIME_I: std_logic_vector(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := (x"0eb3e56f9f718027");
+
 begin
 
     axi_test_v1_0_inst : entity work.axi_test_v1_0
@@ -263,14 +287,14 @@ begin
                 end if;
                 
                 s00_axis_tdata <= data(index);
-                s00_axis_tstrb <= b"1111";
+                s00_axis_tstrb <= b"11111111";
                 s00_axis_tvalid <= '1';
                 if (s00_axis_tready = '0') then
                     wait until s00_axis_tready = '1';
                 end if;
                 wait until rising_edge(clk);
                 s00_axis_tvalid <= '0';
-                s00_axis_tstrb <= b"0000";
+                s00_axis_tstrb <= b"00000000";
             end loop;
         end procedure send_stream;
         
@@ -286,6 +310,7 @@ begin
         variable rdata : data_type := x"00000000";
         variable test_data : STREAM_TYPE:= (others => (others => '0'));
         variable length : integer := 0;
+        variable tmp: unsigned(C_MAX_FFT_PRIME_WIDTH-1 downto 0) := to_unsigned(1, C_MAX_FFT_PRIME_WIDTH);
     begin
         reset <= '0';
         wait until falling_edge(clk);
@@ -303,6 +328,26 @@ begin
         read(address, rdata);
         assert(data = rdata);
         
+        --Test fill params
+        address := b"0000";
+        data := x"00000003";
+        send(address, data);
+        test_data(0)(C_MAX_DATA_WIDTH-1 downto C_MAX_DATA_WIDTH-C_LENGTH_WIDTH) := std_logic_vector(to_unsigned(1, C_LENGTH_WIDTH));
+        test_data(0)(C_MAX_DATA_WIDTH-C_LENGTH_WIDTH-1 downto C_MAX_DATA_WIDTH-2*C_LENGTH_WIDTH) := std_logic_vector(to_unsigned(C_MAX_POLY_LENGTH, C_LENGTH_WIDTH));
+        test_data(0)(C_MAX_DATA_WIDTH-2*C_LENGTH_WIDTH-1 downto C_MAX_DATA_WIDTH-3*C_LENGTH_WIDTH) := std_logic_vector(to_unsigned(C_MAX_FFT_LENGTH, C_LENGTH_WIDTH));
+        test_data(1) := PRIME;
+        test_data(2) := PRIME_RED;
+        test_data(3) := PRIME_I;
+        for i in 0 to FFT_TABLE_LENGTH - 1 loop   
+            test_data(i + 4) := std_logic_vector(tmp);
+            tmp := (tmp * unsigned(W)) mod unsigned(PRIME);
+        end loop;
+        address := b"0100";
+        data := x"00000001";
+        send(address, data);
+        length := FFT_TABLE_LENGTH + 4;
+        send_stream(test_data, length);
+                
         --Test Loading Program
         address := b"0000";
         data := x"00000000";
@@ -311,12 +356,12 @@ begin
         data := x"00000001";
         send(address, data);
         
-        test_data(0) := x"06000000";
-        test_data(1) := x"00000000";
-        test_data(2) := x"00000000";
+        test_data(0) := x"0000000006000000";
+        test_data(1) := x"0000000000000000";
+        test_data(2) := x"0000000000000000";
         length := C_MAX_PROG_LENGTH;
         send_stream(test_data, length);
-        
+
         address := b"0000";
         data := x"00000001";
         send(address, data);
@@ -329,16 +374,23 @@ begin
         send(address, data);
         
         wait until rising_edge(clk);
-        test_data(0) := x"00000001";
-        test_data(1) := x"00000002";
-        test_data(2) := x"00000003";
-        test_rdata(0) := x"00000000";
-        test_rdata(1) := x"00000000";
-        test_rdata(2) := x"00000000";
+        test_data(0) := x"0000000000000001";
+        test_data(1) := x"0000000000000002";
+        test_data(2) := x"0000000000000003";
+        test_rdata(0) := x"0000000000000000";
+        test_rdata(1) := x"0000000000000000";
+        test_rdata(2) := x"0000000000000000";
         read_stream;
         length := 3;
         send_stream(test_data, length);
         --stop <= '1';
+        
+        for i in 0 to C_MAX_FFT_LENGTH - 1 loop
+            assert test_data(i) = INPUT(i);
+        end loop;
+        
+        length := C_MAX_FFT_LENGTH;
+        send_stream(test_data, length);
         
         wait;
     end process;
