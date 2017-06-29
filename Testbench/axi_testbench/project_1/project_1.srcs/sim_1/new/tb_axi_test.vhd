@@ -372,7 +372,7 @@ begin
         data := x"00000000";
         send(address, data);
         
-        test_data(0) := x"0000000600000000"; -- OP_FFT 
+        test_data(0) := x"6000000000000000"; -- OP_FFT 
         test_data(1) := x"0000000000000000";
         test_data(2) := x"0000000000000000";
 
