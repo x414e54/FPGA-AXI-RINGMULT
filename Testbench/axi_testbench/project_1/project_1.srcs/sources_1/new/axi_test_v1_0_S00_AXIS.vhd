@@ -132,25 +132,26 @@ begin
 	-- The example design sink is always ready to accept the S_AXIS_TDATA  until
 	-- the FIFO is not filled with NUMBER_OF_INPUT_WORDS number of input words.
 	axis_tready <= '1' when ((mst_exec_state = WRITE_FIFO) and (fifo_full_flag = '0')) else '0';
-
+    writes_done <='1' when (fifo_full_flag = '1' or S_AXIS_TLAST = '1') else '0';
+    
 	process(S_AXIS_ACLK)
 	begin
 	  if (rising_edge (S_AXIS_ACLK)) then
         if(S_AXIS_ARESETN = '0') then
           write_pointer <= (others => '0');
-          writes_done <= '0';
+          --writes_done <= '0';
 	    else
             if (fifo_wren = '1') then
               -- write pointer is incremented after every write to the FIFO
               -- when FIFO write signal is enabled.
               write_pointer <= write_pointer + 1;
-              writes_done <= '0';
+              --writes_done <= '0';
             end if;
-            if ((fifo_full_flag = '1') or S_AXIS_TLAST = '1') then
+            --if ((fifo_full_flag = '1') or S_AXIS_TLAST = '1') then
               -- reads_done is asserted when NUMBER_OF_INPUT_WORDS numbers of streaming data 
               -- has been written to the FIFO which is also marked by S_AXIS_TLAST(kept for optional usage).
-              writes_done <= '1';
-            end if;
+              --writes_done <= '1';
+            --end if;
 	    end if;
 	  end if;
 	end process;

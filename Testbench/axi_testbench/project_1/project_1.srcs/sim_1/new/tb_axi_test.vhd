@@ -113,7 +113,19 @@ begin
     axi_test_v1_0_inst : entity work.axi_test_v1_0
             generic map (
             C_MAX_DATA_WIDTH => C_MAX_DATA_WIDTH,
-            C_MAX_PROG_LENGTH => C_MAX_PROG_LENGTH,
+            C_MAX_PROG_LENGTH => C_MAX_PROG_LENGTH,      
+            ---
+            C_PARAM_WIDTH => C_PARAM_WIDTH,
+            C_PARAM_ADDR_WIDTH => C_PARAM_ADDR_WIDTH,
+            ---
+            C_LENGTH_WIDTH => C_LENGTH_WIDTH,
+            C_MAX_FFT_PRIME_WIDTH => C_MAX_FFT_PRIME_WIDTH,
+            C_MAX_FFT_LENGTH => C_MAX_FFT_LENGTH,
+            C_MAX_POLY_LENGTH =>  C_MAX_POLY_LENGTH,
+            C_MAX_CRT_PRIME_WIDTH => C_MAX_CRT_PRIME_WIDTH,
+            C_MAX_FFT_PRIMES => C_MAX_FFT_PRIMES,
+            C_MAX_FFT_PRIMES_FOLDS => C_MAX_FFT_PRIMES_FOLDS,
+            ---
             
             -- Parameters of Axi Master Bus Interface M00_AXIS
             C_M00_AXIS_TDATA_WIDTH => C_M00_AXIS_TDATA_WIDTH,
@@ -294,6 +306,7 @@ begin
                 end if;
                 wait until rising_edge(clk);
                 s00_axis_tvalid <= '0';
+                s00_axis_tlast <= '0';
                 s00_axis_tstrb <= b"00000000";
             end loop;
         end procedure send_stream;
@@ -335,6 +348,7 @@ begin
         test_data(0)(C_MAX_DATA_WIDTH-1 downto C_MAX_DATA_WIDTH-C_LENGTH_WIDTH) := std_logic_vector(to_unsigned(1, C_LENGTH_WIDTH));
         test_data(0)(C_MAX_DATA_WIDTH-C_LENGTH_WIDTH-1 downto C_MAX_DATA_WIDTH-2*C_LENGTH_WIDTH) := std_logic_vector(to_unsigned(C_MAX_POLY_LENGTH, C_LENGTH_WIDTH));
         test_data(0)(C_MAX_DATA_WIDTH-2*C_LENGTH_WIDTH-1 downto C_MAX_DATA_WIDTH-3*C_LENGTH_WIDTH) := std_logic_vector(to_unsigned(C_MAX_FFT_LENGTH, C_LENGTH_WIDTH));
+        test_data(0)(C_MAX_DATA_WIDTH-3*C_LENGTH_WIDTH-1 downto C_MAX_DATA_WIDTH-4*C_LENGTH_WIDTH) := std_logic_vector(to_unsigned(FFT_TABLE_LENGTH, C_LENGTH_WIDTH));
         test_data(1) := PRIME;
         test_data(2) := PRIME_RED;
         test_data(3) := PRIME_I;
@@ -347,48 +361,44 @@ begin
         send(address, data);
         length := FFT_TABLE_LENGTH + 4;
         send_stream(test_data, length);
-                
+
+        address := b"0100";
+        data := x"00000000";
+        send(address, data);
+        wait until rising_edge(clk);
+        
         --Test Loading Program
         address := b"0000";
         data := x"00000000";
         send(address, data);
+        
+        test_data(0) := x"0000000600000000"; -- OP_FFT 
+        test_data(1) := x"0000000000000000";
+        test_data(2) := x"0000000000000000";
+
         address := b"0100";
         data := x"00000001";
         send(address, data);
-        
-        test_data(0) := x"0000000006000000";
-        test_data(1) := x"0000000000000000";
-        test_data(2) := x"0000000000000000";
         length := C_MAX_PROG_LENGTH;
         send_stream(test_data, length);
 
-        address := b"0000";
-        data := x"00000001";
-        send(address, data);
         address := b"0100";
         data := x"00000000";
         send(address, data);
         wait until rising_edge(clk);
-        address := b"0100";
+        
+        --Test Loading data
+        address := b"0000";
         data := x"00000001";
         send(address, data);
         
-        wait until rising_edge(clk);
-        test_data(0) := x"0000000000000001";
-        test_data(1) := x"0000000000000002";
-        test_data(2) := x"0000000000000003";
-        test_rdata(0) := x"0000000000000000";
-        test_rdata(1) := x"0000000000000000";
-        test_rdata(2) := x"0000000000000000";
-        read_stream;
-        length := 3;
-        send_stream(test_data, length);
-        --stop <= '1';
-        
         for i in 0 to C_MAX_FFT_LENGTH - 1 loop
-            assert test_data(i) = INPUT(i);
+            test_data(i) := INPUT(i);
         end loop;
-        
+
+        address := b"0100";
+        data := x"00000001";
+        send(address, data);
         length := C_MAX_FFT_LENGTH;
         send_stream(test_data, length);
         

@@ -91,13 +91,13 @@ architecture Behavioral of he_processor is
     constant MODE_TERM        : CONTROL_TYPE := x"00000002";
     constant MODE_LOAD_PARAMS : CONTROL_TYPE := x"00000003";
     
-    constant OP_SUB   : OPCODE_TYPE := "0000";
+    constant OP_SUB   : OPCODE_TYPE := "0000"; 
     constant OP_ADD   : OPCODE_TYPE := "0001";
     constant OP_MUL   : OPCODE_TYPE := "0010";
     constant OP_B     : OPCODE_TYPE := "0011";
     constant OP_CRT   : OPCODE_TYPE := "0100";
     constant OP_ICRT  : OPCODE_TYPE := "0101";
-    constant OP_FFT   : OPCODE_TYPE := "0110";
+    constant OP_FFT   : OPCODE_TYPE := "0110"; 
     constant OP_IFFT  : OPCODE_TYPE := "0111";
     constant OP_LOAD  : OPCODE_TYPE := "1000";
     constant OP_STORE : OPCODE_TYPE := "1001";
@@ -127,12 +127,13 @@ architecture Behavioral of he_processor is
     signal mux_out   : DATA_TYPE(NUM_MUX downto 0) := (others => (others => '0'));
     signal mux_valid : VALID_TYPE(NUM_MUX downto 0) := (others => '0');   
     
-    shared variable program : RAM_TYPE;
+    signal program : RAM_TYPE;
     
     -- FFT       
-    signal num_primes  : unsigned(C_LENGTH_WIDTH-1 downto 0)   := (others => '0');
-    signal poly_length : unsigned(C_LENGTH_WIDTH-1 downto 0)   := (others => '0');
-    signal fft_length  : unsigned(C_LENGTH_WIDTH-1 downto 0)   := (others => '0');
+    signal num_primes       : unsigned(C_LENGTH_WIDTH-1 downto 0)   := (others => '0');
+    signal poly_length      : unsigned(C_LENGTH_WIDTH-1 downto 0)   := (others => '0');
+    signal fft_length       : unsigned(C_LENGTH_WIDTH-1 downto 0)   := (others => '0');
+    signal fft_table_length : unsigned(C_LENGTH_WIDTH-1 downto 0)   := (others => '0');
 
     signal primes      : FFT_DATA_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
     signal primes_r    : FFT_DATA_TYPE(0 to C_MAX_FFT_PRIMES-1)  := (others => (others => '0'));
@@ -218,6 +219,7 @@ begin
         if rising_edge(clk) then
             case state is
                 when IDLE =>
+                    fft_param_valid <= '0';
                     if (start = '1') then
                         case mode is
                             when MODE_LOAD_CODE =>
@@ -242,7 +244,7 @@ begin
                    
                 when LOAD_CODE =>
                     if (a_valid = '1') then
-                        program(program_length) := a_data(C_MAX_DATA_WIDTH-1 downto C_MAX_DATA_WIDTH-C_REGISTER_WIDTH);
+                        program(program_length) <= a_data(C_MAX_DATA_WIDTH-1 downto C_MAX_DATA_WIDTH-C_REGISTER_WIDTH);
                         if (program_length = C_MAX_PROG_LENGTH - 1) then
                             state <= IDLE;
                             a_ready <= '0';
@@ -252,10 +254,10 @@ begin
                                             
                 when LOAD_INFO =>
                     if (a_valid = '1') then
-                        -- TODO split here will not work if C_MAX_DATA_WIDTH < 3 * C_LENGTH_WIDTH
                         num_primes <= unsigned(a_data(C_MAX_DATA_WIDTH-1 downto C_MAX_DATA_WIDTH-C_LENGTH_WIDTH));
                         poly_length <= unsigned(a_data(C_MAX_DATA_WIDTH-C_LENGTH_WIDTH-1 downto C_MAX_DATA_WIDTH-2*C_LENGTH_WIDTH));
                         fft_length <= unsigned(a_data(C_MAX_DATA_WIDTH-2*C_LENGTH_WIDTH-1 downto C_MAX_DATA_WIDTH-3*C_LENGTH_WIDTH));
+                        fft_table_length <= unsigned(a_data(C_MAX_DATA_WIDTH-3*C_LENGTH_WIDTH-1 downto C_MAX_DATA_WIDTH-4*C_LENGTH_WIDTH));
                         state <= LOAD_PRIMES_1;
                     end if;
                     
@@ -265,21 +267,19 @@ begin
                         prime_idx <= prime_idx + 1;
                         if (prime_idx = num_primes - 1) then
                             state <= LOAD_PRIMES_2;
-                            a_ready <= '0';
                             prime_idx <= 0;
                         end if;
                     end if;
                     
                 when LOAD_PRIMES_2 =>
-                        if (a_valid = '1') then
-                            primes_r(prime_idx) <= a_data(C_MAX_DATA_WIDTH-1 downto C_MAX_DATA_WIDTH-C_MAX_FFT_PRIME_WIDTH);
-                            prime_idx <= prime_idx + 1;
-                            if (prime_idx = num_primes - 1) then
-                                state <= LOAD_PRIMES_3;
-                                a_ready <= '0';
-                                prime_idx <= 0;
-                            end if;
+                    if (a_valid = '1') then
+                        primes_r(prime_idx) <= a_data(C_MAX_DATA_WIDTH-1 downto C_MAX_DATA_WIDTH-C_MAX_FFT_PRIME_WIDTH);
+                        prime_idx <= prime_idx + 1;
+                        if (prime_idx = num_primes - 1) then
+                            state <= LOAD_PRIMES_3;
+                            prime_idx <= 0;
                         end if;
+                    end if;
                     
                 when LOAD_PRIMES_3 =>
                     if (a_valid = '1') then
@@ -287,7 +287,6 @@ begin
                         prime_idx <= prime_idx + 1;
                         if (prime_idx = num_primes - 1) then
                             state <= LOAD_FFT_TABLE;
-                            a_ready <= '0';
                             prime_idx <= 0;
                         end if;
                     end if;
@@ -296,8 +295,9 @@ begin
                     if (a_valid = '1') then
                         fft_param <= a_data(C_MAX_DATA_WIDTH-1 downto C_MAX_DATA_WIDTH-C_PARAM_WIDTH);
                         fft_param_addr <= std_logic_vector(to_unsigned(fft_table_idx, C_PARAM_ADDR_WIDTH));
+                        fft_param_valid <= '1';
                         fft_table_idx <= fft_table_idx + 1;
-                        if (fft_table_idx = fft_length - 1) then
+                        if (fft_table_idx = fft_table_length - 1) then
                             state <= IDLE;
                             a_ready <= '0';
                             fft_table_idx <= 0;
@@ -309,7 +309,7 @@ begin
                         state <= IDLE;
                     end if;
                     program_counter <= program_counter + 1;
-                    instruction <= program(program_counter + 1);
+                    instruction <= program(program_counter);
                     state <= EXEC;
                     case opcode is
                         when OP_SUB =>
@@ -322,6 +322,7 @@ begin
                             mux_mode <= MUX_TO_SIMD;
                             simd_mode <= simd_mul_enabled;
                         when OP_B =>
+                        when OP_BNE => 
                         when OP_CRT =>
                             mux_mode <= MUX_TO_CRT;
                         when OP_ICRT =>
@@ -330,7 +331,7 @@ begin
                             mux_mode <= MUX_TO_FFT;
                         when OP_IFFT =>
                             mux_mode <= MUX_TO_FFT;
-                        when OP_LOAD => -- Load "regiser"
+                        when OP_LOAD => -- Load "register"
                             --case reg is
                             --    when REG_A =>
                             --    when REG_B =>
