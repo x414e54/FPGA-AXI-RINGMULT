@@ -77,7 +77,7 @@ architecture Behavioral of he_processor is
     subtype INSTRUCTION_TYPE is std_logic_vector(C_REGISTER_WIDTH-1 downto 0);
     type RAM_TYPE is array(C_MAX_PROG_LENGTH-1 downto 0) of INSTRUCTION_TYPE;
     
-    type STATE_TYPE is (IDLE, LOAD_CODE, LOAD_INFO, LOAD_PRIMES_1, LOAD_PRIMES_2, LOAD_PRIMES_3, LOAD_FFT_TABLE, RUN, EXEC);
+    type STATE_TYPE is (IDLE, LOAD_CODE, LOAD_INFO, LOAD_PRIMES_1, LOAD_PRIMES_2, LOAD_PRIMES_3, LOAD_FFT_TABLE, RUN, EXEC_FFT, EXEC_SIMD, EXEC_CRT);
 
     -- Program integer registers (not for HE)
     constant REG_0              : REGISTER_INDEX_TYPE := b"0000";
@@ -310,7 +310,6 @@ begin
                     end if;
                     program_counter <= program_counter + 1;
                     instruction <= program(program_counter);
-                    state <= EXEC;
                     case opcode is
                         when OP_SUB =>
                             mux_mode <= MUX_TO_SIMD;
@@ -318,7 +317,7 @@ begin
                         when OP_ADD =>
                             mux_mode <= MUX_TO_SIMD;
                             simd_mode <= simd_add_enabled;
-                        when OP_MUL => -- For now always relin
+                        when OP_MUL => 
                             mux_mode <= MUX_TO_SIMD;
                             simd_mode <= simd_mul_enabled;
                         when OP_B =>
@@ -329,8 +328,11 @@ begin
                             mux_mode <= MUX_TO_ICRT;
                         when OP_FFT =>
                             mux_mode <= MUX_TO_FFT;
+                            state <= EXEC_FFT;
+                            a_ready <= '1';
                         when OP_IFFT =>
                             mux_mode <= MUX_TO_FFT;
+                            state <= EXEC_FFT;
                         when OP_LOAD => -- Load "register"
                             --case reg is
                             --    when REG_A =>
@@ -339,18 +341,22 @@ begin
                             --    state <= IDLE;
                             --end case;
                         when others =>
+                            state <= IDLE;
                             --- Set error register
                     end case;
                 
-                when EXEC => --- Execute current instruction
-                    a_ready <= '1';
-                    b_ready <= '1';
-                    if (a_valid = '1') then
+                when EXEC_FFT => --- Execute current instruction
+                    if (mux_valid(MUX_TO_FFT) = '1') then
                         a_ready <= '0';
-                    end if;                    
-                    if (b_valid = '1') then
+                        state <= RUN;
                     end if;
+                    
+                when EXEC_SIMD => --- Execute current instruction
                     state <= RUN;
+                    
+                when EXEC_CRT => --- Execute current instruction
+                    state <= RUN;
+                    
             end case;
         end if;
     end process state_proc;
